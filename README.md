@@ -74,7 +74,7 @@ app/src/main/java/pt/isec/amov/cityfix/
 ### Configuração
 1. Clonar o repositório:
    ```bash
-   git clone https://github.com/<utilizador>/<repositorio>.git
+   git clone https://github.com/leonardoferreira20/amov-cityFix
    ```
 2. Criar um projeto na [Consola do Firebase](https://console.firebase.google.com/) e registar a app Android com o package `pt.isec.amov.cityfix`.
 3. Descarregar o ficheiro `google-services.json` e colocá-lo em `app/`.
@@ -105,8 +105,8 @@ git archive --format=zip -o AMOV2627.<nr_aluno1>.<nr_aluno2>.zip HEAD
 
 | Nome | Nº de aluno |
 |---|---|
-| Leonardo Ferreira | _a preencher_ |
-| _a preencher_ | _a preencher_ |
+| João Carvalho | 2024126292 |
+| Leonardo Ferreira | 2024113113 |
 
 ---
 
