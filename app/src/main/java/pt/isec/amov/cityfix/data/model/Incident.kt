@@ -8,18 +8,19 @@ data class Incident (
     val categoryId : String,
     val categoryName : String,
     val situation : Situation,
-    var description: String,
-    var justification: String,
+    val description: String,
+    val justification: String,
     val visibility : Visibility,
-    val location : String,
+    val location : GeoPoint,
     val status: IncidentStatus,
-    val previousStatus: IncidentStatus,
+    val previousStatus: IncidentStatus? = null,
     val media: List<String>, //VER NA AULA DE MEDIA
-    val primaryOccurrenceId : String,
-    val createdAt : String,
-    val workStartedAt: String,
-    val closedAt : String,
-    val resolvedAt : String,
-    val reopen : Boolean
+    val primaryOccurrenceId : String? = null,
+    val createdAt : Long,
+    val workStartedAt: Long? = null,
+    val resolvedAt : Long? = null,
+    val reopen : Boolean,
+    val closedAt : Long? = null
     ) {
+
 }

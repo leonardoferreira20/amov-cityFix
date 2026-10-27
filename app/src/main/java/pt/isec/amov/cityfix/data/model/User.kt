@@ -10,8 +10,8 @@ data class User (
     val email : String,
     val phone : String,
     val nif : String,
-    val role : String,
-    val createdAt : String,
+    val role : UserRole,
+    val createdAt : Long,
     var status : AccountStatus,
     var picturePath : String? = null,
     val location: String, //Georreferenciaçao???

@@ -4,5 +4,5 @@ enum class Situation {
     DAMAGE,
     MALFUNCTION,
     DESTRUCTION,
-    THEFT
+    THEFT,
 }
