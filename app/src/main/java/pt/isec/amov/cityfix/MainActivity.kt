@@ -69,6 +69,36 @@ fun PreviewMainScreen() {
                     media = emptyList(),
                     createdAt = System.currentTimeMillis(),
                     reopen = false
+                ),
+                Incident(
+                    id = "3",
+                    authorId = "user002",
+                    categoryId = "cat002",
+                    categoryName = "Caralho em pe",
+                    situation = Situation.DESTRUCTION,
+                    description = "Fude-se o poste. Nao tive culpa sr guarda",
+                    justification = "",
+                    visibility = Visibility.PUBLIC,
+                    location = GeoPoint(40.22, -8.44),
+                    status = IncidentStatus.OPEN,
+                    media = emptyList(),
+                    createdAt = System.currentTimeMillis(),
+                    reopen = false
+                ),
+                Incident(
+                    id = "4",
+                    authorId = "user002",
+                    categoryId = "cat002",
+                    categoryName = "Conas",
+                    situation = Situation.DESTRUCTION,
+                    description = "Fude-se o poste. Nao tive culpa sr guarda",
+                    justification = "",
+                    visibility = Visibility.PUBLIC,
+                    location = GeoPoint(40.22, -8.44),
+                    status = IncidentStatus.OPEN,
+                    media = emptyList(),
+                    createdAt = System.currentTimeMillis(),
+                    reopen = false
                 )
             ),
             isExpanded = false,
