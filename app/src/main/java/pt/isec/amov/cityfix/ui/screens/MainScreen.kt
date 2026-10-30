@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.ui.components.Dashboard
 import pt.isec.amov.cityfix.ui.components.IncidentList
@@ -38,16 +39,21 @@ fun MainScreenContent(
             isExpanded = isExpanded,
             onIncidentClick = onIncidentClick,
             modifier = Modifier.weight(1f)
+                .background(Color.Blue)
         )
         Box(
             modifier = Modifier.weight(.5f)
+                .background(Color.Red)
+                .fillMaxSize()
         ){
-
+            Text("Igual ao que está em baixo")
         }
         Box(
             modifier = Modifier.weight(1f)
+                .background(Color.Green)
+                .fillMaxSize()
         ){
-
+            Text("Qualquer merda")
         }
     }
 }

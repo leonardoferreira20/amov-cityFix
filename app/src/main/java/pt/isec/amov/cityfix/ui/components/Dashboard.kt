@@ -63,6 +63,7 @@ fun Dashboard(
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillParentMaxWidth(1f)
+                    .background(Color.Yellow)
             ) {
                 Box(
                     modifier = Modifier
