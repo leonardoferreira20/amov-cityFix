@@ -10,6 +10,11 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O centro do raio de 10 km é a Praça da República, em Coimbra. As coordenadas definem-se mais tarde (3).
 - Nomes de classes e campos em inglês (4).
 
+### Arquitetura e organização
+- Seguir os padrões dados nas aulas (ContactApp, ficha AMov.P07): MVVM com `StateFlow`, navegação type-safe, `UiState` com validações, repositório em `data/` com dados de exemplo.
+- Os três perfis partilham os ecrãs sempre que possível. As regras do que cada perfil vê e faz ficam num único ficheiro, `AccessRules.kt`.
+- O trabalho divide-se por ecrã, e cada ecrã tem um dono. A divisão está em `CityFix_Plano.md`.
+
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
 - Munícipe pendente: não inicia sessão. Aparece um alerta a avisar que não é possível iniciar sessão (6).
