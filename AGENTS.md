@@ -22,6 +22,7 @@ Instruções para qualquer assistente de IA que trabalhe neste projeto (Claude, 
 - `docs/CityFix_Plano.md`: plano de trabalho, ecrãs, divisão entre os dois e calendário.
 - `docs/Tarefas_Joao.md` e `docs/Tarefas_Leonardo.md`: tarefas de cada aluno.
 - `docs/Padroes_Aulas.md` e `docs/AMov.P07.pdf`: padrões e código dados nas aulas.
+- `docs/CityFix_Estado.md`: ponto de situação, com o que já está implementado e o que falta.
 - Não inventar requisitos. Se algo estiver na secção "Por confirmar" ou não estiver no enunciado nem nas decisões, perguntar antes de implementar.
 - Quando uma decisão nova for tomada, atualizar `docs/CityFix_Decisoes.md`.
 
