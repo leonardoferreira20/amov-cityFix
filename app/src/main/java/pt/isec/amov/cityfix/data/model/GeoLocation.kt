@@ -1,8 +1,9 @@
 package pt.isec.amov.cityfix.data.model
 
-data class GeoPoint (
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class GeoLocation(
     val latitude: Double,
     val longitude: Double
-){
-
-}
+)

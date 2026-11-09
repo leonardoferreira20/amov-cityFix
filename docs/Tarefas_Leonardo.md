@@ -9,18 +9,20 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 ## Tarefas
 
 ### L3 — Registo (munícipe e operador)
-- [ ] Um só ecrã para os dois perfis, com `RegisterUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid`.
-- [ ] Campos comuns: nome, e-mail, telefone, NIF, perfil.
-- [ ] Validações:
+- [x] Um só ecrã para os dois perfis, com `RegisterUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid`.
+- [x] Campos comuns: nome, e-mail, telefone, NIF, perfil.
+- [x] Validações (em `utils/Validators.kt`, para a L4 as reaproveitar):
   - e-mail e telefone com expressão regular, como no ContactApp;
   - NIF com 9 dígitos e único para o mesmo perfil (verificado no repositório);
   - operador: e-mail do domínio `@aac-coimbra.pt` (decisão 9).
-- [ ] Munícipe: opção "Deteção de Impactos"; conta fica `PENDING`.
-- [ ] Operador: conta fica `ACTIVE`.
-- [ ] Gravar o utilizador através do repositório.
+- [x] Munícipe: opção "Deteção de Impactos"; conta fica `PENDING`.
+- [x] Operador: conta fica `ACTIVE`.
+- [x] Gravar o utilizador através do repositório.
 - **Feito quando:** os dois perfis registam-se com dados válidos e os erros aparecem campo a campo.
 - 📝 **Anotado (🔒 Firebase):** criação da conta no Firebase Authentication.
 - 📝 **Anotado (#4):** georreferenciação do munícipe (ponto 8 por confirmar).
+- 📝 **Anotado (L8):** foto opcional no registo, pedida pelo enunciado.
+- 📝 **Anotado (🔒 Firebase):** password, que entra com a criação da conta (L1).
 
 ### L4 — Perfil
 - [ ] Ecrã de edição no estilo do `EditScreen`, reaproveitando as validações do L3.
@@ -30,16 +32,17 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - 📝 **Anotado (#3):** foto de perfil.
 
 ### L5 — Validação de munícipes
-- [ ] Ecrã só para o operador (regra em `AccessRules.kt`).
-- [ ] Lista dos munícipes `PENDING` com nome, georreferenciação e NIF.
-- [ ] Botão para ativar: passa a `ACTIVE`.
+- [ ] Ecrã só para o operador (regra em `AccessRules.kt`): depende das tarefas 0.3 e 0.4.
+- [x] Lista dos munícipes `PENDING` com nome, georreferenciação e NIF.
+- [x] Botão para ativar: passa a `ACTIVE`.
 - **Feito quando:** um munícipe ativado sai da lista de pendentes.
 
 ### L6 — Categorias
-- [ ] Lista de categorias, só para o operador.
-- [ ] Um só ecrã para criar e editar, com `EditCategoryRoute(categoryId: String? = null)`, como o `EditContactRoute`.
-- [ ] Ativar e desativar.
-- [ ] Só as categorias ativas aparecem na criação de ocorrências (tarefa J5 do João).
+- [x] Lista de categorias.
+- [ ] Só para o operador (regra em `AccessRules.kt`): depende das tarefas 0.3 e 0.4.
+- [x] Um só ecrã para criar e editar, com `EditCategoryRoute(categoryId: String? = null)`, como o `EditContactRoute`.
+- [x] Ativar e desativar.
+- [ ] Só as categorias ativas aparecem na criação de ocorrências (tarefa J5 do João): `CategoriesList.getActiveSorted()` já existe, falta a J5 usá-la.
 - **Feito quando:** uma categoria desativada deixa de aparecer na criação de ocorrências.
 
 ### L7 — `LifecycleActions`

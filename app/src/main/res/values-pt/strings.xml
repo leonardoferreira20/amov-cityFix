@@ -1,0 +1,44 @@
+<resources>
+    <string name="field_name">Nome</string>
+    <string name="field_email">E-mail</string>
+    <string name="field_phone">Telefone</string>
+    <string name="field_nif">NIF</string>
+
+    <string name="error_name_required">O nome é obrigatório.</string>
+    <string name="error_email_invalid">Indique um e-mail válido.</string>
+    <string name="error_email_operator_domain">Os operadores têm de usar um e-mail @aac-coimbra.pt.</string>
+    <string name="error_phone_invalid">Indique um número de telefone válido, com 9 dígitos.</string>
+    <string name="error_nif_invalid">O NIF tem de ter 9 dígitos.</string>
+    <string name="error_nif_taken">Este NIF já está registado para este perfil.</string>
+
+    <string name="role_citizen">Munícipe</string>
+    <string name="role_operator">Operador</string>
+
+    <string name="categories_title">Categorias</string>
+    <string name="category_list_empty">Não há categorias registadas.</string>
+    <string name="category_add">Adicionar categoria</string>
+    <string name="category_edit">Editar categoria</string>
+    <string name="category_active">Ativa</string>
+    <string name="category_inactive">Inativa</string>
+    <string name="category_active_toggle">%1$s ativa</string>
+    <string name="category_save">Guardar categoria</string>
+
+    <string name="register_title">Registo</string>
+    <string name="register_profile_label">Perfil</string>
+    <string name="register_operator_email_hint">Use o e-mail da autarquia (@aac-coimbra.pt).</string>
+    <string name="register_impact_detection">Deteção de impactos</string>
+    <string name="register_impact_detection_hint">Sugere abrir uma ocorrência quando é detetado um impacto brusco durante uma deslocação.</string>
+    <string name="register_submit">Registar</string>
+    <string name="register_done_pending_title">Registo enviado</string>
+    <string name="register_done_pending_text">A conta fica ativa depois de os serviços camarários validarem o NIF.</string>
+    <string name="register_done_active_title">Conta criada</string>
+    <string name="register_done_active_text">A conta de operador já está ativa.</string>
+
+    <string name="validation_title">Validação de munícipes</string>
+    <string name="validation_empty">Não há registos pendentes.</string>
+    <string name="validation_nif">NIF: %1$s</string>
+    <string name="validation_location">Georreferenciação: %1$s</string>
+    <string name="validation_location_unknown">Georreferenciação: não definida</string>
+    <string name="validation_activate">Ativar</string>
+    <string name="validation_activate_description">Ativar a conta de %1$s</string>
+</resources>

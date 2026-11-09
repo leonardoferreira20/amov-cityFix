@@ -1,7 +1,7 @@
 # Padrões dados nas aulas
 
 Resumo do que foi ensinado nas aulas práticas, para o CityFix seguir os mesmos padrões.
-Fonte principal: o projeto ContactApp e a ficha [AMov.P07.pdf](AMov.P07.pdf). O código das aulas não está neste repositório.
+Fonte principal: o projeto ContactsApp (versão de 6/11) e a ficha [AMov.P07.pdf](AMov.P07.pdf). Também o PaintPrototype e a ficha AMov.P01 (introdução ao Kotlin). O código das aulas não está neste repositório.
 
 Se uma solução precisar de algo que não está aqui, avisar antes de o propor.
 
@@ -11,7 +11,7 @@ Se uma solução precisar de algo que não está aqui, avisar antes de o propor.
 |---|---|---|
 | #1 | Modelo de domínio, MVVM com `StateFlow`, navegação type-safe | Dada |
 | #2 | Formulários com `UiState` e validação, `DatePicker`, repositório com JSON | Dada |
-| #3 | Multimédia: Photo Picker, câmara com `FileProvider` e `TakePicture`, imagens com Coil 3 | Próxima |
+| #3 | Multimédia: Photo Picker, câmara com `FileProvider` e `TakePicture`, imagens com Coil 3 | Dada |
 | #4 | GPS com `FusedLocationProvider`, permissões em runtime, Maps Compose e OSM, layouts adaptativos | Por dar |
 | — | Firebase, WorkManager, sensores, geofencing | Ainda sem data |
 
@@ -33,7 +33,7 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 ## Modelo
 
 - `data class` com `@Serializable`, `id` com `UUID.randomUUID().toString()` por omissão e campos opcionais com `= null`.
-- A coleção é uma classe própria (como `ContactsList`), com `findById`, `add`, `upsert`, `rawList` e ordenação com `java.text.Collator` para os acentos.
+- A coleção é uma classe própria (como `ContactsList`), com `findById`, `upsert`, `rawList` e ordenação com `java.text.Collator` para os acentos.
 
 ## ViewModel
 
@@ -41,11 +41,12 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - Alterações com `_state.update { it.copy(...) }`.
 - Trabalho assíncrono com `viewModelScope.launch`.
 - Um método por evento do ecrã, por exemplo `onNameChanged(newName: String)`.
+- Variante do PaintPrototype: a classe de modelo tem o seu próprio `StateFlow`, e o ViewModel recolhe-o em `viewModelScope` e converte-o num tipo próprio da UI. Esse ViewModel não recebe dependências, por isso é criado com `viewModel()`, sem Factory.
 
 ## UiState para formulários
 
 - `data class` com os valores dos campos, um erro por campo (`nameError: String?`), `isSaving` e uma propriedade calculada `isValid`.
-- A validação é feita no ViewModel a cada alteração, com expressões regulares para o e-mail e o telefone.
+- A validação é feita no ViewModel a cada alteração. O e-mail é validado com uma expressão regular. O telefone só é validado pelo comprimento (pelo menos 9 caracteres).
 - Um único ecrã serve para criar e editar: a rota recebe `id: String? = null`, que é `null` na criação.
 
 ## Repositório
@@ -53,6 +54,7 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - Classe concreta em `data/`, sem interface.
 - Recebe `Context`, tem dados de exemplo e grava em JSON no armazenamento interno (`context.filesDir`) com `kotlinx.serialization.json`.
 - As operações de ficheiro correm em `withContext(Dispatchers.IO)`.
+- Guarda a lista em cache depois da primeira leitura. `getXById` lê dessa cache.
 - É criado uma vez numa classe `Application` (`val repository by lazy { ... }`) e passado aos ViewModels através de uma `ViewModelProvider.Factory`.
 - Na `MainActivity`: `viewModel(factory = XViewModelFactory(app.repository))`. Para um ViewModel que só vive num ecrã: `viewModel(viewModelStoreOwner = backStack, factory = ...)`.
 
@@ -84,6 +86,28 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - `Card` com `.fillMaxWidth().clickable(onClick = onClick)` e elevação de 2 dp.
 - Cartão expansível com `AnimatedVisibility(visible = isExpanded)`. O `isExpanded` fica na `MainActivity` com `rememberSaveable` e muda com um botão na barra de topo.
 
+## Multimédia
+
+- Galeria: `rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia())`, lançado com `PickVisualMediaRequest(PickVisualMedia.ImageOnly)`. O `Uri` devolvido é copiado para `filesDir/images/` e guarda-se o caminho absoluto.
+- Câmara: `ActivityResultContracts.TakePicture()`. Cria-se primeiro um ficheiro temporário em `filesDir/images/` e passa-se o seu `Uri` do `FileProvider`. O caminho só é guardado se `success` for verdadeiro.
+- `FileProvider` declarado no manifesto com `authorities="${applicationId}.fileprovider"`, `exported="false"` e `grantUriPermissions="true"`, e `res/xml/file_paths.xml` com `<files-path path="images/" />`.
+- `utils/FileUtils` (um `object`) com `copyUriToInternalStorage`, `createTempImageFile` e `deleteFileFromPath`.
+- Ao gravar, se a imagem mudou, o ViewModel apaga o ficheiro antigo.
+- Os launchers ficam no composable do ecrã, que obtém o `Context` com `LocalContext.current`. O ViewModel só recebe o caminho, através de um callback (`onPictureChange(String?)`).
+- Imagens mostradas com `AsyncImage` do Coil 3 (`coil-compose` e `coil-network-okhttp`). Sem imagem, mostra as iniciais num círculo (`ContactAvatar`).
+
+## Ecrãs com FAB e diálogos
+
+- O ecrã de edição e o de detalhe têm o seu próprio `Scaffold` com `FloatingActionButton`: ✓ para gravar e ✏️ para editar.
+- O formulário é uma `Column` com `verticalScroll` e `imePadding()`.
+- Datas com `DatePickerDialog` e `rememberDatePickerState`. A visibilidade do diálogo fica num `remember { mutableStateOf(false) }` local.
+
+## Dependências usadas nas aulas
+
+- `kotlinx-serialization-json` 1.11.0 (repositório em JSON).
+- `coil-compose` e `coil-network-okhttp` 3.0.4 (imagens).
+- `navigation-compose` 2.8.5 e `material-icons-extended`.
+
 ## Previews
 
 - `@Preview(showBackground = true)` numa função `private`, com o tema da app e dados de exemplo.
@@ -91,3 +115,5 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 ## Diferença em relação às aulas
 
 - Nas aulas há textos fixos no código, como `"No contacts registered."`. No CityFix os textos vão sempre para `strings.xml`, porque o enunciado exige inglês e português.
+- Por isso, os erros de validação no `UiState` guardam o id da string (`@StringRes val nameError: Int?`) em vez do texto. O ViewModel não tem `Context` para ler a string; é o ecrã que a converte com `stringResource`.
+- O ViewModel de edição carrega o registo com `loadX()` em vez de ler só a cache do repositório (`getXById`). Assim funciona mesmo que o ecrã de edição seja o primeiro a abrir, por exemplo depois de o Android terminar a app em segundo plano.

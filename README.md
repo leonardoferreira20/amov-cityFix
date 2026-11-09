@@ -52,7 +52,7 @@ Aberto ──► Pedido de Informações ◄──► Em Resolução ──► R
 ```
 app/src/main/java/pt/isec/amov/cityfix/
 ├── data/
-│   ├── model/          # Entidades (Occurrence, User, Category, Message, ...)
+│   ├── model/          # Entidades (Incident, User, Category, Message, ...)
 │   └── repository/     # Acesso ao Firebase e lógica de dados
 ├── ui/
 │   ├── screens/        # Ecrãs: Screen (stateful) + Content (stateless)

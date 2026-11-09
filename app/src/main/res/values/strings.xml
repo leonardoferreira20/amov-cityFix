@@ -1,3 +1,46 @@
 <resources>
     <string name="app_name">CityFix</string>
+
+    <string name="field_name">Name</string>
+    <string name="field_email">E-mail</string>
+    <string name="field_phone">Phone</string>
+    <string name="field_nif">Tax number (NIF)</string>
+
+    <string name="error_name_required">The name is required.</string>
+    <string name="error_email_invalid">Enter a valid e-mail.</string>
+    <string name="error_email_operator_domain">Operators must use an @aac-coimbra.pt e-mail.</string>
+    <string name="error_phone_invalid">Enter a valid 9-digit phone number.</string>
+    <string name="error_nif_invalid">The NIF must have 9 digits.</string>
+    <string name="error_nif_taken">This NIF is already registered for this profile.</string>
+
+    <string name="role_citizen">Citizen</string>
+    <string name="role_operator">Operator</string>
+
+    <string name="categories_title">Categories</string>
+    <string name="category_list_empty">No categories registered.</string>
+    <string name="category_add">Add category</string>
+    <string name="category_edit">Edit category</string>
+    <string name="category_active">Active</string>
+    <string name="category_inactive">Inactive</string>
+    <string name="category_active_toggle">%1$s active</string>
+    <string name="category_save">Save category</string>
+
+    <string name="register_title">Registration</string>
+    <string name="register_profile_label">Profile</string>
+    <string name="register_operator_email_hint">Use your municipal e-mail (@aac-coimbra.pt).</string>
+    <string name="register_impact_detection">Impact detection</string>
+    <string name="register_impact_detection_hint">Suggests reporting a road problem when a sudden jolt is detected while you travel.</string>
+    <string name="register_submit">Register</string>
+    <string name="register_done_pending_title">Registration submitted</string>
+    <string name="register_done_pending_text">Your account will be activated after the municipal services validate your NIF.</string>
+    <string name="register_done_active_title">Account created</string>
+    <string name="register_done_active_text">Your operator account is already active.</string>
+
+    <string name="validation_title">Citizen validation</string>
+    <string name="validation_empty">No pending registrations.</string>
+    <string name="validation_nif">NIF: %1$s</string>
+    <string name="validation_location">Location: %1$s</string>
+    <string name="validation_location_unknown">Location: not set</string>
+    <string name="validation_activate">Activate</string>
+    <string name="validation_activate_description">Activate %1$s\'s account</string>
 </resources>

@@ -1,13 +1,14 @@
 package pt.isec.amov.cityfix.data.model
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
-data class Category (
-    val id : String = UUID.randomUUID().toString(),
+@Serializable
+data class Category(
+    val id: String = UUID.randomUUID().toString(),
     val name: String,
-    var active: Boolean,
-    val createdByName: String? = null,
-    val createdAt: Long
-    ) {
-
-}
+    val active: Boolean = true,
+    val createdBy: String,
+    val createdAt: Long,
+    val updatedAt: Long? = null
+)

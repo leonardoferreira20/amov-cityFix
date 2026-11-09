@@ -14,11 +14,18 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Seguir os padrões dados nas aulas (ContactApp, ficha AMov.P07): MVVM com `StateFlow`, navegação type-safe, `UiState` com validações, repositório em `data/` com dados de exemplo.
 - Os três perfis partilham os ecrãs sempre que possível. As regras do que cada perfil vê e faz ficam num único ficheiro, `AccessRules.kt`.
 - O trabalho divide-se por ecrã, e cada ecrã tem um dono. A divisão está em `CityFix_Plano.md`.
+- Nomes do modelo: mantêm-se os que já estão no código (`Incident`, `IncidentStatus`, ...). A exceção é `GeoPoint`, que passa a `GeoLocation` para não chocar com `com.google.firebase.firestore.GeoPoint` quando o Firestore entrar.
+- Um repositório por entidade (`IncidentRepository`, `UserRepository`, `CategoryRepository`), cada um como o `ContactsRepository` das aulas, com o seu ficheiro JSON e dados de exemplo. São todos criados na `Application`. Um ViewModel que precise de várias entidades recebe vários repositórios na Factory.
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
 - Munícipe pendente: não inicia sessão. Aparece um alerta a avisar que não é possível iniciar sessão (6).
 - Domínio de e-mail dos operadores: `@aac-coimbra.pt` (9).
+- Validações do registo:
+  - e-mail com a expressão regular das aulas; o operador tem de usar `@aac-coimbra.pt`;
+  - telefone com 9 dígitos, a começar por 2 ou 9 (formato português);
+  - NIF com 9 dígitos, sem verificar o dígito de controlo; único por perfil, como diz o enunciado (o mesmo NIF pode existir num munícipe e num operador);
+  - o e-mail não é verificado como único; o Firebase Authentication fá-lo quando entrar (ponto 7).
 - Campos editáveis no perfil: foto, morada, nome, telefone (11). Há um conflito com o enunciado, ver secção 2.
 
 ### Ocorrências
@@ -70,14 +77,16 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - **D.** As respostas a pedidos de informação podem ter anexos (foto ou vídeo)?
 - **E.** Um munícipe pode abrir um pedido de informação em qualquer estado, ou só em alguns?
 
-## 4. Modelo de dados (proposta atualizada)
+## 4. Modelo de dados
+
+Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializable` para o repositório em JSON.
 
 ### Enums
 - `UserRole`: CITIZEN, OPERATOR. O anónimo não é guardado; corresponde a não haver sessão.
 - `AccountStatus`: PENDING, ACTIVE.
 - `Situation`: DAMAGE, MALFUNCTION, DESTRUCTION, THEFT.
 - `Visibility`: PUBLIC, PRIVATE.
-- `TicketStatus`: OPEN, INFO_REQUESTED, IN_PROGRESS, RESOLVED, CLOSED.
+- `IncidentStatus`: OPEN, INFO_REQUESTED, IN_PROGRESS, RESOLVED, CLOSED.
 - `MediaType`: IMAGE, VIDEO.
 - `MediaPurpose`: REPORT, RESOLUTION_PROOF. Juntar INFO_REPLY se D for sim.
 - `UploadStatus`: PENDING, UPLOADING, UPLOADED, FAILED.
@@ -86,18 +95,18 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 ### `GeoLocation`
 - `latitude`
 - `longitude`
+- No ecrã, as coordenadas aparecem com 5 casas decimais e ponto decimal em qualquer língua (`Locale.ROOT`), para a vírgula decimal portuguesa não se confundir com a vírgula que separa a latitude da longitude.
 
 ### `User`
-- `id` (uid da autenticação)
+- `id`: UUID por agora; passa a ser o uid do Firebase Authentication quando este entrar.
 - `name`, `email`, `phone`, `nif`
 - `role`
-- `photoUrl` (opcional)
+- `status` (`AccountStatus`): o munícipe começa em PENDING e o operador em ACTIVE.
 - `createdAt`
-- Só para munícipes:
-  - `location` (georreferenciação do registo)
-  - `status` (`AccountStatus`)
-  - `impactDetectionEnabled`
-- `address`: só se a morada for um campo separado (secção 2).
+- `picturePath` (opcional): caminho da foto, como no ContactsApp.
+- `location` (opcional): georreferenciação do registo; só o munícipe a tem.
+- `impactDetectionEnabled` (`false` por omissão): só faz sentido no munícipe.
+- `address` (opcional, `null` por omissão): fica assim até se fechar o conflito da morada (secção 2).
 
 ### `Category`
 - `id`, `name`
@@ -105,7 +114,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - `createdBy` (id do operador)
 - `createdAt`, `updatedAt`
 
-### `Occurrence`
+### `Incident`
 - `id`, `authorId`
 - `categoryId`, `categoryName` (cópia, para manter o nome se a categoria for editada)
 - `situation`, `description`, `visibility`
@@ -113,7 +122,8 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - `status`
 - `previousStatus` (estado para onde volta depois de um pedido de informação do operador)
 - `media` (lista de `MediaAttachment`)
-- `primaryOccurrenceId` (vazio se for a principal ou se não pertencer a um grupo)
+- `history` (lista de `StatusChange`): o histórico fica dentro da própria ocorrência.
+- `primaryIncidentId` (vazio se for a principal ou se não pertencer a um grupo)
 - `createdAt`, `workStartedAt` (entrada em Em Resolução), `resolvedAt`, `closedAt`
 - `reopenCount`
 
@@ -128,10 +138,10 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - `fromStatus`, `toStatus`
 - `timestamp`
 - `changedBy`
-- `note` (por exemplo, a justificação da reabertura)
+- `note` (por exemplo, a justificação da reabertura; por isso a ocorrência não tem um campo `justification`)
 
 ### `InfoRequest`
-- `id`, `occurrenceId`
+- `id`, `incidentId`
 - `requestedBy`, `requesterRole`
 - `text`
 - `status` (`InfoRequestStatus`)
@@ -145,12 +155,20 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - `timestamp`
 
 ### `DashboardStats` (calculado, não guardado)
-- `averageRepairTime`: média de `closedAt` − `createdAt`.
-- `totalOccurrences`: inclui as privadas.
+- `averageRepairTimeMillis`: média de `closedAt` − `createdAt`; `null` se ainda não houver ocorrências encerradas.
+- `totalIncidents`: inclui as privadas.
 - `activePercentage`: ocorrências com estado diferente de CLOSED.
 
+### Coleções e repositórios
+- `IncidentsList`: coleção de ocorrências, como o `ContactsList` (`findById`, `upsert`, `rawList`, `getAllSorted` da mais recente para a mais antiga).
+- `IncidentRepository`: grava em `incidents_database.json` e tem dados de exemplo. É criado na `CityFixApp` e passado ao `IncidentsViewModel` pela `IncidentsViewModelFactory`.
+- `CategoriesList`: coleção de categorias, ordenada pelo nome com `Collator` (acentos). `getActiveSorted()` devolve só as ativas, para a criação de ocorrências.
+- `CategoryRepository`: grava em `categories_database.json`, com dados de exemplo cujos ids coincidem com os das ocorrências de exemplo.
+- `UsersList`: coleção de utilizadores, com `hasNif(nif, role)` para a unicidade do NIF por perfil e `getPendingCitizensSorted()` para a validação de munícipes.
+- `UserRepository`: grava em `users_database.json`, com dados de exemplo cujos ids coincidem com os autores das ocorrências (`citizen-1`, `citizen-2`) e com o criador das categorias (`operator-1`).
+
 ### Removido em relação à primeira proposta
-- `OccurrenceGroup`: o grupo passa a ser representado por `primaryOccurrenceId` na própria ocorrência (decisões 19 e 20).
+- `OccurrenceGroup`: o grupo passa a ser representado por `primaryIncidentId` na própria ocorrência (decisões 19 e 20).
 
 ### Regras de negócio que o modelo tem de suportar
 - Só categorias ativas aparecem na criação de ocorrências.

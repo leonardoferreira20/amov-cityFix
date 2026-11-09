@@ -46,9 +46,11 @@ Esta fase é o contrato entre os dois. Faz-se antes de cada um seguir com as sua
 | 0.6 | Combinar os parâmetros do `LifecycleActions` e do componente de mensagens | As assinaturas estão escritas neste ficheiro, secção 7 |
 | 0.7 | Criar `values-pt/strings.xml` | O texto do título aparece em português num dispositivo em português |
 
+Enquanto a 0.4 e a 0.5 não estão feitas, o ecrã `Screen.LEONARDO` abre um menu provisório (`DevMenuScreen`) com acesso às categorias, ao registo e à validação de munícipes. Sai quando a sessão falsa e a navegação principal existirem.
+
 ## 5. Divisão
 
-Legenda da coluna Aula: ✅ já dado · #3 multimédia · #4 GPS, mapas e layouts adaptativos · 🔒 ainda sem aula (Firebase, WorkManager, sensores, geofence)
+Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3) · #4 GPS, mapas e layouts adaptativos · 🔒 ainda sem aula (Firebase, WorkManager, sensores, geofence, vídeo)
 
 | # | Tarefa | Dono | Aula |
 |---|---|---|---|
@@ -56,7 +58,7 @@ Legenda da coluna Aula: ✅ já dado · #3 multimédia · #4 GPS, mapas e layout
 | J2 | Lista com cartões expansíveis e filtro por perfil | João | ✅ |
 | J3 | Botão "Nova ocorrência" | João | ✅ |
 | J4 | Detalhe: estrutura, parte pública, parte do autor | João | ✅ (mapa: #4) |
-| J5 | Criar ocorrência | João | ✅ (foto: #3, localização: #4) |
+| J5 | Criar ocorrência | João | ✅ (vídeo: 🔒, localização: #4) |
 | J6 | Agrupamento a 10 m | João | #4 |
 | J7 | Pedidos de informação e mensagens | João | ✅ |
 | J8 | Reabertura | João | ✅ |
@@ -65,11 +67,11 @@ Legenda da coluna Aula: ✅ já dado · #3 multimédia · #4 GPS, mapas e layout
 | L1 | Login + aviso de conta pendente | Leonardo | 🔒 |
 | L2 | MFA + recuperação de password | Leonardo | 🔒 |
 | L3 | Registo (munícipe e operador) | Leonardo | ✅ (criação da conta: 🔒) |
-| L4 | Perfil | Leonardo | ✅ (foto: #3) |
+| L4 | Perfil | Leonardo | ✅ |
 | L5 | Validação de munícipes | Leonardo | ✅ |
 | L6 | Categorias | Leonardo | ✅ |
-| L7 | `LifecycleActions` | Leonardo | ✅ (prova de resolução: #3) |
-| L8 | Multimédia: câmara, galeria, Coil | Leonardo | #3 |
+| L7 | `LifecycleActions` | Leonardo | ✅ (vídeo da prova: 🔒) |
+| L8 | Multimédia: câmara, galeria, Coil | Leonardo | ✅ (vídeo: 🔒) |
 | L9 | Compressão, thumbnail, envio com WorkManager | Leonardo | 🔒 |
 | L10 | Geofence de 20 m | Leonardo | 🔒 |
 | L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 |
@@ -82,10 +84,10 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula.
 
 | Tema | Aula | Tarefas afetadas |
 |---|---|---|
-| Multimédia: Photo Picker, câmara com `FileProvider`, Coil 3 | #3 | J5, L4, L7, L8 |
 | GPS com `FusedLocationProvider`, permissões em runtime, mapas (Maps Compose / OSM), layouts adaptativos | #4 | J4, J5, J6, J9, L3, F1 |
 | Firebase: Authentication, Firestore, Storage, Cloud Messaging | por definir | L1, L2, L3, L11 e a troca do repositório |
 | WorkManager | por definir | L9, L11 |
+| Vídeo (gravar, escolher e mostrar) | por definir | J5, L7, L8 |
 | Sensores (acelerómetro) | por definir | J10 |
 | Geofencing | por definir | L10 |
 

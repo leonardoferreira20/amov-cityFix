@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.ui.components.Dashboard
 import pt.isec.amov.cityfix.ui.components.IncidentList
+import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
 
 
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: IncidentsViewModel) {
+    val incidents by viewModel.incidentsList.collectAsStateWithLifecycle()
     MainScreenContent(
-        incidents = emptyList(),
+        incidents = incidents,
         isExpanded = false,
         onIncidentClick = {}
     )

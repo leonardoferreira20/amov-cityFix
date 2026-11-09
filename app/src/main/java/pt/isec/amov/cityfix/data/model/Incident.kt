@@ -1,26 +1,26 @@
 package pt.isec.amov.cityfix.data.model
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
-data class Incident (
-    val id : String = UUID.randomUUID().toString(),
-    val authorId : String,
-    val categoryId : String,
-    val categoryName : String,
-    val situation : Situation,
+@Serializable
+data class Incident(
+    val id: String = UUID.randomUUID().toString(),
+    val authorId: String,
+    val categoryId: String,
+    val categoryName: String,
+    val situation: Situation,
     val description: String,
-    val justification: String,
-    val visibility : Visibility,
-    val location : GeoPoint,
-    val status: IncidentStatus,
+    val visibility: Visibility,
+    val location: GeoLocation,
+    val status: IncidentStatus = IncidentStatus.OPEN,
     val previousStatus: IncidentStatus? = null,
-    val media: List<String>, //VER NA AULA DE MEDIA
-    val primaryOccurrenceId : String? = null,
-    val createdAt : Long,
+    val media: List<MediaAttachment> = emptyList(),
+    val history: List<StatusChange> = emptyList(),
+    val primaryIncidentId: String? = null,
+    val createdAt: Long,
     val workStartedAt: Long? = null,
-    val resolvedAt : Long? = null,
-    val reopen : Boolean,
-    val closedAt : Long? = null
-    ) {
-
-}
+    val resolvedAt: Long? = null,
+    val closedAt: Long? = null,
+    val reopenCount: Int = 0
+)
