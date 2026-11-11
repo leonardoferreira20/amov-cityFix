@@ -2,17 +2,26 @@ package pt.isec.amov.cityfix.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.DashboardStats
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.Dashboard
 import pt.isec.amov.cityfix.ui.components.IncidentFilter
 import pt.isec.amov.cityfix.ui.components.SessionSelector
+import pt.isec.amov.cityfix.utils.canCreateIncident
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
 import pt.isec.amov.cityfix.viewmodel.SessionViewModel
 
@@ -21,7 +30,8 @@ fun MainScreen(
     viewModel: IncidentsViewModel,
     sessionViewModel: SessionViewModel,
     isExpanded: Boolean,
-    onIncidentClick: (String) -> Unit
+    onIncidentClick: (String) -> Unit,
+    onCreateIncident: () -> Unit
 ) {
     val incidents by viewModel.incidentsList.collectAsStateWithLifecycle()
     val stats by viewModel.dashboardStats.collectAsStateWithLifecycle()
@@ -40,7 +50,9 @@ fun MainScreen(
         onlyMine = onlyMine,
         onOnlyMineChange = viewModel::setOnlyMine,
         isExpanded = isExpanded,
-        onIncidentClick = onIncidentClick
+        onIncidentClick = onIncidentClick,
+        showCreateIncident = canCreateIncident(currentUser),
+        onCreateIncident = onCreateIncident
     )
 }
 
@@ -53,26 +65,40 @@ fun MainScreenContent(
     onlyMine: Boolean,
     onOnlyMineChange: (Boolean) -> Unit,
     isExpanded: Boolean,
-    onIncidentClick: (String) -> Unit
+    onIncidentClick: (String) -> Unit,
+    showCreateIncident: Boolean,
+    onCreateIncident: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        SessionSelector(
-            currentRole = currentRole,
-            onProfileSelected = onProfileSelected
-        )
-
-        if (currentRole == UserRole.CITIZEN) {
-            IncidentFilter(onlyMine = onlyMine, onOnlyMineChange = onOnlyMineChange)
+    Scaffold(
+        floatingActionButton = {
+            if (showCreateIncident) {
+                FloatingActionButton(onClick = onCreateIncident) {
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.report_title))
+                }
+            }
         }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            SessionSelector(
+                currentRole = currentRole,
+                onProfileSelected = onProfileSelected
+            )
 
-        Dashboard(
-            stats = stats,
-            incidents = incidents,
-            isExpanded = isExpanded,
-            onIncidentClick = onIncidentClick,
-            modifier = Modifier.weight(1f)
-        )
+            if (currentRole == UserRole.CITIZEN) {
+                IncidentFilter(onlyMine = onlyMine, onOnlyMineChange = onOnlyMineChange)
+            }
+
+            Dashboard(
+                stats = stats,
+                incidents = incidents,
+                isExpanded = isExpanded,
+                onIncidentClick = onIncidentClick,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }

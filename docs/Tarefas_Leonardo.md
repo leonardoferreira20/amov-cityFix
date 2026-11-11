@@ -42,7 +42,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] Só para o operador: o botão de acesso só aparece na barra de topo com o perfil Operador (`canManageCategories`). O criador da categoria é o utilizador da sessão.
 - [x] Um só ecrã para criar e editar, com `EditCategoryRoute(categoryId: String? = null)`, como o `EditContactRoute`.
 - [x] Ativar e desativar.
-- [ ] Só as categorias ativas aparecem na criação de ocorrências (tarefa J5 do João): `CategoriesList.getActiveSorted()` já existe, falta a J5 usá-la.
+- [x] Só as categorias ativas aparecem na criação de ocorrências: a J5 usa `CategoriesList.getActiveSorted()` (verificado no emulador: "Espaços Verdes", inativa, não aparece).
 - **Feito quando:** uma categoria desativada deixa de aparecer na criação de ocorrências.
 
 ### L7 — `LifecycleActions`
@@ -62,7 +62,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 |---|---|---|
 | L1 | Login com e-mail e password; aviso de conta pendente (decisão 6) | Firebase |
 | L2 | MFA e recuperação de password por e-mail (ponto 10 por confirmar) | Firebase |
-| L8 | Multimédia: Photo Picker, câmara com `FileProvider`, imagens com Coil 3 (ponto 13 por confirmar) | #3 |
+| L8 | Multimédia: a base já existe (feita pelo João com a J5: `utils/FileUtils`, `FileProvider`, Coil 3 e o componente `IncidentPhoto`). Falta usá-la na foto opcional do registo (L3), na foto de perfil (L4) e na prova de resolução (L7); o vídeo está por definir (ponto 13 por confirmar) | #3 |
 | L9 | Compressão, thumbnail e envio com WorkManager só com rede | por definir |
 | L10 | Geofence de 20 m e alerta aos autores (pontos 29 e 30 por confirmar) | por definir |
 | L11 | Notificações (estado, mensagens, proximidade, 24 h antes do fecho) e encerramento aos 5 dias (pontos 28 e 32 por confirmar) | Firebase / por definir |

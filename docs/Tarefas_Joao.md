@@ -33,16 +33,16 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
   - operador: todas.
 - [x] Filtro "As minhas" para o munícipe: chips "Todas" / "As minhas" (`IncidentFilter`), estado `onlyMine` no `IncidentsViewModel`.
 - [x] Clique num cartão navega para `IncidentDetailRoute(incidentId)`.
-- [ ] Thumbnail da primeira foto no cartão (o enunciado pede-a na lista; depende da L8).
+- [x] Thumbnail da primeira foto no cartão (`IncidentPhoto`, 56 dp); sem foto, mostra um ícone.
 - **Feito quando:** cada perfil do seletor de sessão vê a lista certa. Já verificado no emulador: 2 ocorrências para o anónimo, 3 para o munícipe e 4 para o operador.
 
 ### Gráfico por categoria (extra)
 - [x] Segunda página do `Dashboard` com o número de ocorrências por categoria (`IncidentChart`).
 
 ### J3 — Botão "Nova ocorrência"
-- [ ] Botão na barra de topo ou flutuante, visível só para o munícipe (`canCreateIncident`, já em `AccessRules.kt`).
-- [ ] Navega para `ReportIncidentRoute`.
-- **Feito quando:** o botão aparece com o perfil Munícipe e desaparece com os outros dois.
+- [x] Botão flutuante +, visível só para o munícipe (`canCreateIncident`).
+- [x] Navega para `ReportIncidentRoute`.
+- **Feito:** o botão aparece com o perfil Munícipe e não aparece com os outros dois.
 
 ### J4 — Detalhe da ocorrência
 - [x] Ecrã stateless no estilo do `ShowScreen`, com tratamento de ocorrência inexistente (`IncidentDetailScreen`, `IncidentDetailUiState`, `IncidentDetailViewModel` + `Factory`).
@@ -50,18 +50,21 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - [x] Coordenadas e histórico de estados para o operador e o autor; dados do autor só para o operador.
 - [x] Espaço para o `LifecycleActions` do Leonardo (`operatorActions`), visível só para o operador.
 - [ ] Parte do autor: mensagens (J7) e reabrir (J8).
-- [ ] Fotos da ocorrência (depende da L8).
+- [x] Foto da ocorrência no topo do detalhe.
 - **Feito quando:** os três perfis veem o mesmo ecrã com conteúdos diferentes. Verificado no emulador a 11/11 para o anónimo, o autor e o operador.
 - 📝 **Anotado (#4):** mapa com zoom afastado para o anónimo e coordenadas exatas para o operador.
 
 ### J5 — Criar ocorrência
-- [ ] Ecrã com `ReportIncidentUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid`.
-- [ ] Campos: categoria (só as ativas), situação, descrição, visibilidade (pública ou privada).
-- [ ] Validação: todos os campos obrigatórios.
-- [ ] Gravar através do repositório e voltar ao início com `popBackStack()`.
-- **Feito quando:** uma ocorrência criada aparece na lista.
-- [ ] Foto obrigatória, da galeria ou da câmara (aula #3 já dada; usa a base de multimédia da L8). O vídeo continua por definir (ponto A por confirmar).
+- [x] Ecrã com `ReportIncidentUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid` (`ReportIncidentScreen`, `ReportIncidentViewModel` + `Factory`).
+- [x] Campos: categoria (só as ativas), situação, descrição, visibilidade (pública ou privada), com `RadioButton` como o registo do Leonardo.
+- [x] Validação: todos os campos obrigatórios; os erros aparecem campo a campo ao submeter.
+- [x] Gravar através do repositório e voltar ao início com `popBackStack()`; a lista e o dashboard atualizam-se.
+- [x] Foto obrigatória, da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), como no Contacts das aulas.
+- [x] Base de multimédia feita aqui: `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, Coil 3 e `IncidentPhoto`.
+- **Feito:** testado no emulador a 11/11 com uma foto da câmara; a ocorrência nova aparece na lista com thumbnail e o dashboard passa a 5 ocorrências e 80% ativas.
+- 📝 **Provisório:** a localização é a do registo do autor ou o centro do município, até haver GPS.
 - 📝 **Anotado (#4):** localização obtida quando se tira a foto (decisão 12).
+- 📝 **Por definir:** vídeo (ponto A por confirmar).
 
 ### J7 — Pedidos de informação e mensagens
 - [ ] Componente stateless de mensagens, com a assinatura combinada na tarefa 0.6.

@@ -54,6 +54,23 @@
     <string name="stat_days_value">%1$.1f dias</string>
     <string name="stat_percentage_value">%1$.0f%%</string>
 
+    <string name="report_title">Nova ocorrência</string>
+    <string name="report_submit">Submeter ocorrência</string>
+    <string name="report_photo">Fotografia</string>
+    <string name="report_category">Categoria</string>
+    <string name="report_situation">Situação</string>
+    <string name="report_visibility">Visibilidade</string>
+    <string name="report_no_categories">Não há categorias ativas.</string>
+    <string name="photo_gallery">Galeria</string>
+    <string name="photo_camera">Câmara</string>
+    <string name="incident_photo_description">Fotografia da ocorrência</string>
+    <string name="visibility_public">Pública</string>
+    <string name="visibility_private">Privada</string>
+    <string name="error_photo_required">A fotografia é obrigatória.</string>
+    <string name="error_category_required">Escolha uma categoria.</string>
+    <string name="error_situation_required">Escolha uma situação.</string>
+    <string name="error_description_required">A descrição é obrigatória.</string>
+
     <string name="filter_all">Todas</string>
     <string name="filter_mine">As minhas</string>
 

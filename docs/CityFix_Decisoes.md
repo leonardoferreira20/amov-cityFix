@@ -25,6 +25,11 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - As coordenadas exatas e o histórico de estados aparecem ao operador e ao autor.
   - Os dados do autor (nome, e-mail, telefone) aparecem só ao operador (I.3.E).
 - O munícipe filtra a lista com dois chips, "Todas" e "As minhas", por cima do dashboard.
+- Criar ocorrência (decidido a 11/11/2026):
+  - O botão "Nova ocorrência" é um botão flutuante (+) no início, só para o munícipe, como o + das categorias.
+  - A base de multimédia (`FileUtils`, `FileProvider`, Coil 3 das aulas e o componente `IncidentPhoto`) foi feita pelo João com a J5; o Leonardo reaproveita-a na L4, na L7 e na L8.
+  - Até haver GPS (aula #4), a localização de uma ocorrência nova é a georreferenciação do registo do autor; se não existir, é o centro do município (`CITY_CENTER`).
+  - Coordenadas provisórias do centro do município, a Praça da República (3): 40.2085, -8.4196.
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).

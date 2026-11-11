@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +28,8 @@ import pt.isec.amov.cityfix.data.model.StatusChange
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.data.model.Visibility
+import pt.isec.amov.cityfix.ui.components.IncidentPhoto
+import pt.isec.amov.cityfix.ui.components.firstPhotoPath
 import pt.isec.amov.cityfix.ui.components.labelRes
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.viewmodel.IncidentDetailUiState
@@ -56,6 +60,15 @@ fun IncidentDetailScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        incident.firstPhotoPath()?.let { path ->
+            IncidentPhoto(
+                path = path,
+                contentDescription = stringResource(R.string.incident_photo_description),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+            )
+        }
         Text(text = incident.categoryName, style = MaterialTheme.typography.headlineSmall)
         Text(
             text = stringResource(incident.situation.labelRes()),

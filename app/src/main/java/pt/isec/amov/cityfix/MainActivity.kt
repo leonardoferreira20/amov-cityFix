@@ -37,6 +37,7 @@ import pt.isec.amov.cityfix.ui.navigation.DashboardRoute
 import pt.isec.amov.cityfix.ui.navigation.EditCategoryRoute
 import pt.isec.amov.cityfix.ui.navigation.IncidentDetailRoute
 import pt.isec.amov.cityfix.ui.navigation.RegisterRoute
+import pt.isec.amov.cityfix.ui.navigation.ReportIncidentRoute
 import pt.isec.amov.cityfix.ui.screens.CategoryListScreen
 import pt.isec.amov.cityfix.ui.screens.CitizenValidationScreen
 import pt.isec.amov.cityfix.ui.screens.EditCategoryScreen
@@ -44,6 +45,7 @@ import pt.isec.amov.cityfix.ui.screens.IncidentDetailScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreenContent
 import pt.isec.amov.cityfix.ui.screens.RegisterScreen
+import pt.isec.amov.cityfix.ui.screens.ReportIncidentScreen
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.utils.canManageCategories
 import pt.isec.amov.cityfix.utils.canValidateCitizens
@@ -59,6 +61,8 @@ import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.RegisterViewModel
 import pt.isec.amov.cityfix.viewmodel.RegisterViewModelFactory
+import pt.isec.amov.cityfix.viewmodel.ReportIncidentViewModel
+import pt.isec.amov.cityfix.viewmodel.ReportIncidentViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.SessionViewModel
 import pt.isec.amov.cityfix.viewmodel.SessionViewModelFactory
 import java.util.concurrent.TimeUnit
@@ -115,7 +119,34 @@ class MainActivity : ComponentActivity() {
                                 viewModel = incidentsViewModel,
                                 sessionViewModel = sessionViewModel,
                                 isExpanded = isExpanded,
-                                onIncidentClick = { id -> navController.navigate(IncidentDetailRoute(id)) }
+                                onIncidentClick = { id -> navController.navigate(IncidentDetailRoute(id)) },
+                                onCreateIncident = { navController.navigate(ReportIncidentRoute) }
+                            )
+                        }
+
+                        composable<ReportIncidentRoute> { backStack ->
+                            val reportViewModel: ReportIncidentViewModel = viewModel(
+                                viewModelStoreOwner = backStack,
+                                factory = ReportIncidentViewModelFactory(
+                                    app.incidentRepository,
+                                    app.categoryRepository,
+                                    currentUser
+                                )
+                            )
+                            val reportState by reportViewModel.reportState.collectAsStateWithLifecycle()
+                            ReportIncidentScreen(
+                                state = reportState,
+                                onCategorySelected = reportViewModel::onCategorySelected,
+                                onSituationSelected = reportViewModel::onSituationSelected,
+                                onDescriptionChange = reportViewModel::onDescriptionChanged,
+                                onVisibilityChange = reportViewModel::onVisibilityChanged,
+                                onPhotoChange = reportViewModel::onPhotoChanged,
+                                onSaveClick = {
+                                    reportViewModel.saveIncident {
+                                        incidentsViewModel.refreshIncidents()
+                                        navController.popBackStack()
+                                    }
+                                }
                             )
                         }
 
@@ -209,6 +240,7 @@ private fun screenTitle(entry: NavBackStackEntry?): Int {
     val destination = entry?.destination
     return when {
         destination?.hasRoute<IncidentDetailRoute>() == true -> R.string.incident_detail_title
+        destination?.hasRoute<ReportIncidentRoute>() == true -> R.string.report_title
         destination?.hasRoute<CategoryListRoute>() == true -> R.string.categories_title
         destination?.hasRoute<EditCategoryRoute>() == true ->
             if (entry.toRoute<EditCategoryRoute>().categoryId == null) R.string.category_add
@@ -272,7 +304,9 @@ fun PreviewMainScreen() {
             onlyMine = false,
             onOnlyMineChange = {},
             isExpanded = false,
-            onIncidentClick = {}
+            onIncidentClick = {},
+            showCreateIncident = true,
+            onCreateIncident = {}
         )
     }
 }

@@ -73,7 +73,7 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3) ·
 | L5 | Validação de munícipes | Leonardo | ✅ |
 | L6 | Categorias | Leonardo | ✅ |
 | L7 | `LifecycleActions` | Leonardo | ✅ (vídeo da prova: 🔒) |
-| L8 | Multimédia: câmara, galeria, Coil | Leonardo | ✅ (vídeo: 🔒) |
+| L8 | Multimédia: câmara, galeria, Coil (a base foi feita pelo João com a J5; falta usá-la na L3, L4 e L7) | Leonardo | ✅ (vídeo: 🔒) |
 | L9 | Compressão, thumbnail, envio com WorkManager | Leonardo | 🔒 |
 | L10 | Geofence de 20 m | Leonardo | 🔒 |
 | L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 |

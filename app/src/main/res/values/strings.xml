@@ -57,6 +57,23 @@
     <string name="stat_percentage_value">%1$.0f%%</string>
     <string name="stat_no_value" translatable="false">—</string>
 
+    <string name="report_title">New incident</string>
+    <string name="report_submit">Submit incident</string>
+    <string name="report_photo">Photo</string>
+    <string name="report_category">Category</string>
+    <string name="report_situation">Situation</string>
+    <string name="report_visibility">Visibility</string>
+    <string name="report_no_categories">There are no active categories.</string>
+    <string name="photo_gallery">Gallery</string>
+    <string name="photo_camera">Camera</string>
+    <string name="incident_photo_description">Photo of the incident</string>
+    <string name="visibility_public">Public</string>
+    <string name="visibility_private">Private</string>
+    <string name="error_photo_required">A photo is required.</string>
+    <string name="error_category_required">Choose a category.</string>
+    <string name="error_situation_required">Choose a situation.</string>
+    <string name="error_description_required">The description is required.</string>
+
     <string name="filter_all">All</string>
     <string name="filter_mine">Mine</string>
 

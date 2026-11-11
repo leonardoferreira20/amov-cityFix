@@ -9,6 +9,9 @@ data object DashboardRoute
 data class IncidentDetailRoute(val incidentId: String)
 
 @Serializable
+data object ReportIncidentRoute
+
+@Serializable
 data object CategoryListRoute
 
 @Serializable

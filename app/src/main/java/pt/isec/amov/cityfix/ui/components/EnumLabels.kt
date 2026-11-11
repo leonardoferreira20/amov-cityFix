@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.data.model.Situation
+import pt.isec.amov.cityfix.data.model.Visibility
 
 @StringRes
 fun Situation.labelRes(): Int = when (this) {
@@ -11,6 +12,12 @@ fun Situation.labelRes(): Int = when (this) {
     Situation.MALFUNCTION -> R.string.situation_malfunction
     Situation.DESTRUCTION -> R.string.situation_destruction
     Situation.THEFT -> R.string.situation_theft
+}
+
+@StringRes
+fun Visibility.labelRes(): Int = when (this) {
+    Visibility.PUBLIC -> R.string.visibility_public
+    Visibility.PRIVATE -> R.string.visibility_private
 }
 
 @StringRes

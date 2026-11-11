@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 11/11/2026, sobre o commit `e9673d4` mais as alterações do João ainda sem commit (0.3, 0.4, 0.5, J1, J2 quase toda e J4 sem fotos, mensagens nem reabertura). Faltam 11 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 11/11/2026, sobre o commit `bbfb78f` mais as alterações do João ainda sem commit (J3, J5, base de multimédia e fotos na lista e no detalhe). Faltam 11 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -9,7 +9,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Parte | Feito | Falta |
 |---|---|---|
 | Fase 0 | 0.1 a 0.5 e 0.7 | 0.6 |
-| João | J1; J2 sem o thumbnail; J4 sem fotos, mensagens nem reabertura | Thumbnail (J2), J3, J5, J7, J8; J6, J9, J10 anotadas |
+| João | J1, J2, J3, J5 (sem vídeo nem GPS); J4 sem mensagens nem reabertura; base de multimédia | J7, J8; J6, J9, J10 anotadas |
 | Leonardo | L3, L5, L6 (já restritas ao operador) | L1, L2, L4, L7 a L11 |
 | Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica | Firebase, WorkManager, permissões, mapas, notificações, landscape e acessibilidade em todos os ecrãs |
 | Entrega | — | Limpeza, relatório, ZIP |
@@ -54,13 +54,24 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 ### 2.3 João
 - **J1 Dashboard:** `IncidentsList.getDashboardStats()` calcula sobre todas as ocorrências, incluindo as privadas, o tempo médio de reparação (de `createdAt` a `closedAt`), o total e a percentagem de ativas. O `IncidentsViewModel` expõe-nos em `dashboardStats` e o `DashboardStatsCard` mostra-os no topo do `Dashboard`.
-- **J2 (falta o thumbnail):**
+- **J2:**
+  - Thumbnail da primeira foto no cartão (`IncidentPhoto`); sem foto, um ícone.
   - `IncidentCard` mostra sempre a categoria e a situação; expandido, o estado e a descrição. Sem altura fixa.
   - O botão de expandir está na `MainTopAppBar`, com `isExpanded` guardado com `rememberSaveable`.
   - O `IncidentsViewModel` filtra a lista com `canViewIncident` conforme o utilizador da sessão.
   - O munícipe tem os chips "Todas" / "As minhas" (`IncidentFilter`, estado `onlyMine`).
   - Tocar num cartão abre o detalhe (`IncidentDetailRoute(incidentId)`).
-- **J4 Detalhe (sem fotos, mensagens nem reabertura):**
+- **J3 Botão "Nova ocorrência":** botão flutuante + no início, só para o munícipe (`canCreateIncident`).
+- **J5 Criar ocorrência:**
+  - `ReportIncidentScreen`, `ReportIncidentUiState` e `ReportIncidentViewModel` + `Factory`, no padrão do `EditScreen` / `EditContactUiState` das aulas.
+  - Categoria (só as ativas), situação, descrição, visibilidade e foto obrigatória, com erros campo a campo.
+  - Foto da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), guardada em `filesDir/images/` e registada como `MediaAttachment` (`IMAGE`, `REPORT`).
+  - Localização provisória: a do registo do autor ou o centro do município (`utils/CityConstants.kt`).
+  - Ao gravar, a lista e o dashboard atualizam-se.
+  - Testado no emulador com uma foto da câmara.
+- **Base de multimédia:** `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, dependência `coil-compose` 3.0.4 (a das aulas) e o componente `IncidentPhoto`. Serve também para a L3, a L4 e a L7 do Leonardo.
+- **J4 Detalhe (sem mensagens nem reabertura):**
+  - Foto da ocorrência no topo.
   - `IncidentDetailScreen` (stateless, como o `ShowScreen`), `IncidentDetailUiState` e `IncidentDetailViewModel` + `Factory`, criado por destino com o id da ocorrência e o utilizador da sessão.
   - Todos veem a categoria, a situação, o estado, a data e a descrição. O autor e o operador veem também as coordenadas e o histórico; só o operador vê o nome, o e-mail e o telefone do autor.
   - Uma ocorrência que o perfil não pode ver aparece como "não encontrada".
@@ -86,10 +97,8 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [ ] **0.6** Assinaturas do `LifecycleActions` e do componente de mensagens, na secção 7 do plano.
 
 ### 3.2 João
-- [ ] J2 Thumbnail da primeira foto no cartão (depende da L8).
-- [ ] J3 Botão "Nova ocorrência", só para o munícipe (`canCreateIncident`). Faz-se com a J5.
-- [ ] J4 Fotos no detalhe (L8), mensagens (J7), reabertura (J8) e mapa (aula #4).
-- [ ] J5 Criar ocorrência, usando `CategoriesList.getActiveSorted()`, o que fecha também o "Feito quando" da L6. A foto já foi dada nas aulas; o vídeo está por definir; a localização depende da aula #4.
+- [ ] J4 Mensagens (J7), reabertura (J8) e mapa (aula #4).
+- [ ] J5 Localização por GPS quando se tira a foto (aula #4) e vídeo (por definir).
 - [ ] J7 Pedidos de informação e mensagens.
 - [ ] J8 Reabertura (`canReopen` já existe).
 - [ ] J6 Agrupamento a 10 m (aula #4).
@@ -97,7 +106,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [ ] J10 Deteção de impactos (sensores, ainda sem aula).
 
 ### 3.3 Leonardo
-- [ ] L8 Multimédia: galeria, câmara e Coil, já dados nas aulas; o vídeo está por definir.
+- [ ] L8 Multimédia: a base já existe (feita com a J5); falta usá-la no registo (L3), no perfil (L4) e na prova de resolução (L7). O vídeo está por definir.
 - [ ] L4 Perfil: fechar antes o conflito 11.
 - [ ] L7 `LifecycleActions`: depende da 0.6. O espaço no detalhe (J4) já existe.
 - [ ] L1 Login e aviso de conta pendente (Firebase). Substitui o `SessionSelector`.
@@ -136,6 +145,7 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 - [ ] Os enums estão na pasta `data/model/enums/` mas declaram o package `data.model`.
 - [ ] O `gradlew` está no Git sem permissão de execução (`100644`); corrige-se com `git update-index --chmod=+x gradlew`.
 - [ ] Quando entrar o Firestore, as classes do modelo precisam de valores por omissão em todos os campos, porque o `toObject()` exige um construtor sem argumentos.
+- A câmara usa o contrato `TakePicture`, que não exige a permissão `CAMERA` enquanto a app não a declarar no manifesto. O pedido de permissões em runtime que o enunciado exige fica para a aula #4.
 - Os dados de exemplo não têm histórico de estados, por isso o detalhe mostra "Ainda sem mudanças de estado" até a L7 registar transições.
 - Os campos de texto seguem o padrão das aulas (`StateFlow`). Com escrita muito rápida num emulador lento perderam-se letras; a escrever normalmente funcionou.
 - O stash `stash@{0}` (alterações antigas do João, de 11/11) já não é preciso: o `Rules.kt` deu origem ao `AccessRules.kt` e o `IncidentChart` foi recuperado.
@@ -151,6 +161,6 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 
 | Quando | O quê |
 |---|---|
-| Até 16/11 | 0.6, J3, J5, J7, J8, L8, L4 e L7 |
+| Até 16/11 | 0.6, J7, J8, L8, L4 e L7 |
 | Depois de cada aula | Aula #4: mapa da J4, localização da J5, J6, J9, georreferenciação da L3 e F1. Firebase: L1, L2, L11 e troca dos repositórios. WorkManager: L9. Sensores: J10. Geofencing: L10 |
 | 17/11 a 22/11 | Integração, limpeza, testes em landscape e em PT/EN, relatório e ZIP |
