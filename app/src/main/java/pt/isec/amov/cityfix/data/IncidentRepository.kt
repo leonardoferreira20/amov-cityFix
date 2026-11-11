@@ -80,7 +80,7 @@ class IncidentRepository(private val context: Context) {
                 description = "Semáforo avariado no cruzamento da Avenida Sá da Bandeira.",
                 visibility = Visibility.PUBLIC,
                 location = GeoLocation(40.2095, -8.4215),
-                status = IncidentStatus.RESOLVED,
+                status = IncidentStatus.CLOSED,
                 history = listOf(
                     StatusChange(IncidentStatus.OPEN, IncidentStatus.IN_PROGRESS, now - 4 * DAY_MILLIS, "operator-1"),
                     StatusChange(IncidentStatus.IN_PROGRESS, IncidentStatus.RESOLVED, now - DAY_MILLIS, "operator-1")
@@ -97,7 +97,7 @@ class IncidentRepository(private val context: Context) {
                 description = "Tampa de esgoto partida em frente à escola.",
                 visibility = Visibility.PUBLIC,
                 location = GeoLocation(40.2079, -8.4202),
-                status = IncidentStatus.CLOSED,
+                status = IncidentStatus.RESOLVED,
                 history = listOf(
                     StatusChange(IncidentStatus.OPEN, IncidentStatus.IN_PROGRESS, now - 25 * DAY_MILLIS, "operator-1"),
                     StatusChange(IncidentStatus.IN_PROGRESS, IncidentStatus.RESOLVED, now - 22 * DAY_MILLIS, "operator-1"),
