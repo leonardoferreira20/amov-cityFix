@@ -45,8 +45,8 @@
     <string name="validation_activate_description">Activate %1$s\'s account</string>
 
     <string name="navigate_back">Back</string>
-    <string name="expand_cards">Expand cards</string>
-    <string name="collapse_cards">Collapse cards</string>
+    <string name="expand_cards">Expand all cards</string>
+    <string name="collapse_cards">Collapse all cards</string>
 
     <string name="session_label">View as</string>
     <string name="session_anonymous">Anonymous</string>
@@ -87,7 +87,9 @@
     <string name="filter_mine">Mine</string>
 
     <string name="incident_detail_title">Incident details</string>
-    <string name="incident_open">Open details</string>
+    <string name="incident_open">View details</string>
+    <string name="incident_expand">Expand incident</string>
+    <string name="incident_collapse">Collapse incident</string>
     <string name="incident_not_found">Incident not found.</string>
     <string name="detail_created">Reported on %1$s</string>
     <string name="detail_description">Description</string>

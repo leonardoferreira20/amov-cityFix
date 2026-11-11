@@ -85,11 +85,14 @@ class MainActivity : ComponentActivity() {
                 val categoriesViewModel: CategoriesViewModel =
                     viewModel(factory = CategoriesViewModelFactory(app.categoryRepository))
                 val currentUser by sessionViewModel.currentUser.collectAsStateWithLifecycle()
+                val incidents by incidentsViewModel.incidentsList.collectAsStateWithLifecycle()
 
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val isDashboard = navBackStackEntry?.destination?.hasRoute<DashboardRoute>() == true
-                var isExpanded by rememberSaveable { mutableStateOf(false) }
+                var expandedIncidentIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
+                val areAllIncidentsExpanded = incidents.isNotEmpty() &&
+                        incidents.all { it.id in expandedIncidentIds }
 
                 Scaffold(
                     topBar = {
@@ -97,12 +100,18 @@ class MainActivity : ComponentActivity() {
                             titleRes = screenTitle(navBackStackEntry),
                             canNavigateBack = navBackStackEntry != null && !isDashboard,
                             isDashboard = isDashboard,
-                            isExpanded = isExpanded,
+                            areAllCardsExpanded = areAllIncidentsExpanded,
                             showCategories = isDashboard && canManageCategories(currentUser),
                             showValidation = isDashboard && canValidateCitizens(currentUser),
                             showRegister = isDashboard && currentUser == null,
                             onNavigateBack = { navController.navigateUp() },
-                            onToggleExpand = { isExpanded = !isExpanded },
+                            onToggleAllCards = {
+                                expandedIncidentIds = if (areAllIncidentsExpanded) {
+                                    emptyList()
+                                } else {
+                                    incidents.map { it.id }
+                                }
+                            },
                             onCategoriesClick = { navController.navigate(CategoryListRoute) },
                             onValidationClick = { navController.navigate(CitizenValidationRoute) },
                             onRegisterClick = { navController.navigate(RegisterRoute) }
@@ -120,8 +129,16 @@ class MainActivity : ComponentActivity() {
                             MainScreen(
                                 viewModel = incidentsViewModel,
                                 sessionViewModel = sessionViewModel,
-                                isExpanded = isExpanded,
-                                onIncidentClick = { id -> navController.navigate(IncidentDetailRoute(id)) },
+                                incidents = incidents,
+                                expandedIncidentIds = expandedIncidentIds,
+                                onToggleIncident = { id ->
+                                    expandedIncidentIds = if (id in expandedIncidentIds) {
+                                        expandedIncidentIds - id
+                                    } else {
+                                        expandedIncidentIds + id
+                                    }
+                                },
+                                onOpenIncident = { id -> navController.navigate(IncidentDetailRoute(id)) },
                                 onCreateIncident = { navController.navigate(ReportIncidentRoute) }
                             )
                         }
@@ -324,8 +341,9 @@ fun PreviewMainScreen() {
             onProfileSelected = {},
             onlyMine = false,
             onOnlyMineChange = {},
-            isExpanded = false,
-            onIncidentClick = {},
+            expandedIncidentIds = listOf("1"),
+            onToggleIncident = {},
+            onOpenIncident = {},
             showCreateIncident = true,
             onCreateIncident = {}
         )

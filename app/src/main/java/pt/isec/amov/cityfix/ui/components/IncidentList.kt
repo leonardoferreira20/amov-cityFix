@@ -17,8 +17,9 @@ import pt.isec.amov.cityfix.data.model.Incident
 @Composable
 fun IncidentList(
     incidents: List<Incident>,
-    isExpanded: Boolean,
-    onIncidentClick: (String) -> Unit,
+    expandedIncidentIds: List<String>,
+    onToggleIncident: (String) -> Unit,
+    onOpenIncident: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (incidents.isEmpty()) {
@@ -34,8 +35,9 @@ fun IncidentList(
             items(items = incidents, key = { it.id }) { incident ->
                 IncidentCard(
                     incident = incident,
-                    isExpanded = isExpanded,
-                    onClick = { onIncidentClick(incident.id) }
+                    isExpanded = incident.id in expandedIncidentIds,
+                    onToggleExpanded = { onToggleIncident(incident.id) },
+                    onOpenDetails = { onOpenIncident(incident.id) }
                 )
             }
         }

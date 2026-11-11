@@ -58,7 +58,7 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3) ·
 | # | Tarefa | Dono | Aula |
 |---|---|---|---|
 | J1 | Início: 3 números do dashboard | João | ✅ |
-| J2 | Lista com cartões expansíveis e filtro por perfil | João | ✅ |
+| J2 | Lista com expansão individual e global, botão de detalhe e filtro por perfil | João | ✅ |
 | J3 | Botão "Nova ocorrência" | João | ✅ |
 | J4 | Detalhe: estrutura, parte pública, parte do autor | João | ✅ (mapa: #4) |
 | J5 | Criar ocorrência | João | ✅ (vídeo: 🔒, localização: #4) |

@@ -12,7 +12,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -23,13 +25,19 @@ import pt.isec.amov.cityfix.data.model.Incident
 fun IncidentCard(
     incident: Incident,
     isExpanded: Boolean,
-    onClick: () -> Unit,
+    onToggleExpanded: () -> Unit,
+    onOpenDetails: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClickLabel = stringResource(R.string.incident_open), onClick = onClick),
+            .clickable(
+                onClickLabel = stringResource(
+                    if (isExpanded) R.string.incident_collapse else R.string.incident_expand
+                ),
+                onClick = onToggleExpanded
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -57,6 +65,9 @@ fun IncidentCard(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(text = incident.description, style = MaterialTheme.typography.bodyMedium)
+                        TextButton(onClick = onOpenDetails, modifier = Modifier.align(Alignment.End)) {
+                            Text(stringResource(R.string.incident_open))
+                        }
                     }
                 }
             }

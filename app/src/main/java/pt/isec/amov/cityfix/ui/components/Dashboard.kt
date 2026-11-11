@@ -19,8 +19,9 @@ import pt.isec.amov.cityfix.data.model.Incident
 fun Dashboard(
     stats: DashboardStats,
     incidents: List<Incident>,
-    isExpanded: Boolean,
-    onIncidentClick: (String) -> Unit,
+    expandedIncidentIds: List<String>,
+    onToggleIncident: (String) -> Unit,
+    onOpenIncident: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -36,8 +37,9 @@ fun Dashboard(
                 ) {
                     IncidentList(
                         incidents = incidents,
-                        isExpanded = isExpanded,
-                        onIncidentClick = onIncidentClick,
+                        expandedIncidentIds = expandedIncidentIds,
+                        onToggleIncident = onToggleIncident,
+                        onOpenIncident = onOpenIncident,
                         modifier = Modifier.fillMaxSize()
                     )
                 }

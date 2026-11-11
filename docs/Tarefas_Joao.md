@@ -26,15 +26,15 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - **Feito:** testado no emulador a 11/11 (10,0 dias, 4 ocorrências, 75% ativas com os dados de exemplo).
 
 ### J2 — Lista com cartões expansíveis e filtro por perfil
-- [x] `IncidentCard` como o `ContactCard`: categoria e situação sempre visíveis (o enunciado pede a situação na lista); estado e descrição dentro do `AnimatedVisibility(isExpanded)`.
-- [x] Botão na `MainTopAppBar` para alternar `isExpanded`, guardado com `rememberSaveable`.
-- [x] Realce visual do ícone na vista expandida e descrições de acessibilidade distintas para expandir e recolher em EN/PT.
+- [x] Tocar no `IncidentCard` alterna a sua expansão. Categoria e situação sempre visíveis; estado, descrição e botão «Ver detalhes» dentro do `AnimatedVisibility(isExpanded)`.
+- [x] Botão na `MainTopAppBar` para expandir ou recolher todos os cartões da lista atual. Os IDs expandidos são guardados com `rememberSaveable`.
+- [x] Realce visual do ícone quando todos os cartões estão expandidos e descrições de acessibilidade distintas em EN/PT para as ações do cartão e da barra.
 - [x] Filtrar a lista com `canViewIncident` no `IncidentsViewModel`:
   - anónimo: públicas e não encerradas;
   - munícipe: as mesmas e as suas;
   - operador: todas.
 - [x] Filtro "As minhas" para o munícipe: chips "Todas" / "As minhas" (`IncidentFilter`), estado `onlyMine` no `IncidentsViewModel`.
-- [x] Clique num cartão navega para `IncidentDetailRoute(incidentId)`.
+- [x] O botão «Ver detalhes» navega para `IncidentDetailRoute(incidentId)`.
 - [x] Thumbnail da primeira foto no cartão (`IncidentPhoto`, 56 dp); sem foto, mostra um ícone.
 - **Feito quando:** cada perfil do seletor de sessão vê a lista certa. Já verificado no emulador: 2 ocorrências para o anónimo, 3 para o munícipe e 4 para o operador.
 

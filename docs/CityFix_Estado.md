@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 11/11/2026, sobre o commit `c718415` mais a atualização visual da barra de topo e do dashboard. Faltam 11 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 11/11/2026, sobre o commit `41ae99b` mais a atualização dos cartões da lista. Faltam 11 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md), as regras de negócio em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -56,11 +56,12 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - **J1 Dashboard:** `IncidentsList.getDashboardStats()` calcula sobre todas as ocorrências, incluindo as privadas, o tempo médio de reparação (de `createdAt` a `closedAt`), o total e a percentagem de ativas. O `IncidentsViewModel` expõe-nos em `dashboardStats` e o `DashboardStatsCard` mostra-os no topo do `Dashboard`.
 - **J2:**
   - Thumbnail da primeira foto no cartão (`IncidentPhoto`); sem foto, um ícone.
-  - `IncidentCard` mostra sempre a categoria e a situação; expandido, o estado e a descrição. Sem altura fixa.
-  - O botão de expandir está na `MainTopAppBar`, com `isExpanded` guardado com `rememberSaveable`.
+  - `IncidentCard` mostra sempre a categoria e a situação. Ao tocar, alterna entre recolhido e expandido. A expansão mostra o estado, a descrição e o botão «Ver detalhes».
+  - O botão na `MainTopAppBar` expande ou recolhe todos os cartões da lista atual. A `MainActivity` guarda os IDs expandidos com `rememberSaveable`.
   - O `IncidentsViewModel` filtra a lista com `canViewIncident` conforme o utilizador da sessão.
   - O munícipe tem os chips "Todas" / "As minhas" (`IncidentFilter`, estado `onlyMine`).
-  - Tocar num cartão abre o detalhe (`IncidentDetailRoute(incidentId)`).
+  - «Ver detalhes» abre o detalhe (`IncidentDetailRoute(incidentId)`).
+  - Compilação debug concluída. No Medium Phone, verificados o toque individual, a expansão e o recolher global, a abertura do detalhe pelo botão e a manutenção da expansão ao voltar.
 - **J3 Botão "Nova ocorrência":** botão flutuante + no início, só para o munícipe (`canCreateIncident`).
 - **J5 Criar ocorrência:**
   - `ReportIncidentScreen`, `ReportIncidentUiState` e `ReportIncidentViewModel` + `Factory`, no padrão do `EditScreen` / `EditContactUiState` das aulas.
@@ -90,8 +91,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - **Design alinhado com os ecrãs do Leonardo (11/11):** sem cores de teste; títulos de secção em `titleMedium` alinhados à esquerda; cartões com elevação de 2 dp, `padding(16.dp)`, título em `titleMedium` e `onClickLabel` para a acessibilidade. As duas páginas do dashboard usam o mesmo `DashboardPage`.
 - **Tema azul-petróleo (11/11):** `CityFixTheme` usa uma paleta fixa com variantes clara e escura. A `MainTopAppBar` partilhada usa o azul-petróleo do ícone com texto e ícones brancos. O `DashboardStatsCard` usa `primaryContainer` e dá mais peso aos valores.
   - Compilação debug concluída e ecrã inicial verificado no Medium Phone em modo claro, incluindo os ícones da barra de estado e os três indicadores.
-- **Barra de topo:** títulos em seminegrito. O botão de expansão realça o ícone quando os cartões estão expandidos e indica a ação disponível na descrição de acessibilidade em EN/PT.
-  - Compilação debug concluída. No Medium Phone, verificada a mudança de «Expand cards» para «Collapse cards» ao expandir os cartões, com o realce visível na barra.
+- **Barra de topo:** títulos em seminegrito. O botão de expansão realça o ícone quando todos os cartões da lista estão expandidos e indica a ação disponível na descrição de acessibilidade em EN/PT.
 - Testado no emulador com os dados de exemplo: 11,5 dias, 6 ocorrências e 67% ativas; o munícipe `citizen-1` tem 4 ocorrências suas em "As minhas", e o operador vê as 6.
 
 ### 2.4 Provisório (sai antes da entrega)

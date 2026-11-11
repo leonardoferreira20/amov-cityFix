@@ -29,11 +29,12 @@ import pt.isec.amov.cityfix.viewmodel.SessionViewModel
 fun MainScreen(
     viewModel: IncidentsViewModel,
     sessionViewModel: SessionViewModel,
-    isExpanded: Boolean,
-    onIncidentClick: (String) -> Unit,
+    incidents: List<Incident>,
+    expandedIncidentIds: List<String>,
+    onToggleIncident: (String) -> Unit,
+    onOpenIncident: (String) -> Unit,
     onCreateIncident: () -> Unit
 ) {
-    val incidents by viewModel.incidentsList.collectAsStateWithLifecycle()
     val stats by viewModel.dashboardStats.collectAsStateWithLifecycle()
     val onlyMine by viewModel.onlyMine.collectAsStateWithLifecycle()
     val currentUser by sessionViewModel.currentUser.collectAsStateWithLifecycle()
@@ -49,8 +50,9 @@ fun MainScreen(
         onProfileSelected = sessionViewModel::selectProfile,
         onlyMine = onlyMine,
         onOnlyMineChange = viewModel::setOnlyMine,
-        isExpanded = isExpanded,
-        onIncidentClick = onIncidentClick,
+        expandedIncidentIds = expandedIncidentIds,
+        onToggleIncident = onToggleIncident,
+        onOpenIncident = onOpenIncident,
         showCreateIncident = canCreateIncident(currentUser),
         onCreateIncident = onCreateIncident
     )
@@ -64,8 +66,9 @@ fun MainScreenContent(
     onProfileSelected: (UserRole?) -> Unit,
     onlyMine: Boolean,
     onOnlyMineChange: (Boolean) -> Unit,
-    isExpanded: Boolean,
-    onIncidentClick: (String) -> Unit,
+    expandedIncidentIds: List<String>,
+    onToggleIncident: (String) -> Unit,
+    onOpenIncident: (String) -> Unit,
     showCreateIncident: Boolean,
     onCreateIncident: () -> Unit
 ) {
@@ -95,8 +98,9 @@ fun MainScreenContent(
             Dashboard(
                 stats = stats,
                 incidents = incidents,
-                isExpanded = isExpanded,
-                onIncidentClick = onIncidentClick,
+                expandedIncidentIds = expandedIncidentIds,
+                onToggleIncident = onToggleIncident,
+                onOpenIncident = onOpenIncident,
                 modifier = Modifier.weight(1f)
             )
         }

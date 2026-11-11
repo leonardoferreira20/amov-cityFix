@@ -21,7 +21,8 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Uma só `MainActivity` com um `NavHost` dentro de um `Scaffold`. A app abre no início (`DashboardRoute`); os ecrãs do operador (categorias, validação) e o registo abrem-se pelos botões da `MainTopAppBar`, que só aparecem ao perfil que os pode usar.
 - Os três números do dashboard são calculados sobre todas as ocorrências (`IncidentsList.getDashboardStats()`); a lista mostra só as que o perfil pode ver.
 - Identidade visual do CityFix (11/11/2026): paleta fixa a partir do azul-petróleo `#0B2833` do ícone, com variantes clara e escura segundo o modo do dispositivo. A barra de topo usa azul-petróleo com texto e ícones brancos. O cartão dos indicadores usa um tom mais suave da paleta e dá destaque aos valores.
-- Barra de topo (11/11/2026): título em seminegrito e círculo branco translúcido atrás do ícone quando os cartões estão expandidos. A descrição do botão indica a ação disponível: expandir ou recolher.
+- Barra de topo (11/11/2026): título em seminegrito e círculo branco translúcido atrás do ícone quando todos os cartões da lista estão expandidos. A descrição do botão indica se expande ou recolhe todos os cartões.
+- Lista de ocorrências (11/11/2026): tocar num cartão alterna a sua expansão. Na zona expandida, «Ver detalhes» abre o ecrã da ocorrência. O botão da barra de topo expande todos os cartões da lista atual se ainda houver algum recolhido e recolhe todos quando estão todos expandidos.
 - Detalhe da ocorrência (decidido a 11/11/2026):
   - Quem não é autor nem operador vê a categoria, a situação, o estado, a data e a descrição, e mais tarde as fotos e o mapa com zoom afastado. Ficam ocultos o autor e as coordenadas (I.1.C).
   - As coordenadas exatas e o histórico de estados aparecem ao operador e ao autor.

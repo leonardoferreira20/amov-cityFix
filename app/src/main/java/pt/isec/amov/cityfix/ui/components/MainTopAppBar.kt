@@ -34,12 +34,12 @@ fun MainTopAppBar(
     @StringRes titleRes: Int,
     canNavigateBack: Boolean,
     isDashboard: Boolean,
-    isExpanded: Boolean,
+    areAllCardsExpanded: Boolean,
     showCategories: Boolean,
     showValidation: Boolean,
     showRegister: Boolean,
     onNavigateBack: () -> Unit,
-    onToggleExpand: () -> Unit,
+    onToggleAllCards: () -> Unit,
     onCategoriesClick: () -> Unit,
     onValidationClick: () -> Unit,
     onRegisterClick: () -> Unit
@@ -70,16 +70,16 @@ fun MainTopAppBar(
         },
         actions = {
             if (isDashboard) {
-                IconButton(onClick = onToggleExpand) {
+                IconButton(onClick = onToggleAllCards) {
                     Icon(
-                        imageVector = if (isExpanded) Icons.Default.ViewAgenda else Icons.AutoMirrored.Filled.List,
+                        imageVector = if (areAllCardsExpanded) Icons.Default.ViewAgenda else Icons.AutoMirrored.Filled.List,
                         contentDescription = stringResource(
-                            if (isExpanded) R.string.collapse_cards else R.string.expand_cards
+                            if (areAllCardsExpanded) R.string.collapse_cards else R.string.expand_cards
                         ),
                         modifier = Modifier
                             .size(36.dp)
                             .background(
-                                color = if (isExpanded) Color.White.copy(alpha = 0.16f) else Color.Transparent,
+                                color = if (areAllCardsExpanded) Color.White.copy(alpha = 0.16f) else Color.Transparent,
                                 shape = CircleShape
                             )
                             .padding(6.dp)
