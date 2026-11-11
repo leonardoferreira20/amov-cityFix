@@ -14,7 +14,7 @@ Instruções para qualquer assistente de IA que trabalhe neste projeto (Claude, 
   2. Implementar só depois da resposta.
   3. No fim, mostrar o resultado (compilação e teste no emulador) para o aluno validar.
 - Explicar sempre as decisões de código, porque os dois alunos têm de as justificar na defesa.
-- Os documentos em `docs/` têm de estar sempre atualizados. Depois de cada alteração ao código, atualizar os que mudam com ela: `CityFix_Estado.md` (feito e por fazer), o ficheiro de tarefas do aluno, `CityFix_Plano.md`, `CityFix_Decisoes.md` (decisões novas) e `Padroes_Aulas.md` (o que não foi dado nas aulas).
+- Os documentos em `docs/` têm de estar sempre atualizados. Depois de cada alteração ao código, atualizar os que mudam com ela: `CityFix_Estado.md` (feito e por fazer), o ficheiro de tarefas do aluno, `CityFix_Plano.md`, `CityFix_Decisoes.md` (decisões novas), `CityFix_RegrasNegocio.md` (regras novas ou que passaram a implementadas) e `Padroes_Aulas.md` (o que não foi dado nas aulas).
 - Propostas pequenas e incrementais. Responder ao que foi pedido, sem antecipar camadas que ainda não são precisas.
 - Seguir os padrões dados nas aulas, descritos em `docs/Padroes_Aulas.md`. Se uma solução precisar de algo que não foi dado, avisar antes de o propor.
 - Fazer commit ou push só quando o aluno pedir.
@@ -26,6 +26,7 @@ Instruções para qualquer assistente de IA que trabalhe neste projeto (Claude, 
 - `docs/Tarefas_Joao.md` e `docs/Tarefas_Leonardo.md`: tarefas de cada aluno.
 - `docs/Padroes_Aulas.md` e `docs/AMov.P07.pdf`: padrões e código dados nas aulas.
 - `docs/CityFix_Estado.md`: ponto de situação, com o que já está implementado e o que falta.
+- `docs/CityFix_RegrasNegocio.md`: todas as regras de negócio, com o estado, onde estão no código e de onde vêm.
 - Não inventar requisitos. Se algo estiver na secção "Por confirmar" ou não estiver no enunciado nem nas decisões, perguntar antes de implementar.
 - Quando uma decisão nova for tomada, atualizar `docs/CityFix_Decisoes.md`.
 

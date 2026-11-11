@@ -3,6 +3,7 @@
 Plano geral do projeto e divisão de tarefas entre João Carvalho e Leonardo Ferreira.
 As tarefas detalhadas estão em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 As decisões de requisitos e o modelo de dados estão em [CityFix_Decisoes.md](CityFix_Decisoes.md).
+As regras de negócio, com o estado e o sítio no código, estão em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md).
 
 ## 1. Prazos
 
