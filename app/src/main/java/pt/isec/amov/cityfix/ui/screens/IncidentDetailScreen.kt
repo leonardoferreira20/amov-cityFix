@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -37,8 +39,10 @@ import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.ui.components.IncidentPhoto
-import pt.isec.amov.cityfix.ui.components.firstPhotoPath
+import pt.isec.amov.cityfix.ui.components.PhotoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
+import pt.isec.amov.cityfix.ui.components.photoPaths
+import pt.isec.amov.cityfix.utils.FileUtils
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.viewmodel.IncidentDetailUiState
 import java.text.SimpleDateFormat
@@ -49,7 +53,7 @@ import java.util.Locale
 fun IncidentDetailScreen(
     state: IncidentDetailUiState,
     modifier: Modifier = Modifier,
-    onReopen: (String) -> Unit = {},
+    onReopen: (String, String) -> Unit = { _, _ -> },
     operatorActions: @Composable () -> Unit = {}
 ) {
     if (state.isLoading) return
@@ -65,9 +69,9 @@ fun IncidentDetailScreen(
 
     if (showReopenDialog) {
         ReopenDialog(
-            onConfirm = { justification ->
+            onConfirm = { justification, photoPath ->
                 showReopenDialog = false
-                onReopen(justification)
+                onReopen(justification, photoPath)
             },
             onDismiss = { showReopenDialog = false }
         )
@@ -80,14 +84,19 @@ fun IncidentDetailScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        incident.firstPhotoPath()?.let { path ->
-            IncidentPhoto(
-                path = path,
-                contentDescription = stringResource(R.string.incident_photo_description),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-            )
+        val photos = incident.photoPaths()
+        if (photos.isNotEmpty()) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(photos) { path ->
+                    IncidentPhoto(
+                        path = path,
+                        contentDescription = stringResource(R.string.incident_photo_description),
+                        modifier = Modifier
+                            .fillParentMaxWidth(if (photos.size == 1) 1f else 0.85f)
+                            .height(220.dp)
+                    )
+                }
+            }
         }
         Text(text = incident.categoryName, style = MaterialTheme.typography.headlineSmall)
         Text(
@@ -175,16 +184,32 @@ fun IncidentDetailScreen(
 
 @Composable
 private fun ReopenDialog(
-    onConfirm: (String) -> Unit,
+    onConfirm: (String, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var justification by rememberSaveable { mutableStateOf("") }
+    var photoPath by rememberSaveable { mutableStateOf<String?>(null) }
+    val cancel = {
+        FileUtils.deleteFromPath(photoPath)
+        onDismiss()
+    }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = cancel,
         title = { Text(stringResource(R.string.reopen_dialog_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Text(stringResource(R.string.reopen_dialog_text))
+                PhotoPicker(
+                    photoPath = photoPath,
+                    onPhotoChange = { newPath ->
+                        if (photoPath != null && photoPath != newPath) FileUtils.deleteFromPath(photoPath)
+                        photoPath = newPath
+                    },
+                    previewHeight = 140.dp
+                )
                 OutlinedTextField(
                     value = justification,
                     onValueChange = { justification = it },
@@ -196,14 +221,14 @@ private fun ReopenDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(justification) },
-                enabled = justification.isNotBlank()
+                onClick = { photoPath?.let { onConfirm(justification, it) } },
+                enabled = justification.isNotBlank() && photoPath != null
             ) {
                 Text(stringResource(R.string.reopen_button))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = cancel) {
                 Text(stringResource(R.string.cancel))
             }
         }

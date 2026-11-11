@@ -64,18 +64,18 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - **J3 Botão "Nova ocorrência":** botão flutuante + no início, só para o munícipe (`canCreateIncident`).
 - **J5 Criar ocorrência:**
   - `ReportIncidentScreen`, `ReportIncidentUiState` e `ReportIncidentViewModel` + `Factory`, no padrão do `EditScreen` / `EditContactUiState` das aulas.
-  - Categoria (só as ativas), situação, descrição, visibilidade e foto obrigatória, com erros campo a campo.
+  - Categoria (só as ativas) e situação em listas dropdown, descrição, visibilidade com `RadioButton` e foto obrigatória, com erros campo a campo.
   - Foto da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), guardada em `filesDir/images/` e registada como `MediaAttachment` (`IMAGE`, `REPORT`).
   - Localização provisória: a do registo do autor ou o centro do município (`utils/CityConstants.kt`).
   - Ao gravar, a lista e o dashboard atualizam-se.
   - Testado no emulador com uma foto da câmara.
-- **Base de multimédia:** `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, dependência `coil-compose` 3.0.4 (a das aulas) e o componente `IncidentPhoto`. Serve também para a L3, a L4 e a L7 do Leonardo.
+- **Base de multimédia:** `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, dependência `coil-compose` 3.0.4 (a das aulas) e os componentes `IncidentPhoto` (mostra uma foto) e `PhotoPicker` (pré-visualização e botões Galeria / Câmara, usado na criação e na reabertura). Serve também para a L3, a L4 e a L7 do Leonardo.
 - **J8 Reabertura:**
   - Botão "Reabrir" no detalhe, só para o autor, em Resolvido e dentro dos 5 dias (`canReopen`), com o prazo por baixo (`reopenDeadline`).
-  - Justificação obrigatória num `AlertDialog`.
-  - `Incident.reopened()` (em `data/model/IncidentActions.kt`): passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount` e acrescenta um `StatusChange` com a justificação como nota.
-  - O histórico mostra a nota de cada mudança. A lista e o dashboard atualizam-se.
-  - Testado no emulador com a ocorrência "Água" do `citizen-1`.
+  - Justificação e foto obrigatórias num `AlertDialog`, com o `PhotoPicker` (galeria ou câmara).
+  - `Incident.reopened()` (em `data/model/IncidentActions.kt`): passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount`, junta a foto (`MediaPurpose.REOPEN`) e acrescenta um `StatusChange` com a justificação como nota.
+  - O histórico mostra a nota de cada mudança e o detalhe mostra todas as fotos numa fila horizontal. A lista e o dashboard atualizam-se.
+  - Testado no emulador com a "Água" e, com foto da câmara, com a "Iluminação" do `citizen-1`.
 - **J4 Detalhe (sem mensagens):**
   - Foto da ocorrência no topo.
   - `IncidentDetailScreen` (stateless, como o `ShowScreen`), `IncidentDetailUiState` e `IncidentDetailViewModel` + `Factory`, criado por destino com o id da ocorrência e o utilizador da sessão.
@@ -86,7 +86,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - **Gráfico:** a segunda página do `Dashboard` mostra o número de ocorrências por categoria (`IncidentChart`, barras feitas com `Row` e `Box`).
 - `EnumLabels.kt` liga cada `Situation` e `IncidentStatus` ao seu texto no `strings.xml`.
 - **Design alinhado com os ecrãs do Leonardo (11/11):** sem cores de teste; títulos de secção em `titleMedium` alinhados à esquerda; cartões com elevação de 2 dp, `padding(16.dp)`, título em `titleMedium` e `onClickLabel` para a acessibilidade. As duas páginas do dashboard usam o mesmo `DashboardPage`.
-- Testado no emulador: com os dados de exemplo, os números são 10,0 dias, 4 ocorrências e 75% ativas; a lista mostra 2 ocorrências ao anónimo, 3 ao munícipe e 4 ao operador.
+- Testado no emulador com os dados de exemplo: 11,5 dias, 6 ocorrências e 67% ativas; o munícipe `citizen-1` tem 4 ocorrências suas em "As minhas", e o operador vê as 6.
 
 ### 2.4 Provisório (sai antes da entrega)
 - `SessionSelector`: sai quando houver login (L1). O `SessionViewModel` fica; muda só a forma de preencher o `currentUser`.
@@ -151,8 +151,8 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 - [ ] O `gradlew` está no Git sem permissão de execução (`100644`); corrige-se com `git update-index --chmod=+x gradlew`.
 - [ ] Quando entrar o Firestore, as classes do modelo precisam de valores por omissão em todos os campos, porque o `toObject()` exige um construtor sem argumentos.
 - A câmara usa o contrato `TakePicture`, que não exige a permissão `CAMERA` enquanto a app não a declarar no manifesto. O pedido de permissões em runtime que o enunciado exige fica para a aula #4.
-- Os testes no emulador alteram os dados guardados em JSON (por exemplo, a "Água" já foi reaberta). Para voltar aos dados de exemplo: `adb shell pm clear pt.isec.amov.cityfix`.
-- Os dados de exemplo não têm histórico de estados, por isso o detalhe mostra "Ainda sem mudanças de estado" até a L7 registar transições.
+- Os testes no emulador alteram os dados guardados em JSON. Os dados de exemplo só são lidos quando o ficheiro ainda não existe; para os repor: `adb shell pm clear pt.isec.amov.cityfix`.
+- Dados de exemplo para testar a reabertura (J8), todos do `citizen-1`: "Iluminação" resolvida há 1 dia (mostra o botão "Reabrir") e "Saneamento" encerrada (não o mostra), ambas com histórico de estados. A "Água" também está resolvida, há 2 dias.
 - Os campos de texto seguem o padrão das aulas (`StateFlow`). Com escrita muito rápida num emulador lento perderam-se letras; a escrever normalmente funcionou.
 - O stash `stash@{0}` (alterações antigas do João, de 11/11) já não é preciso: o `Rules.kt` deu origem ao `AccessRules.kt` e o `IncidentChart` foi recuperado.
 

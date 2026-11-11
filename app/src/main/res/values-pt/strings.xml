@@ -74,7 +74,7 @@
     <string name="reopen_button">Reabrir</string>
     <string name="reopen_deadline">Pode reabrir até %1$s.</string>
     <string name="reopen_dialog_title">Reabrir ocorrência</string>
-    <string name="reopen_dialog_text">Explique porque é que o problema não ficou resolvido.</string>
+    <string name="reopen_dialog_text">Junte uma fotografia e explique porque é que o problema não ficou resolvido.</string>
     <string name="reopen_justification">Justificação</string>
     <string name="cancel">Cancelar</string>
     <string name="detail_history_note">Nota: %1$s</string>

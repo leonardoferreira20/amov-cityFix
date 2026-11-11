@@ -27,6 +27,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O munícipe filtra a lista com dois chips, "Todas" e "As minhas", por cima do dashboard.
 - Criar ocorrência (decidido a 11/11/2026):
   - O botão "Nova ocorrência" é um botão flutuante (+) no início, só para o munícipe, como o + das categorias.
+  - No formulário, a categoria e a situação escolhem-se em listas dropdown, para ocupar menos espaço; a visibilidade fica com `RadioButton`.
   - A base de multimédia (`FileUtils`, `FileProvider`, Coil 3 das aulas e o componente `IncidentPhoto`) foi feita pelo João com a J5; o Leonardo reaproveita-a na L4, na L7 e na L8.
   - Até haver GPS (aula #4), a localização de uma ocorrência nova é a georreferenciação do registo do autor; se não existir, é o centro do município (`CITY_CENTER`).
   - Coordenadas provisórias do centro do município, a Praça da República (3): 40.2085, -8.4196.
@@ -34,6 +35,8 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - O autor reabre no detalhe, com um botão "Reabrir" e o prazo por baixo. A justificação escreve-se num `AlertDialog`.
   - Ao reabrir, o `resolvedAt` passa a `null`, porque a ocorrência deixa de estar resolvida. A data antiga fica no histórico, e a próxima resolução volta a contar os 5 dias do zero.
   - A justificação fica guardada como nota da mudança de estado (`StatusChange.note`).
+  - A reabertura exige também uma foto, da galeria ou da câmara. Junta-se às fotos que a ocorrência já tem, como `MediaAttachment` com o propósito `REOPEN`.
+  - O detalhe mostra todas as fotos numa fila com scroll horizontal; a primeira continua a ser o thumbnail da lista.
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
@@ -48,7 +51,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 
 ### Ocorrências
 - A foto é obrigatória na criação. A localização da ocorrência é obtida no momento em que a foto é tirada (12).
-- Anexos por ocorrência: 1 foto e 1 vídeo, por agora (13).
+- Anexos por ocorrência: 1 foto e 1 vídeo na criação, mais 1 foto obrigatória em cada reabertura (13; alterado a 11/11/2026).
 - Ocorrência ativa: qualquer estado exceto Encerrado (14).
 - Tempo médio de reparação: de Aberto a Encerrado (15).
 - O total do dashboard inclui as ocorrências privadas. Os detalhes e as fotos das privadas não são mostrados (16).
@@ -106,7 +109,7 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 - `Visibility`: PUBLIC, PRIVATE.
 - `IncidentStatus`: OPEN, INFO_REQUESTED, IN_PROGRESS, RESOLVED, CLOSED.
 - `MediaType`: IMAGE, VIDEO.
-- `MediaPurpose`: REPORT, RESOLUTION_PROOF. Juntar INFO_REPLY se D for sim.
+- `MediaPurpose`: REPORT, REOPEN, RESOLUTION_PROOF. Juntar INFO_REPLY se D for sim.
 - `UploadStatus`: PENDING, UPLOADING, UPLOADED, FAILED.
 - `InfoRequestStatus`: OPEN, ANSWERED.
 

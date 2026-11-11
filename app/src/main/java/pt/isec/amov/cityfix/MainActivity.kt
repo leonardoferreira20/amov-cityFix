@@ -164,8 +164,8 @@ class MainActivity : ComponentActivity() {
                             val detailState by detailViewModel.detailState.collectAsStateWithLifecycle()
                             IncidentDetailScreen(
                                 state = detailState,
-                                onReopen = { justification ->
-                                    detailViewModel.reopen(justification) {
+                                onReopen = { justification, photoPath ->
+                                    detailViewModel.reopen(justification, photoPath) {
                                         incidentsViewModel.refreshIncidents()
                                     }
                                 }

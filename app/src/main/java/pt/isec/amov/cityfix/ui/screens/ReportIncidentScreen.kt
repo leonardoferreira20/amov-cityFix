@@ -1,8 +1,5 @@
 package pt.isec.amov.cityfix.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,11 +16,14 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -31,11 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,10 +43,9 @@ import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.Category
 import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.Visibility
-import pt.isec.amov.cityfix.ui.components.IncidentPhoto
+import pt.isec.amov.cityfix.ui.components.PhotoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
-import pt.isec.amov.cityfix.utils.FileUtils
 import pt.isec.amov.cityfix.viewmodel.ReportIncidentUiState
 
 @Composable
@@ -61,20 +59,6 @@ fun ReportIncidentScreen(
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    var cameraFilePath by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val photoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let { onPhotoChange(FileUtils.copyUriToInternalStorage(context, it)) }
-    }
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) onPhotoChange(cameraFilePath) else FileUtils.deleteFromPath(cameraFilePath)
-    }
-
     Scaffold(
         modifier = modifier.imePadding(),
         floatingActionButton = {
@@ -92,49 +76,29 @@ fun ReportIncidentScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SectionTitle(R.string.report_photo)
-            IncidentPhoto(
-                path = state.photoPath,
-                contentDescription = stringResource(R.string.incident_photo_description),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = {
-                    photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                }) {
-                    Text(stringResource(R.string.photo_gallery))
-                }
-                OutlinedButton(onClick = {
-                    val (file, uri) = FileUtils.createTempImageFile(context)
-                    cameraFilePath = file.absolutePath
-                    cameraLauncher.launch(uri)
-                }) {
-                    Text(stringResource(R.string.photo_camera))
-                }
-            }
+            PhotoPicker(photoPath = state.photoPath, onPhotoChange = onPhotoChange)
             ErrorText(state.photoError)
 
-            SectionTitle(R.string.report_category)
+            DropdownField(
+                label = R.string.report_category,
+                options = state.categories,
+                selected = state.categories.find { it.id == state.categoryId },
+                optionLabel = { it.name },
+                onSelect = { onCategorySelected(it.id) },
+                error = state.categoryError
+            )
             if (state.categories.isEmpty()) {
                 Text(stringResource(R.string.report_no_categories), style = MaterialTheme.typography.bodyMedium)
             }
-            RadioOptions(
-                options = state.categories,
-                selected = state.categories.find { it.id == state.categoryId },
-                label = { it.name },
-                onSelect = { onCategorySelected(it.id) }
-            )
-            ErrorText(state.categoryError)
 
-            SectionTitle(R.string.report_situation)
-            RadioOptions(
+            DropdownField(
+                label = R.string.report_situation,
                 options = Situation.entries,
                 selected = state.situation,
-                label = { stringResource(it.labelRes()) },
-                onSelect = onSituationSelected
+                optionLabel = { stringResource(it.labelRes()) },
+                onSelect = onSituationSelected,
+                error = state.situationError
             )
-            ErrorText(state.situationError)
 
             OutlinedTextField(
                 value = state.description,
@@ -172,6 +136,44 @@ private fun ErrorText(@StringRes error: Int?) {
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun <T> DropdownField(
+    @StringRes label: Int,
+    options: List<T>,
+    selected: T?,
+    optionLabel: @Composable (T) -> String,
+    onSelect: (T) -> Unit,
+    @StringRes error: Int?
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = selected?.let { optionLabel(it) }.orEmpty(),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            isError = error != null,
+            supportingText = { error?.let { Text(stringResource(it)) } },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(optionLabel(option)) },
+                    onClick = {
+                        onSelect(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 

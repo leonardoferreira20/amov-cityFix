@@ -17,7 +17,10 @@ import coil3.compose.AsyncImage
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.MediaType
 
-fun Incident.firstPhotoPath(): String? = media.firstOrNull { it.type == MediaType.IMAGE }?.localUri
+fun Incident.photoPaths(): List<String> =
+    media.filter { it.type == MediaType.IMAGE }.mapNotNull { it.localUri }
+
+fun Incident.firstPhotoPath(): String? = photoPaths().firstOrNull()
 
 @Composable
 fun IncidentPhoto(

@@ -53,14 +53,16 @@ class IncidentDetailViewModel(
         }
     }
 
-    fun reopen(justification: String, onSuccess: () -> Unit) {
+    fun reopen(justification: String, photoPath: String?, onSuccess: () -> Unit) {
         val user = currentUser ?: return
-        if (justification.isBlank()) return
+        if (justification.isBlank() || photoPath == null) return
         viewModelScope.launch {
             val incidents = incidentRepository.loadIncidents()
             val incident = incidents.findById(incidentId) ?: return@launch
             if (!canReopen(user, incident)) return@launch
-            incidents.upsert(incident.reopened(user.id, justification.trim(), System.currentTimeMillis()))
+            incidents.upsert(
+                incident.reopened(user.id, justification.trim(), photoPath, System.currentTimeMillis())
+            )
             incidentRepository.saveIncidents(incidents)
             refresh()
             onSuccess()

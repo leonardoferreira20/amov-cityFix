@@ -57,7 +57,7 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 
 ### J5 — Criar ocorrência
 - [x] Ecrã com `ReportIncidentUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid` (`ReportIncidentScreen`, `ReportIncidentViewModel` + `Factory`).
-- [x] Campos: categoria (só as ativas), situação, descrição, visibilidade (pública ou privada), com `RadioButton` como o registo do Leonardo.
+- [x] Campos: categoria (só as ativas) e situação em listas dropdown; descrição; visibilidade (pública ou privada) com `RadioButton`, como o registo do Leonardo.
 - [x] Validação: todos os campos obrigatórios; os erros aparecem campo a campo ao submeter.
 - [x] Gravar através do repositório e voltar ao início com `popBackStack()`; a lista e o dashboard atualizam-se.
 - [x] Foto obrigatória, da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), como no Contacts das aulas.
@@ -78,10 +78,11 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 
 ### J8 — Reabertura
 - [x] Botão "Reabrir" no detalhe, visível só para o autor, em Resolvido e até 5 dias depois de `resolvedAt` (`canReopen`), com o prazo por baixo (`reopenDeadline`).
-- [x] Justificação obrigatória num `AlertDialog`; o botão de confirmar só fica ativo com texto.
-- [x] Passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount` e acrescenta um `StatusChange` com a justificação como nota (`Incident.reopened()` em `data/model/IncidentActions.kt`; decisão 26).
+- [x] Justificação e foto obrigatórias num `AlertDialog`; o botão de confirmar só fica ativo com as duas. A foto escolhe-se com o `PhotoPicker` (galeria ou câmara) e é apagada se o utilizador cancelar.
+- [x] Passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount`, junta a foto (`MediaPurpose.REOPEN`) e acrescenta um `StatusChange` com a justificação como nota (`Incident.reopened()` em `data/model/IncidentActions.kt`; decisão 26).
+- [x] O detalhe mostra todas as fotos numa fila horizontal.
 - [x] O histórico mostra a nota de cada mudança.
-- **Feito:** testado no emulador a 11/11 com a ocorrência "Água" do `citizen-1`.
+- **Feito:** testado no emulador a 11/11 com a "Água" e, já com foto da câmara, com a "Iluminação" do `citizen-1`.
 
 ## Anotado — tarefas a criar depois da aula
 
