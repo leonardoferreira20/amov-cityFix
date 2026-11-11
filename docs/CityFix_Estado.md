@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 11/11/2026, sobre o commit `9e3ecf3` mais a implementação local da J7. Faltam 11 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 11/11/2026, sobre o commit `c718415` mais a atualização visual da barra de topo e do dashboard. Faltam 11 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md), as regras de negócio em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -88,6 +88,10 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - **Gráfico:** a segunda página do `Dashboard` mostra o número de ocorrências por categoria (`IncidentChart`, barras feitas com `Row` e `Box`).
 - `EnumLabels.kt` liga cada `Situation` e `IncidentStatus` ao seu texto no `strings.xml`.
 - **Design alinhado com os ecrãs do Leonardo (11/11):** sem cores de teste; títulos de secção em `titleMedium` alinhados à esquerda; cartões com elevação de 2 dp, `padding(16.dp)`, título em `titleMedium` e `onClickLabel` para a acessibilidade. As duas páginas do dashboard usam o mesmo `DashboardPage`.
+- **Tema azul-petróleo (11/11):** `CityFixTheme` usa uma paleta fixa com variantes clara e escura. A `MainTopAppBar` partilhada usa o azul-petróleo do ícone com texto e ícones brancos. O `DashboardStatsCard` usa `primaryContainer` e dá mais peso aos valores.
+  - Compilação debug concluída e ecrã inicial verificado no Medium Phone em modo claro, incluindo os ícones da barra de estado e os três indicadores.
+- **Barra de topo:** títulos em seminegrito. O botão de expansão realça o ícone quando os cartões estão expandidos e indica a ação disponível na descrição de acessibilidade em EN/PT.
+  - Compilação debug concluída. No Medium Phone, verificada a mudança de «Expand cards» para «Collapse cards» ao expandir os cartões, com o realce visível na barra.
 - Testado no emulador com os dados de exemplo: 11,5 dias, 6 ocorrências e 67% ativas; o munícipe `citizen-1` tem 4 ocorrências suas em "As minhas", e o operador vê as 6.
 
 ### 2.4 Provisório (sai antes da entrega)

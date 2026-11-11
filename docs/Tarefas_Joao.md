@@ -22,11 +22,13 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
   - percentagem de ativas, ou seja, todas menos Encerrado (decisão 14).
 - [x] Expor os valores com `MutableStateFlow` + `asStateFlow()` no `IncidentsViewModel` (`dashboardStats`).
 - [x] Mostrar os 3 valores no `DashboardStatsCard`, no topo do `Dashboard`.
+- [x] Destacar os valores num cartão com um tom suave da paleta azul-petróleo. A barra de topo partilhada usa a cor do ícone.
 - **Feito:** testado no emulador a 11/11 (10,0 dias, 4 ocorrências, 75% ativas com os dados de exemplo).
 
 ### J2 — Lista com cartões expansíveis e filtro por perfil
 - [x] `IncidentCard` como o `ContactCard`: categoria e situação sempre visíveis (o enunciado pede a situação na lista); estado e descrição dentro do `AnimatedVisibility(isExpanded)`.
 - [x] Botão na `MainTopAppBar` para alternar `isExpanded`, guardado com `rememberSaveable`.
+- [x] Realce visual do ícone na vista expandida e descrições de acessibilidade distintas para expandir e recolher em EN/PT.
 - [x] Filtrar a lista com `canViewIncident` no `IncidentsViewModel`:
   - anónimo: públicas e não encerradas;
   - munícipe: as mesmas e as suas;

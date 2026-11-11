@@ -78,7 +78,7 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3) ·
 | L9 | Compressão, thumbnail, envio com WorkManager | Leonardo | 🔒 |
 | L10 | Geofence de 20 m | Leonardo | 🔒 |
 | L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 |
-| F1 | Textos EN/PT, landscape e acessibilidade nos seus ecrãs | Cada um | ✅ (layouts adaptativos: #4) |
+| F1 | Textos EN/PT, landscape e acessibilidade nos seus ecrãs, com a paleta partilhada do CityFix | Cada um | ✅ (layouts adaptativos: #4) |
 | F2 | Integração, relatório técnico em PDF, ZIP | Os dois | — |
 
 ## 6. Ainda por dar nas aulas

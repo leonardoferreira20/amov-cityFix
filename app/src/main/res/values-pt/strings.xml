@@ -43,7 +43,8 @@
     <string name="validation_activate_description">Ativar a conta de %1$s</string>
 
     <string name="navigate_back">Voltar</string>
-    <string name="toggle_cards">Expandir ou recolher os cartões</string>
+    <string name="expand_cards">Expandir cartões</string>
+    <string name="collapse_cards">Recolher cartões</string>
 
     <string name="session_label">Ver como</string>
     <string name="session_anonymous">Anónimo</string>

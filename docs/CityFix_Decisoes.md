@@ -20,6 +20,8 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Enquanto não há login, o utilizador atual vem de uma sessão falsa: o `SessionViewModel` guarda um `StateFlow<User?>` (`null` é o anónimo) e o `SessionSelector` escolhe o perfil. Com o login (L1) sai o seletor e fica o `SessionViewModel`.
 - Uma só `MainActivity` com um `NavHost` dentro de um `Scaffold`. A app abre no início (`DashboardRoute`); os ecrãs do operador (categorias, validação) e o registo abrem-se pelos botões da `MainTopAppBar`, que só aparecem ao perfil que os pode usar.
 - Os três números do dashboard são calculados sobre todas as ocorrências (`IncidentsList.getDashboardStats()`); a lista mostra só as que o perfil pode ver.
+- Identidade visual do CityFix (11/11/2026): paleta fixa a partir do azul-petróleo `#0B2833` do ícone, com variantes clara e escura segundo o modo do dispositivo. A barra de topo usa azul-petróleo com texto e ícones brancos. O cartão dos indicadores usa um tom mais suave da paleta e dá destaque aos valores.
+- Barra de topo (11/11/2026): título em seminegrito e círculo branco translúcido atrás do ícone quando os cartões estão expandidos. A descrição do botão indica a ação disponível: expandir ou recolher.
 - Detalhe da ocorrência (decidido a 11/11/2026):
   - Quem não é autor nem operador vê a categoria, a situação, o estado, a data e a descrição, e mais tarde as fotos e o mapa com zoom afastado. Ficam ocultos o autor e as coordenadas (I.1.C).
   - As coordenadas exatas e o histórico de estados aparecem ao operador e ao autor.

@@ -45,7 +45,8 @@
     <string name="validation_activate_description">Activate %1$s\'s account</string>
 
     <string name="navigate_back">Back</string>
-    <string name="toggle_cards">Expand or collapse cards</string>
+    <string name="expand_cards">Expand cards</string>
+    <string name="collapse_cards">Collapse cards</string>
 
     <string name="session_label">View as</string>
     <string name="session_anonymous">Anonymous</string>

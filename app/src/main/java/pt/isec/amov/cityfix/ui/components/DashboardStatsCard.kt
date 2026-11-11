@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,10 @@ fun DashboardStatsCard(
     }
     Card(
         modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -67,7 +72,12 @@ private fun StatItem(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = value, style = MaterialTheme.typography.headlineSmall)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
