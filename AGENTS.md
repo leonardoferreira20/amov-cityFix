@@ -9,9 +9,12 @@ Instruções para qualquer assistente de IA que trabalhe neste projeto (Claude, 
 - Defesa funcional obrigatória e defesa oral individual: cada decisão de código tem de ser explicável pelos dois alunos.
 
 ## Forma de trabalhar
-- **Os alunos escrevem o código.** Não alterar ficheiros de código por iniciativa própria. Mostrar o código no chat, explicar as decisões e rever depois de o aluno o escrever.
-- Só editar código quando o aluno pedir explicitamente que seja o assistente a fazê-lo, e só alterações simples. Pedidos como "mostra", "como fica" ou "liga X a Y" são pedidos para mostrar código, não para editar.
-- Os documentos em `docs/` podem ser atualizados quando o aluno o pedir.
+- **Human in the loop.** O assistente escreve o código, mas as decisões são dos alunos:
+  1. Antes de cada parte, dizer o que vai ser feito e perguntar as decisões que cabem aos alunos (requisitos em aberto, opções de interface, bibliotecas novas).
+  2. Implementar só depois da resposta.
+  3. No fim, mostrar o resultado (compilação e teste no emulador) para o aluno validar.
+- Explicar sempre as decisões de código, porque os dois alunos têm de as justificar na defesa.
+- Os documentos em `docs/` têm de estar sempre atualizados. Depois de cada alteração ao código, atualizar os que mudam com ela: `CityFix_Estado.md` (feito e por fazer), o ficheiro de tarefas do aluno, `CityFix_Plano.md`, `CityFix_Decisoes.md` (decisões novas) e `Padroes_Aulas.md` (o que não foi dado nas aulas).
 - Propostas pequenas e incrementais. Responder ao que foi pedido, sem antecipar camadas que ainda não são precisas.
 - Seguir os padrões dados nas aulas, descritos em `docs/Padroes_Aulas.md`. Se uma solução precisar de algo que não foi dado, avisar antes de o propor.
 - Fazer commit ou push só quando o aluno pedir.

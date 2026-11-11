@@ -16,6 +16,15 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O trabalho divide-se por ecrã, e cada ecrã tem um dono. A divisão está em `CityFix_Plano.md`.
 - Nomes do modelo: mantêm-se os que já estão no código (`Incident`, `IncidentStatus`, ...). A exceção é `GeoPoint`, que passa a `GeoLocation` para não chocar com `com.google.firebase.firestore.GeoPoint` quando o Firestore entrar.
 - Um repositório por entidade (`IncidentRepository`, `UserRepository`, `CategoryRepository`), cada um como o `ContactsRepository` das aulas, com o seu ficheiro JSON e dados de exemplo. São todos criados na `Application`. Um ViewModel que precise de várias entidades recebe vários repositórios na Factory.
+- As regras de acesso ficam em `utils/AccessRules.kt`, junto do `Validators.kt`, como funções Kotlin puras.
+- Enquanto não há login, o utilizador atual vem de uma sessão falsa: o `SessionViewModel` guarda um `StateFlow<User?>` (`null` é o anónimo) e o `SessionSelector` escolhe o perfil. Com o login (L1) sai o seletor e fica o `SessionViewModel`.
+- Uma só `MainActivity` com um `NavHost` dentro de um `Scaffold`. A app abre no início (`DashboardRoute`); os ecrãs do operador (categorias, validação) e o registo abrem-se pelos botões da `MainTopAppBar`, que só aparecem ao perfil que os pode usar.
+- Os três números do dashboard são calculados sobre todas as ocorrências (`IncidentsList.getDashboardStats()`); a lista mostra só as que o perfil pode ver.
+- Detalhe da ocorrência (decidido a 11/11/2026):
+  - Quem não é autor nem operador vê a categoria, a situação, o estado, a data e a descrição, e mais tarde as fotos e o mapa com zoom afastado. Ficam ocultos o autor e as coordenadas (I.1.C).
+  - As coordenadas exatas e o histórico de estados aparecem ao operador e ao autor.
+  - Os dados do autor (nome, e-mail, telefone) aparecem só ao operador (I.3.E).
+- O munícipe filtra a lista com dois chips, "Todas" e "As minhas", por cima do dashboard.
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
@@ -34,6 +43,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Ocorrência ativa: qualquer estado exceto Encerrado (14).
 - Tempo médio de reparação: de Aberto a Encerrado (15).
 - O total do dashboard inclui as ocorrências privadas. Os detalhes e as fotos das privadas não são mostrados (16).
+- A lista mostra ao anónimo e ao munícipe só as ocorrências públicas e não encerradas, como diz o enunciado (I.1.B); o munícipe vê também as suas, e o operador vê todas. As privadas contam só para os números do dashboard (16). Regra em `utils/AccessRules.kt` (`canViewIncident`).
 
 ### Ocorrência de grupo
 - O critério de agrupamento é só a categoria, num raio de 10 m (18).
@@ -53,7 +63,6 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 
 - **Edição de perfil (11):** o enunciado proíbe alterar o nome, tanto no munícipe como no operador. A decisão tomada inclui o nome nos campos editáveis.
 - **Morada (11):** o enunciado não tem um campo "morada", só "georreferenciação", que o munícipe não pode alterar. Falta decidir se a morada é um campo novo, separado da georreferenciação, ou se é a própria georreferenciação.
-- **Privadas na listagem pública (16):** o enunciado diz que o anónimo vê a "listagem de ocorrências públicas". Falta decidir se as privadas aparecem nessa lista, sem detalhes nem fotos, ou se só contam para os números do dashboard.
 - **Tempo médio de reparação (15):** um ticket só passa a Encerrado 5 dias depois de Resolvido. Medir de Aberto a Encerrado acrescenta sempre esses 5 dias à média. Confirmar se é intencional.
 
 ## 3. Por confirmar

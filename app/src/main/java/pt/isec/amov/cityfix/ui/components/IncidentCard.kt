@@ -1,11 +1,9 @@
 package pt.isec.amov.cityfix.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -13,8 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.Incident
 
 @Composable
@@ -27,35 +26,25 @@ fun IncidentCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(120.dp)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
+            .clickable(onClickLabel = stringResource(R.string.incident_open), onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = incident.categoryName, style = MaterialTheme.typography.titleMedium)
             Text(
-                text = incident.categoryName,
-                style = MaterialTheme.typography.titleLarge
+                text = stringResource(incident.situation.labelRes()),
+                style = MaterialTheme.typography.bodyMedium
             )
-
-            AnimatedVisibility(
-                visible = isExpanded
-            ) {
-                Column(
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
+            AnimatedVisibility(visible = isExpanded) {
+                Column(modifier = Modifier.padding(top = 8.dp)) {
                     Text(
-                        text = "Email: ${incident.status}",
+                        text = stringResource(
+                            R.string.incident_status,
+                            stringResource(incident.status.labelRes())
+                        ),
                         style = MaterialTheme.typography.bodyMedium
                     )
-
-                    Text(
-                        text = "Tel: ${incident.description}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Text(text = incident.description, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

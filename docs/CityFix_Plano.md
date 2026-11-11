@@ -15,7 +15,7 @@ As decisões de requisitos e o modelo de dados estão em [CityFix_Decisoes.md](C
 
 - **Seguir o que foi dado nas aulas.** O molde é o ContactApp e a ficha AMov.P07: MVVM com `ViewModel` e `StateFlow`, ecrãs stateful e stateless, navegação type-safe com rotas `@Serializable`, `UiState` com validações, repositório em `data/` com dados de exemplo.
 - **Ecrãs comuns aos três perfis.** O anónimo, o munícipe e o operador usam os mesmos ecrãs sempre que o enunciado o permite. Cada perfil vê apenas o que as regras de acesso deixam.
-- **Regras de acesso num só sítio.** Ficam em `AccessRules.kt`, como funções Kotlin puras. O ViewModel aplica-as e entrega ao ecrã apenas valores sim/não; o ecrã só mostra ou esconde.
+- **Regras de acesso num só sítio.** Ficam em `utils/AccessRules.kt`, como funções Kotlin puras. O ViewModel aplica-as e entrega ao ecrã apenas valores sim/não; o ecrã só mostra ou esconde.
 - **Divisão por ecrã, não por perfil.** Cada ecrã tem um dono, que o faz para os três perfis. Assim os dois não mexem nos mesmos ficheiros.
 - **O que ainda não foi dado fica anotado.** As tarefas dessas partes são criadas depois da aula correspondente.
 
@@ -23,7 +23,7 @@ As decisões de requisitos e o modelo de dados estão em [CityFix_Decisoes.md](C
 
 | Ecrã | Anónimo | Munícipe | Operador | Dono |
 |---|---|---|---|---|
-| Início (dashboard + lista) | 3 números, lista pública | + botão "Nova ocorrência", filtro "As minhas" | todas as ocorrências, atalhos para validações e categorias | João |
+| Início (dashboard + lista) | 3 números, lista pública, botão de registo na barra de topo | + botão "Nova ocorrência", filtro "As minhas" | todas as ocorrências, botões de Categorias e Validação na barra de topo | João |
 | Detalhe da ocorrência | sem dados do autor, mapa com zoom afastado | se for o autor: mensagens e reabrir | coordenadas, contactos, histórico, ações de estado | João (ecrã) + Leonardo (`LifecycleActions`) |
 | Criar ocorrência | — | ✓ | — | João |
 | Registo | — | NIF, georreferenciação, deteção de impactos; fica pendente | e-mail da autarquia; fica ativo | Leonardo |
@@ -46,7 +46,9 @@ Esta fase é o contrato entre os dois. Faz-se antes de cada um seguir com as sua
 | 0.6 | Combinar os parâmetros do `LifecycleActions` e do componente de mensagens | As assinaturas estão escritas neste ficheiro, secção 7 |
 | 0.7 | Criar `values-pt/strings.xml` | O texto do título aparece em português num dispositivo em português |
 
-Enquanto a 0.4 e a 0.5 não estão feitas, o ecrã `Screen.LEONARDO` abre um menu provisório (`DevMenuScreen`) com acesso às categorias, ao registo e à validação de munícipes. Sai quando a sessão falsa e a navegação principal existirem.
+Estado a 11/11/2026: 0.1 a 0.5 e 0.7 feitas; falta a 0.6. O detalhe está em [CityFix_Estado.md](CityFix_Estado.md).
+
+A sessão falsa (0.4) e o `NavHost` único (0.5) substituíram o seletor `Screen.JOAO` / `Screen.LEONARDO` e o menu provisório `DevMenuScreen`. A app abre no início e chega-se aos ecrãs do operador e ao registo pelos botões da barra de topo, que dependem do perfil escolhido.
 
 ## 5. Divisão
 
@@ -95,7 +97,7 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula.
 
 A preencher na tarefa 0.6.
 
-- `LifecycleActions(...)`:
+- `LifecycleActions(...)`: o `IncidentDetailScreen` já tem o espaço `operatorActions: @Composable () -> Unit`, que só aparece quando `canChangeStatus` é verdadeiro. Falta combinar os parâmetros do componente (ocorrência atual e callbacks para cada transição) e o `refresh()` do `IncidentDetailViewModel` depois de cada mudança.
 - Componente de mensagens:
 
 ## 8. Calendário

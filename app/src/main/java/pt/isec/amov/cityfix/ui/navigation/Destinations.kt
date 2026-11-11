@@ -3,7 +3,10 @@ package pt.isec.amov.cityfix.ui.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object DevMenuRoute
+data object DashboardRoute
+
+@Serializable
+data class IncidentDetailRoute(val incidentId: String)
 
 @Serializable
 data object CategoryListRoute

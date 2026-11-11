@@ -32,14 +32,14 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - 📝 **Anotado (#3):** foto de perfil.
 
 ### L5 — Validação de munícipes
-- [ ] Ecrã só para o operador (regra em `AccessRules.kt`): depende das tarefas 0.3 e 0.4.
+- [x] Ecrã só para o operador: o botão de acesso só aparece na barra de topo com o perfil Operador (`canValidateCitizens`).
 - [x] Lista dos munícipes `PENDING` com nome, georreferenciação e NIF.
 - [x] Botão para ativar: passa a `ACTIVE`.
 - **Feito quando:** um munícipe ativado sai da lista de pendentes.
 
 ### L6 — Categorias
 - [x] Lista de categorias.
-- [ ] Só para o operador (regra em `AccessRules.kt`): depende das tarefas 0.3 e 0.4.
+- [x] Só para o operador: o botão de acesso só aparece na barra de topo com o perfil Operador (`canManageCategories`). O criador da categoria é o utilizador da sessão.
 - [x] Um só ecrã para criar e editar, com `EditCategoryRoute(categoryId: String? = null)`, como o `EditContactRoute`.
 - [x] Ativar e desativar.
 - [ ] Só as categorias ativas aparecem na criação de ocorrências (tarefa J5 do João): `CategoriesList.getActiveSorted()` já existe, falta a J5 usá-la.

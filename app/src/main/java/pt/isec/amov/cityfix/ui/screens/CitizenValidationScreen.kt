@@ -15,8 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
+import androidx.compose.ui.tooling.preview.Preview
+import pt.isec.amov.cityfix.data.model.AccountStatus
+import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.User
+import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.PendingCitizenCard
+import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 
 @Composable
 fun CitizenValidationScreen(
@@ -47,5 +52,36 @@ fun CitizenValidationScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CitizenValidationScreenPreview() {
+    CityFixTheme {
+        CitizenValidationScreen(
+            citizens = listOf(
+                User(
+                    name = "Carla Sousa",
+                    email = "carla.sousa@example.com",
+                    phone = "913000002",
+                    nif = "345678901",
+                    role = UserRole.CITIZEN,
+                    status = AccountStatus.PENDING,
+                    createdAt = 0L,
+                    location = GeoLocation(40.2101, -8.4189)
+                ),
+                User(
+                    name = "Diogo Ferreira",
+                    email = "diogo.ferreira@example.com",
+                    phone = "914000003",
+                    nif = "456789012",
+                    role = UserRole.CITIZEN,
+                    status = AccountStatus.PENDING,
+                    createdAt = 0L
+                )
+            ),
+            onActivate = {}
+        )
     }
 }

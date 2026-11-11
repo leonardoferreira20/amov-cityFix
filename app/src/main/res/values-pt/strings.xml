@@ -41,4 +41,47 @@
     <string name="validation_location_unknown">Georreferenciação: não definida</string>
     <string name="validation_activate">Ativar</string>
     <string name="validation_activate_description">Ativar a conta de %1$s</string>
+
+    <string name="navigate_back">Voltar</string>
+    <string name="toggle_cards">Expandir ou recolher os cartões</string>
+
+    <string name="session_label">Ver como</string>
+    <string name="session_anonymous">Anónimo</string>
+
+    <string name="stat_average_repair_time">Tempo médio de reparação</string>
+    <string name="stat_total_incidents">Total de ocorrências</string>
+    <string name="stat_active_incidents">Ocorrências ativas</string>
+    <string name="stat_days_value">%1$.1f dias</string>
+    <string name="stat_percentage_value">%1$.0f%%</string>
+
+    <string name="filter_all">Todas</string>
+    <string name="filter_mine">As minhas</string>
+
+    <string name="incident_detail_title">Detalhe da ocorrência</string>
+    <string name="incident_open">Abrir detalhe</string>
+    <string name="incident_not_found">Ocorrência não encontrada.</string>
+    <string name="detail_created">Registada a %1$s</string>
+    <string name="detail_description">Descrição</string>
+    <string name="detail_location_title">Localização</string>
+    <string name="detail_location">%1$.5f, %2$.5f</string>
+    <string name="detail_author">Autor</string>
+    <string name="detail_history">Histórico de estados</string>
+    <string name="detail_history_empty">Ainda sem mudanças de estado.</string>
+    <string name="detail_history_entry">%1$s: %2$s → %3$s</string>
+
+    <string name="recent_incidents_title">Ocorrências mais recentes</string>
+    <string name="incidents_by_category">Ocorrências por categoria</string>
+    <string name="no_incidents">Não há ocorrências registadas.</string>
+    <string name="incident_status">Estado: %1$s</string>
+
+    <string name="situation_damage">Dano</string>
+    <string name="situation_malfunction">Avaria</string>
+    <string name="situation_destruction">Destruição</string>
+    <string name="situation_theft">Roubo</string>
+
+    <string name="status_open">Aberto</string>
+    <string name="status_info_requested">Pedido de informações</string>
+    <string name="status_in_progress">Em resolução</string>
+    <string name="status_resolved">Resolvido</string>
+    <string name="status_closed">Encerrado</string>
 </resources>

@@ -43,4 +43,48 @@
     <string name="validation_location_unknown">Location: not set</string>
     <string name="validation_activate">Activate</string>
     <string name="validation_activate_description">Activate %1$s\'s account</string>
+
+    <string name="navigate_back">Back</string>
+    <string name="toggle_cards">Expand or collapse cards</string>
+
+    <string name="session_label">View as</string>
+    <string name="session_anonymous">Anonymous</string>
+
+    <string name="stat_average_repair_time">Average repair time</string>
+    <string name="stat_total_incidents">Total incidents</string>
+    <string name="stat_active_incidents">Active incidents</string>
+    <string name="stat_days_value">%1$.1f days</string>
+    <string name="stat_percentage_value">%1$.0f%%</string>
+    <string name="stat_no_value" translatable="false">—</string>
+
+    <string name="filter_all">All</string>
+    <string name="filter_mine">Mine</string>
+
+    <string name="incident_detail_title">Incident details</string>
+    <string name="incident_open">Open details</string>
+    <string name="incident_not_found">Incident not found.</string>
+    <string name="detail_created">Reported on %1$s</string>
+    <string name="detail_description">Description</string>
+    <string name="detail_location_title">Location</string>
+    <string name="detail_location">%1$.5f, %2$.5f</string>
+    <string name="detail_author">Author</string>
+    <string name="detail_history">Status history</string>
+    <string name="detail_history_empty">No status changes yet.</string>
+    <string name="detail_history_entry">%1$s: %2$s → %3$s</string>
+
+    <string name="recent_incidents_title">Most recent incidents</string>
+    <string name="incidents_by_category">Incidents by category</string>
+    <string name="no_incidents">No incidents registered.</string>
+    <string name="incident_status">Status: %1$s</string>
+
+    <string name="situation_damage">Damage</string>
+    <string name="situation_malfunction">Malfunction</string>
+    <string name="situation_destruction">Destruction</string>
+    <string name="situation_theft">Theft</string>
+
+    <string name="status_open">Open</string>
+    <string name="status_info_requested">Information requested</string>
+    <string name="status_in_progress">In progress</string>
+    <string name="status_resolved">Resolved</string>
+    <string name="status_closed">Closed</string>
 </resources>
