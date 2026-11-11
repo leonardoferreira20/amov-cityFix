@@ -168,6 +168,18 @@ class MainActivity : ComponentActivity() {
                                     detailViewModel.reopen(justification, photoPath) {
                                         incidentsViewModel.refreshIncidents()
                                     }
+                                },
+                                onRequestInformation = { text, onResult ->
+                                    detailViewModel.requestInformation(text) { error ->
+                                        if (error == null) incidentsViewModel.refreshIncidents()
+                                        onResult(error)
+                                    }
+                                },
+                                onReplyToInformationRequest = { requestId, text, onResult ->
+                                    detailViewModel.replyToInformationRequest(requestId, text) { error ->
+                                        if (error == null) incidentsViewModel.refreshIncidents()
+                                        onResult(error)
+                                    }
                                 }
                             )
                         }

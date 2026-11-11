@@ -10,7 +10,7 @@ As decisões completas e os pontos por confirmar estão em [CityFix_Decisoes.md]
 - Quando é implementada, passa a ✅ e indica-se onde está no código.
 - Os números não se reutilizam: uma regra que deixe de valer fica riscada (~~assim~~) com a data e o motivo.
 
-Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisões de [CityFix_Decisoes.md](CityFix_Decisoes.md); `A` a `E` são pontos por confirmar.
+Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisões de [CityFix_Decisoes.md](CityFix_Decisoes.md); `A` a `E` identificam decisões ou pontos por confirmar nesse documento.
 
 ## 1. Perfis e acesso
 
@@ -26,9 +26,10 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-08 | Só o munícipe cria ocorrências. | ✅ | `AccessRules.canCreateIncident` (botão +) | I.2.E |
 | RN-09 | Só o operador gere categorias e valida munícipes. | ✅ | `AccessRules.canManageCategories`, `canValidateCitizens` (botões da barra de topo) | I.3.D, I.3.E |
 | RN-10 | O botão de registo aparece só a quem não tem sessão. | ✅ | `MainActivity` (`showRegister`) | I.2.A, I.3.A |
-| RN-11 | Só o operador muda o estado de uma ocorrência. | 📝 | `AccessRules.canChangeStatus` (regra pronta; falta a L7) | I.3.E |
+| RN-11 | As ações de gestão do ciclo de vida destinam-se ao operador. As mudanças na resposta a um pedido e na reabertura seguem RN-57 e RN-60. | 📝 | `AccessRules.canChangeStatus` (regra pronta; falta a L7) | I.3.E, II.2, II.4 |
 | RN-12 | Um anónimo a mais de 10 km da Praça da República vê apenas o ecrã de login. | 📝 | J9 (aula #4); centro em `CityConstants.CITY_CENTER` | I.1, D3, D5 |
 | RN-13 | Um munícipe pendente não inicia sessão e vê um aviso. | 📝 | L1; a sessão falsa já só escolhe contas ativas (`SessionViewModel`) | I.2.A, D6 |
+| RN-14 | Só o autor e o operador consultam os pedidos e as respostas no detalhe da ocorrência. | ✅ | `AccessRules.canSeeInformationRequests`, `IncidentDetailScreen` | I.2.E, I.3.E, D (11/11) |
 
 ## 2. Registo, validação e perfil
 
@@ -71,14 +72,14 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 |---|---|---|---|---|
 | RN-50 | Os estados são Aberto, Pedido de informações, Em resolução, Resolvido e Encerrado. | ✅ | `IncidentStatus` | II |
 | RN-51 | Uma ocorrência está ativa em qualquer estado exceto Encerrado. | ✅ | `IncidentsList.getDashboardStats` | D14 |
-| RN-52 | Cada mudança de estado fica no histórico, com data, quem a fez e uma nota opcional. | ✅ na reabertura, 📝 nas outras | `Incident.reopened`; L7 | I.3.E |
+| RN-52 | Cada mudança de estado fica no histórico, com data, quem a fez e uma nota opcional. | ✅ na reabertura e nos pedidos, 📝 nas outras | `IncidentActions`; L7, L11 | I.3.E |
 | RN-53 | O início dos trabalhos é a passagem a Em resolução e preenche `workStartedAt`. | 📝 | L7 | I.3.E, D27 |
 | RN-54 | Resolver exige foto ou vídeo comprovativo, preenche `resolvedAt` e notifica o autor. | 📝 | L7, L11 | II.4 |
 | RN-55 | Cinco dias depois de resolvida, a ocorrência passa a Encerrada e deixa de aceitar alterações. | 📝 ❓ | L11; ponto 28 | II.5 |
 | RN-56 | O autor é avisado 24 h antes do encerramento. | 📝 | L11 | III |
-| RN-57 | Um pedido de informação do operador guarda o estado atual em `previousStatus` e passa a Pedido de informações; a resposta repõe o estado anterior. | 📝 ❓ | J7; pontos C, D, E | II.2, D23, D24 |
-| RN-58 | Um pedido de informação do munícipe não muda o estado. | 📝 | J7 | D24 |
-| RN-59 | As mensagens existem só associadas a pedidos de informação. | 📝 | J7 | D25 |
+| RN-57 | O operador pode pedir informação em Aberto ou Em resolução. O pedido guarda o estado atual em `previousStatus` e passa a Pedido de informações. A primeira resposta do autor repõe o estado anterior e limpa `previousStatus`. | ✅ | `AccessRules.canRequestInformation`, `IncidentActions.withInformationRequest`, `IncidentActions.withInformationReply` | II.2, D23, D24, C, D (11/11) |
+| RN-58 | O munícipe pode pedir informação numa ocorrência da sua autoria em qualquer estado exceto Encerrado. O pedido mantém o estado. | ✅ | `AccessRules.canRequestInformation`, `IncidentActions.withInformationRequest` | D24, E |
+| RN-59 | As mensagens estão associadas a pedidos de informação e as respostas são apenas em texto. A primeira resposta da outra parte marca o pedido como respondido. | ✅ | `AccessRules.canReplyToInformationRequest`, `IncidentDetailViewModel.replyToInformationRequest`, `IncidentActions.withInformationReply` | D25, C, D |
 
 ## 6. Reabertura
 

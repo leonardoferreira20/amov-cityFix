@@ -129,7 +129,7 @@ class IncidentRepository(private val context: Context) {
     }
 
     suspend fun saveIncidents(list: IncidentsList) = withContext(Dispatchers.IO) {
-        cachedList = list
         databaseFile.writeText(json.encodeToString(list.rawList()))
+        cachedList = list
     }
 }

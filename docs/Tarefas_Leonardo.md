@@ -49,7 +49,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [ ] Componente stateless com a assinatura combinada na tarefa 0.6, colocado no detalhe do João.
 - [ ] Só mostra as transições válidas a partir do estado atual.
 - [ ] Cada transição regista um `StatusChange` com timestamp, e o histórico aparece no detalhe.
-- [ ] Pedido de informação do operador (combinar com a tarefa J7 do João).
+- [x] Pedido de informação do operador disponível na secção «Pedidos de informação» do detalhe (J7 do João).
 - [ ] Início dos trabalhos: passa a `IN_PROGRESS` e preenche `workStartedAt` (decisão 27).
 - [ ] Resolver: passa a `RESOLVED` e preenche `resolvedAt`.
 - [ ] Encerrado não aceita alterações.

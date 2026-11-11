@@ -112,4 +112,16 @@
     <string name="status_in_progress">In progress</string>
     <string name="status_resolved">Resolved</string>
     <string name="status_closed">Closed</string>
+    <string name="information_requests_title">Information requests</string>
+    <string name="information_requests_empty">No information requests yet.</string>
+    <string name="information_request_action">Request information</string>
+    <string name="information_request_from_operator">Request from the operator</string>
+    <string name="information_request_from_citizen">Request from the citizen</string>
+    <string name="information_request_waiting">Awaiting a reply</string>
+    <string name="information_reply_action">Reply</string>
+    <string name="information_reply_text">Reply: %1$s</string>
+    <string name="information_message_label">Message</string>
+    <string name="information_send_action">Send</string>
+    <string name="information_action_unavailable">This action is no longer available.</string>
+    <string name="information_save_error">Could not save the message. Try again.</string>
 </resources>

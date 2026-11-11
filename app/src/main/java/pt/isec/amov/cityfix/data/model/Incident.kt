@@ -22,5 +22,7 @@ data class Incident(
     val workStartedAt: Long? = null,
     val resolvedAt: Long? = null,
     val closedAt: Long? = null,
-    val reopenCount: Int = 0
+    val reopenCount: Int = 0,
+    val infoRequests: List<InfoRequest> = emptyList(),
+    val messages: List<Message> = emptyList()
 )

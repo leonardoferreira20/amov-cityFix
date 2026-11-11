@@ -47,7 +47,7 @@ Esta fase é o contrato entre os dois. Faz-se antes de cada um seguir com as sua
 | 0.6 | Combinar os parâmetros do `LifecycleActions` e do componente de mensagens | As assinaturas estão escritas neste ficheiro, secção 7 |
 | 0.7 | Criar `values-pt/strings.xml` | O texto do título aparece em português num dispositivo em português |
 
-Estado a 11/11/2026: 0.1 a 0.5 e 0.7 feitas; falta a 0.6. O detalhe está em [CityFix_Estado.md](CityFix_Estado.md).
+Estado a 11/11/2026: 0.1 a 0.5 e 0.7 feitas. Na 0.6, o contrato da J7 está definido e falta fechar o das restantes ações do operador. O detalhe está em [CityFix_Estado.md](CityFix_Estado.md).
 
 A sessão falsa (0.4) e o `NavHost` único (0.5) substituíram o seletor `Screen.JOAO` / `Screen.LEONARDO` e o menu provisório `DevMenuScreen`. A app abre no início e chega-se aos ecrãs do operador e ao registo pelos botões da barra de topo, que dependem do perfil escolhido.
 
@@ -96,11 +96,11 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula.
 
 ## 7. Contratos entre os dois
 
-A preencher na tarefa 0.6.
+O contrato da J7 está definido. Falta fechar os parâmetros das restantes ações do operador (tarefa 0.6).
 
 - `LifecycleActions(...)`: o `IncidentDetailScreen` já tem o espaço `operatorActions: @Composable () -> Unit`, que só aparece quando `canChangeStatus` é verdadeiro. Falta combinar os parâmetros do componente (ocorrência atual e callbacks para cada transição) e o `refresh()` do `IncidentDetailViewModel` depois de cada mudança.
   - Proposta para as transições: funções puras em `data/model/IncidentActions.kt`, como a `Incident.reopened()` da J8, que devolvem a ocorrência alterada com o `StatusChange` no histórico. O `IncidentDetailViewModel` grava e faz `refresh()`, como no `reopen()`.
-- Componente de mensagens:
+- `InformationRequests(requests: List<InformationRequestItem>, canRequest: Boolean, onRequest: () -> Unit, onReply: (String) -> Unit)`: componente stateless no detalhe, partilhado pelo autor e pelo operador. «Pedir informação» e «Responder» abrem o diálogo de texto do detalhe. O ViewModel valida as permissões, grava a ocorrência e atualiza o detalhe. A `MainActivity` atualiza a lista após a gravação.
 
 ## 8. Calendário
 

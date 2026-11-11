@@ -68,6 +68,11 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Depois de um Pedido de Informações, o ticket volta ao estado de onde saiu (23).
 - Só um pedido feito pelo operador muda o estado para Pedido de Informações. Um pedido do munícipe não muda o estado (24).
 - As mensagens existem só associadas a pedidos de informação (25).
+- Um pedido fica respondido na primeira resposta da outra parte. Num pedido do operador, essa resposta repõe o estado anterior da ocorrência (C, 11/11/2026).
+- As respostas aos pedidos de informação são apenas em texto (D, 11/11/2026).
+- O munícipe pode abrir um pedido de informação numa ocorrência da sua autoria em qualquer estado exceto Encerrado. O pedido mantém o estado da ocorrência (E, 11/11/2026).
+- O operador só pode abrir um pedido de informação em Aberto ou Em Resolução. Enquanto o pedido está pendente, a ocorrência está em Pedido de Informações (11/11/2026).
+- O autor e o operador criam pedidos e respondem na secção «Pedidos de informação» do detalhe. O botão «Pedir informação» está nessa secção para os dois perfis (11/11/2026).
 - Reabertura sem limite. O ticket volta para Aberto (26).
 - O registo do início dos trabalhos corresponde à passagem para Em Resolução (27).
 
@@ -94,9 +99,6 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 ### Novas, resultantes das decisões
 - **A.** Um vídeo pode substituir a foto, ou a foto é sempre obrigatória e o vídeo opcional?
 - **B.** Se a ocorrência principal for encerrada e houver ligadas ainda ativas, uma nova ocorrência no mesmo local liga-se a quê? À ligada ativa mais antiga, ou passa a ser uma nova principal?
-- **C.** Quando fica respondido um pedido de informação: na primeira resposta, ou quando quem o pediu o fecha?
-- **D.** As respostas a pedidos de informação podem ter anexos (foto ou vídeo)?
-- **E.** Um munícipe pode abrir um pedido de informação em qualquer estado, ou só em alguns?
 
 ## 4. Modelo de dados
 
@@ -109,7 +111,7 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 - `Visibility`: PUBLIC, PRIVATE.
 - `IncidentStatus`: OPEN, INFO_REQUESTED, IN_PROGRESS, RESOLVED, CLOSED.
 - `MediaType`: IMAGE, VIDEO.
-- `MediaPurpose`: REPORT, REOPEN, RESOLUTION_PROOF. Juntar INFO_REPLY se D for sim.
+- `MediaPurpose`: REPORT, REOPEN, RESOLUTION_PROOF.
 - `UploadStatus`: PENDING, UPLOADING, UPLOADED, FAILED.
 - `InfoRequestStatus`: OPEN, ANSWERED.
 
@@ -144,6 +146,7 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 - `previousStatus` (estado para onde volta depois de um pedido de informação do operador)
 - `media` (lista de `MediaAttachment`)
 - `history` (lista de `StatusChange`): o histórico fica dentro da própria ocorrência.
+- `infoRequests` (lista de `InfoRequest`) e `messages` (lista de `Message`): gravados no mesmo registo da ocorrência no repositório local, juntamente com as mudanças de estado.
 - `primaryIncidentId` (vazio se for a principal ou se não pertencer a um grupo)
 - `createdAt`, `workStartedAt` (entrada em Em Resolução), `resolvedAt`, `closedAt`
 - `reopenCount`
@@ -194,7 +197,7 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 ### Regras de negócio que o modelo tem de suportar
 - Só categorias ativas aparecem na criação de ocorrências.
 - Ao criar, procura-se uma ocorrência principal não encerrada, da mesma categoria, a menos de 10 m. Se existir, a nova liga-se a ela.
-- Um pedido de informação do operador guarda o estado atual em `previousStatus` e passa o ticket a INFO_REQUESTED. Quando é respondido, o ticket volta a `previousStatus`.
+- Um pedido de informação do operador guarda o estado atual em `previousStatus` e passa o ticket a INFO_REQUESTED. Na primeira resposta do autor, o ticket volta a `previousStatus` e esse campo é limpo.
 - A reabertura só é possível em RESOLVED, até 5 dias depois de `resolvedAt`. Passa o ticket a OPEN, incrementa `reopenCount` e exige justificação.
 - Um ticket em CLOSED não aceita alterações.
 - Cada transição de estado gera um `StatusChange`.

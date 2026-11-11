@@ -19,3 +19,42 @@ fun Incident.reopened(userId: String, justification: String, photoPath: String, 
         note = justification
     )
 )
+
+fun Incident.withInformationRequest(request: InfoRequest): Incident {
+    val updated = copy(infoRequests = infoRequests + request)
+    if (request.requesterRole != UserRole.OPERATOR) return updated
+
+    return updated.copy(
+        status = IncidentStatus.INFO_REQUESTED,
+        previousStatus = status,
+        history = history + StatusChange(
+            fromStatus = status,
+            toStatus = IncidentStatus.INFO_REQUESTED,
+            timestamp = request.createdAt,
+            changedBy = request.requestedBy
+        )
+    )
+}
+
+fun Incident.withInformationReply(request: InfoRequest, reply: Message): Incident {
+    val answeredRequest = request.copy(status = InfoRequestStatus.ANSWERED, answeredAt = reply.timestamp)
+    val updated = copy(
+        infoRequests = infoRequests.map { if (it.id == request.id) answeredRequest else it },
+        messages = messages + reply
+    )
+    val restoredStatus = previousStatus ?: return updated
+    if (request.requesterRole != UserRole.OPERATOR || status != IncidentStatus.INFO_REQUESTED) {
+        return updated
+    }
+
+    return updated.copy(
+        status = restoredStatus,
+        previousStatus = null,
+        history = history + StatusChange(
+            fromStatus = status,
+            toStatus = restoredStatus,
+            timestamp = reply.timestamp,
+            changedBy = reply.senderId
+        )
+    )
+}

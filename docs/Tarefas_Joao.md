@@ -8,7 +8,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] 0.3 `utils/AccessRules.kt`.
 - [x] 0.4 Sessão falsa: `SessionViewModel` e `SessionSelector`.
 - [x] 0.5 `NavHost` único com `Scaffold` e `MainTopAppBar`; saíram o `Screen.JOAO` / `Screen.LEONARDO` e o `DevMenuScreen`.
-- [ ] 0.6 Contratos do `LifecycleActions` e do componente de mensagens, com o Leonardo.
+- [ ] 0.6 Contrato das restantes ações do operador em `LifecycleActions`, com o Leonardo. O contrato do componente de mensagens já está definido.
 - [x] 0.7 Textos em `strings.xml` (EN e PT); os textos e as cores de teste do `MainScreen` saíram.
 
 Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
@@ -50,7 +50,7 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - [x] Coordenadas e histórico de estados para o operador e o autor; dados do autor só para o operador.
 - [x] Espaço para o `LifecycleActions` do Leonardo (`operatorActions`), visível só para o operador.
 - [x] Parte do autor: reabrir (J8).
-- [ ] Parte do autor: mensagens (J7).
+- [x] Pedidos e respostas no detalhe, visíveis ao autor e ao operador (J7).
 - [x] Foto da ocorrência no topo do detalhe.
 - **Feito quando:** os três perfis veem o mesmo ecrã com conteúdos diferentes. Verificado no emulador a 11/11 para o anónimo, o autor e o operador.
 - 📝 **Anotado (#4):** mapa com zoom afastado para o anónimo e coordenadas exatas para o operador.
@@ -68,13 +68,13 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - 📝 **Por definir:** vídeo (ponto A por confirmar).
 
 ### J7 — Pedidos de informação e mensagens
-- [ ] Componente stateless de mensagens, com a assinatura combinada na tarefa 0.6.
-- [ ] Usado no detalhe pelo autor e pelo operador.
-- [ ] Pedido do operador: guarda o estado atual em `previousStatus` e passa a `INFO_REQUESTED` (decisões 23 e 24).
-- [ ] Pedido do munícipe: não muda o estado (decisão 24).
-- [ ] Resposta ao pedido do operador: o estado volta a `previousStatus`.
-- **Feito quando:** um pedido do operador muda o estado e a resposta repõe-no.
-- ❓ **Fechar antes:** pontos C, D e E de [CityFix_Decisoes.md](CityFix_Decisoes.md).
+- [x] `InformationRequests`, componente stateless partilhado pelo autor e pelo operador no detalhe.
+- [x] Pedido do operador disponível em Aberto e Em Resolução. Guarda o estado atual em `previousStatus` e passa a `INFO_REQUESTED`.
+- [x] Pedido do munícipe disponível ao autor em qualquer estado exceto Encerrado. Mantém o estado (decisões 24 e E).
+- [x] Resposta só em texto. A primeira resposta da outra parte marca o pedido como respondido. Se o pedido foi do operador, a ocorrência volta a `previousStatus` e limpa esse campo (decisões C e D).
+- [x] Pedidos, respostas e mudanças de estado gravados com a ocorrência no repositório local.
+- [x] Testado no emulador com o autor e o operador. Verificadas as restrições para o anónimo e para ocorrências encerradas, bem como a persistência após reiniciar.
+- [ ] Notificações dos pedidos e das respostas na integração L11.
 
 ### J8 — Reabertura
 - [x] Botão "Reabrir" no detalhe, visível só para o autor, em Resolvido e até 5 dias depois de `resolvedAt` (`canReopen`), com o prazo por baixo (`reopenDeadline`).
@@ -102,4 +102,4 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 
 ## Pontos por confirmar que são meus
 
-17, 31, A, B, C, D, E — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3.
+17, 31, A e B — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3.

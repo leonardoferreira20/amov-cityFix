@@ -39,6 +39,7 @@ import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.ui.components.IncidentPhoto
+import pt.isec.amov.cityfix.ui.components.InformationRequests
 import pt.isec.amov.cityfix.ui.components.PhotoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
 import pt.isec.amov.cityfix.ui.components.photoPaths
@@ -54,6 +55,8 @@ fun IncidentDetailScreen(
     state: IncidentDetailUiState,
     modifier: Modifier = Modifier,
     onReopen: (String, String) -> Unit = { _, _ -> },
+    onRequestInformation: (String, (Int?) -> Unit) -> Unit = { _, _ -> },
+    onReplyToInformationRequest: (String, String, (Int?) -> Unit) -> Unit = { _, _, _ -> },
     operatorActions: @Composable () -> Unit = {}
 ) {
     if (state.isLoading) return
@@ -66,6 +69,8 @@ fun IncidentDetailScreen(
     }
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     var showReopenDialog by rememberSaveable { mutableStateOf(false) }
+    var showInformationDialog by rememberSaveable { mutableStateOf(false) }
+    var replyRequestId by rememberSaveable { mutableStateOf<String?>(null) }
 
     if (showReopenDialog) {
         ReopenDialog(
@@ -74,6 +79,22 @@ fun IncidentDetailScreen(
                 onReopen(justification, photoPath)
             },
             onDismiss = { showReopenDialog = false }
+        )
+    }
+
+    if (showInformationDialog) {
+        InformationMessageDialog(
+            isReply = replyRequestId != null,
+            isSaving = state.isSavingInformation,
+            onSend = { text, onResult ->
+                val requestId = replyRequestId
+                if (requestId == null) {
+                    onRequestInformation(text, onResult)
+                } else {
+                    onReplyToInformationRequest(requestId, text, onResult)
+                }
+            },
+            onDismiss = { showInformationDialog = false }
         )
     }
 
@@ -179,7 +200,72 @@ fun IncidentDetailScreen(
         if (state.showOperatorActions) {
             operatorActions()
         }
+
+        if (state.showInformationRequests) {
+            DetailSection(title = stringResource(R.string.information_requests_title)) {
+                InformationRequests(
+                    requests = state.informationRequests,
+                    canRequest = state.canRequestInformation,
+                    onRequest = {
+                        replyRequestId = null
+                        showInformationDialog = true
+                    },
+                    onReply = { requestId ->
+                        replyRequestId = requestId
+                        showInformationDialog = true
+                    }
+                )
+            }
+        }
     }
+}
+
+@Composable
+private fun InformationMessageDialog(
+    isReply: Boolean,
+    isSaving: Boolean,
+    onSend: (String, (Int?) -> Unit) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var text by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf<Int?>(null) }
+    val title = if (isReply) R.string.information_reply_action else R.string.information_request_action
+
+    AlertDialog(
+        onDismissRequest = { if (!isSaving) onDismiss() },
+        title = { Text(stringResource(title)) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text(stringResource(R.string.information_message_label)) },
+                enabled = !isSaving,
+                isError = error != null,
+                supportingText = { error?.let { Text(stringResource(it)) } },
+                minLines = 3,
+                maxLines = 5,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = text.isNotBlank() && !isSaving,
+                onClick = {
+                    onSend(text) { result ->
+                        error = result
+                        if (result == null) onDismiss()
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.information_send_action))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !isSaving) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable

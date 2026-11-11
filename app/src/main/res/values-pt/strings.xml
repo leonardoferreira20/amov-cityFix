@@ -109,4 +109,16 @@
     <string name="status_in_progress">Em resolução</string>
     <string name="status_resolved">Resolvido</string>
     <string name="status_closed">Encerrado</string>
+    <string name="information_requests_title">Pedidos de informação</string>
+    <string name="information_requests_empty">Ainda não há pedidos de informação.</string>
+    <string name="information_request_action">Pedir informação</string>
+    <string name="information_request_from_operator">Pedido do operador</string>
+    <string name="information_request_from_citizen">Pedido do munícipe</string>
+    <string name="information_request_waiting">A aguardar resposta</string>
+    <string name="information_reply_action">Responder</string>
+    <string name="information_reply_text">Resposta: %1$s</string>
+    <string name="information_message_label">Mensagem</string>
+    <string name="information_send_action">Enviar</string>
+    <string name="information_action_unavailable">Esta ação já não está disponível.</string>
+    <string name="information_save_error">Não foi possível guardar a mensagem. Tente novamente.</string>
 </resources>

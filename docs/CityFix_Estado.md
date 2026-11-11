@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 11/11/2026, sobre o commit `9cba478` mais a J8 do João, ainda sem commit. Faltam 11 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 11/11/2026, sobre o commit `9e3ecf3` mais a implementação local da J7. Faltam 11 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md), as regras de negócio em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -8,8 +8,8 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 | Parte | Feito | Falta |
 |---|---|---|
-| Fase 0 | 0.1 a 0.5 e 0.7 | 0.6 |
-| João | J1, J2, J3, J8; J5 sem vídeo nem GPS; J4 sem mensagens; base de multimédia | J7; J6, J9, J10 anotadas |
+| Fase 0 | 0.1 a 0.5 e 0.7; contrato da J7 na 0.6 | 0.6: restantes ações do operador |
+| João | J1, J2, J3, J7 local, J8; J5 sem vídeo nem GPS; J4 sem mapa; base de multimédia | J6, J9, J10 anotadas |
 | Leonardo | L3, L5, L6 (já restritas ao operador) | L1, L2, L4, L7 a L11 |
 | Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica | Firebase, WorkManager, permissões, mapas, notificações, landscape e acessibilidade em todos os ecrãs |
 | Entrega | — | Limpeza, relatório, ZIP |
@@ -76,13 +76,15 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - `Incident.reopened()` (em `data/model/IncidentActions.kt`): passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount`, junta a foto (`MediaPurpose.REOPEN`) e acrescenta um `StatusChange` com a justificação como nota.
   - O histórico mostra a nota de cada mudança e o detalhe mostra todas as fotos numa fila horizontal. A lista e o dashboard atualizam-se.
   - Testado no emulador com a "Água" e, com foto da câmara, com a "Iluminação" do `citizen-1`.
-- **J4 Detalhe (sem mensagens):**
+- **J4 Detalhe (falta o mapa):**
   - Foto da ocorrência no topo.
   - `IncidentDetailScreen` (stateless, como o `ShowScreen`), `IncidentDetailUiState` e `IncidentDetailViewModel` + `Factory`, criado por destino com o id da ocorrência e o utilizador da sessão.
   - Todos veem a categoria, a situação, o estado, a data e a descrição. O autor e o operador veem também as coordenadas e o histórico; só o operador vê o nome, o e-mail e o telefone do autor.
   - Uma ocorrência que o perfil não pode ver aparece como "não encontrada".
   - Espaço `operatorActions` para o `LifecycleActions` da L7, visível só para o operador.
   - Testado no emulador como anónimo, autor (`citizen-1`) e operador.
+- **J7 Pedidos de informação:** secção partilhada pelo autor e pelo operador no detalhe. O operador pede em Aberto ou Em Resolução; a primeira resposta do autor repõe o estado anterior. O autor pede em qualquer estado exceto Encerrado, mantendo o estado. Os pedidos, as respostas em texto e as transições da J7 ficam gravados com a ocorrência no JSON local. As notificações ficam para a L11.
+  - Compilação debug e teste no emulador concluídos. Verificados pedidos e respostas nos dois sentidos, reposição de Aberto após a resposta do autor, bloqueio de um segundo pedido do operador enquanto aguarda, histórico, detalhe público sem mensagens, bloqueio de ações em Encerrado e persistência após reiniciar a app.
 - **Gráfico:** a segunda página do `Dashboard` mostra o número de ocorrências por categoria (`IncidentChart`, barras feitas com `Row` e `Box`).
 - `EnumLabels.kt` liga cada `Situation` e `IncidentStatus` ao seu texto no `strings.xml`.
 - **Design alinhado com os ecrãs do Leonardo (11/11):** sem cores de teste; títulos de secção em `titleMedium` alinhados à esquerda; cartões com elevação de 2 dp, `padding(16.dp)`, título em `titleMedium` e `onClickLabel` para a acessibilidade. As duas páginas do dashboard usam o mesmo `DashboardPage`.
@@ -100,12 +102,11 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 ## 3. O que falta implementar
 
 ### 3.1 Fase 0 (os dois)
-- [ ] **0.6** Assinaturas do `LifecycleActions` e do componente de mensagens, na secção 7 do plano.
+- [ ] **0.6** Fechar os parâmetros das restantes ações do `LifecycleActions`. O contrato do componente de mensagens está na secção 7 do plano.
 
 ### 3.2 João
-- [ ] J4 Mensagens (J7) e mapa (aula #4).
+- [ ] J4 Mapa (aula #4).
 - [ ] J5 Localização por GPS quando se tira a foto (aula #4) e vídeo (por definir).
-- [ ] J7 Pedidos de informação e mensagens.
 - [ ] J6 Agrupamento a 10 m (aula #4).
 - [ ] J9 Restrição dos 10 km para anónimos (aula #4).
 - [ ] J10 Deteção de impactos (sensores, ainda sem aula).
@@ -142,7 +143,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 - Conflitos com o enunciado: 11 (nome editável e morada) e 15 (o tempo médio inclui os 5 dias até ao encerramento). O 16 ficou fechado.
 - Por confirmar, do Leonardo: 7 (falta só a unicidade do e-mail, que o Firebase resolve), 8, 10, 13, 28, 29, 30 e 32.
-- Por confirmar, do João: 17, 31, A, B, C, D e E.
+- Por confirmar, do João: 17, 31, A e B.
 
 ### 3.6 Problemas conhecidos e limpeza
 - [x] `MainScreen`: blocos de cor e textos de teste retirados (11/11).
@@ -167,6 +168,6 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 
 | Quando | O quê |
 |---|---|
-| Até 16/11 | 0.6, J7, L8, L4 e L7 |
+| Até 16/11 | Fechar a 0.6 e avançar com L8, L4 e L7 |
 | Depois de cada aula | Aula #4: mapa da J4, localização da J5, J6, J9, georreferenciação da L3 e F1. Firebase: L1, L2, L11 e troca dos repositórios. WorkManager: L9. Sensores: J10. Geofencing: L10 |
 | 17/11 a 22/11 | Integração, limpeza, testes em landscape e em PT/EN, relatório e ZIP |
