@@ -98,6 +98,7 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula.
 A preencher na tarefa 0.6.
 
 - `LifecycleActions(...)`: o `IncidentDetailScreen` já tem o espaço `operatorActions: @Composable () -> Unit`, que só aparece quando `canChangeStatus` é verdadeiro. Falta combinar os parâmetros do componente (ocorrência atual e callbacks para cada transição) e o `refresh()` do `IncidentDetailViewModel` depois de cada mudança.
+  - Proposta para as transições: funções puras em `data/model/IncidentActions.kt`, como a `Incident.reopened()` da J8, que devolvem a ocorrência alterada com o `StatusChange` no histórico. O `IncidentDetailViewModel` grava e faz `refresh()`, como no `reopen()`.
 - Componente de mensagens:
 
 ## 8. Calendário

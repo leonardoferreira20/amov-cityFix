@@ -9,5 +9,7 @@ data class IncidentDetailUiState(
     val author: User? = null,
     val showLocation: Boolean = false,
     val showHistory: Boolean = false,
-    val showOperatorActions: Boolean = false
+    val showOperatorActions: Boolean = false,
+    val canReopen: Boolean = false,
+    val reopenDeadline: Long? = null
 )

@@ -9,7 +9,10 @@ import kotlinx.coroutines.launch
 import pt.isec.amov.cityfix.data.IncidentRepository
 import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.data.model.User
+import pt.isec.amov.cityfix.data.model.reopened
 import pt.isec.amov.cityfix.utils.canChangeStatus
+import pt.isec.amov.cityfix.utils.canReopen
+import pt.isec.amov.cityfix.utils.reopenDeadline
 import pt.isec.amov.cityfix.utils.canSeeAuthorData
 import pt.isec.amov.cityfix.utils.canSeeExactLocation
 import pt.isec.amov.cityfix.utils.canSeeHistory
@@ -43,8 +46,24 @@ class IncidentDetailViewModel(
                 author = author,
                 showLocation = incident != null && canSeeExactLocation(currentUser, incident),
                 showHistory = incident != null && canSeeHistory(currentUser, incident),
-                showOperatorActions = canChangeStatus(currentUser)
+                showOperatorActions = canChangeStatus(currentUser),
+                canReopen = incident != null && canReopen(currentUser, incident),
+                reopenDeadline = incident?.let { reopenDeadline(it) }
             )
+        }
+    }
+
+    fun reopen(justification: String, onSuccess: () -> Unit) {
+        val user = currentUser ?: return
+        if (justification.isBlank()) return
+        viewModelScope.launch {
+            val incidents = incidentRepository.loadIncidents()
+            val incident = incidents.findById(incidentId) ?: return@launch
+            if (!canReopen(user, incident)) return@launch
+            incidents.upsert(incident.reopened(user.id, justification.trim(), System.currentTimeMillis()))
+            incidentRepository.saveIncidents(incidents)
+            refresh()
+            onSuccess()
         }
     }
 }

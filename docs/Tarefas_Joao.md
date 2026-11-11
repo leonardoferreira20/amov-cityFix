@@ -49,7 +49,8 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - [x] Parte pública: categoria, situação, estado, data e descrição; sem dados do autor nem coordenadas.
 - [x] Coordenadas e histórico de estados para o operador e o autor; dados do autor só para o operador.
 - [x] Espaço para o `LifecycleActions` do Leonardo (`operatorActions`), visível só para o operador.
-- [ ] Parte do autor: mensagens (J7) e reabrir (J8).
+- [x] Parte do autor: reabrir (J8).
+- [ ] Parte do autor: mensagens (J7).
 - [x] Foto da ocorrência no topo do detalhe.
 - **Feito quando:** os três perfis veem o mesmo ecrã com conteúdos diferentes. Verificado no emulador a 11/11 para o anónimo, o autor e o operador.
 - 📝 **Anotado (#4):** mapa com zoom afastado para o anónimo e coordenadas exatas para o operador.
@@ -76,10 +77,11 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - ❓ **Fechar antes:** pontos C, D e E de [CityFix_Decisoes.md](CityFix_Decisoes.md).
 
 ### J8 — Reabertura
-- [ ] Botão "Reabrir" visível só para o autor, em Resolvido e até 5 dias depois de `resolvedAt` (`canReopen`, já em `AccessRules.kt`).
-- [ ] Justificação obrigatória.
-- [ ] Passa a Aberto, incrementa o contador de reaberturas e regista a mudança de estado (decisão 26).
-- **Feito quando:** a reabertura funciona dentro dos 5 dias e o botão não aparece depois.
+- [x] Botão "Reabrir" no detalhe, visível só para o autor, em Resolvido e até 5 dias depois de `resolvedAt` (`canReopen`), com o prazo por baixo (`reopenDeadline`).
+- [x] Justificação obrigatória num `AlertDialog`; o botão de confirmar só fica ativo com texto.
+- [x] Passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount` e acrescenta um `StatusChange` com a justificação como nota (`Incident.reopened()` em `data/model/IncidentActions.kt`; decisão 26).
+- [x] O histórico mostra a nota de cada mudança.
+- **Feito:** testado no emulador a 11/11 com a ocorrência "Água" do `citizen-1`.
 
 ## Anotado — tarefas a criar depois da aula
 

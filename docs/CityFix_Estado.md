@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 11/11/2026, sobre o commit `bbfb78f` mais as alterações do João ainda sem commit (J3, J5, base de multimédia e fotos na lista e no detalhe). Faltam 11 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 11/11/2026, sobre o commit `9cba478` mais a J8 do João, ainda sem commit. Faltam 11 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -9,7 +9,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Parte | Feito | Falta |
 |---|---|---|
 | Fase 0 | 0.1 a 0.5 e 0.7 | 0.6 |
-| João | J1, J2, J3, J5 (sem vídeo nem GPS); J4 sem mensagens nem reabertura; base de multimédia | J7, J8; J6, J9, J10 anotadas |
+| João | J1, J2, J3, J8; J5 sem vídeo nem GPS; J4 sem mensagens; base de multimédia | J7; J6, J9, J10 anotadas |
 | Leonardo | L3, L5, L6 (já restritas ao operador) | L1, L2, L4, L7 a L11 |
 | Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica | Firebase, WorkManager, permissões, mapas, notificações, landscape e acessibilidade em todos os ecrãs |
 | Entrega | — | Limpeza, relatório, ZIP |
@@ -70,7 +70,13 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - Ao gravar, a lista e o dashboard atualizam-se.
   - Testado no emulador com uma foto da câmara.
 - **Base de multimédia:** `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, dependência `coil-compose` 3.0.4 (a das aulas) e o componente `IncidentPhoto`. Serve também para a L3, a L4 e a L7 do Leonardo.
-- **J4 Detalhe (sem mensagens nem reabertura):**
+- **J8 Reabertura:**
+  - Botão "Reabrir" no detalhe, só para o autor, em Resolvido e dentro dos 5 dias (`canReopen`), com o prazo por baixo (`reopenDeadline`).
+  - Justificação obrigatória num `AlertDialog`.
+  - `Incident.reopened()` (em `data/model/IncidentActions.kt`): passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount` e acrescenta um `StatusChange` com a justificação como nota.
+  - O histórico mostra a nota de cada mudança. A lista e o dashboard atualizam-se.
+  - Testado no emulador com a ocorrência "Água" do `citizen-1`.
+- **J4 Detalhe (sem mensagens):**
   - Foto da ocorrência no topo.
   - `IncidentDetailScreen` (stateless, como o `ShowScreen`), `IncidentDetailUiState` e `IncidentDetailViewModel` + `Factory`, criado por destino com o id da ocorrência e o utilizador da sessão.
   - Todos veem a categoria, a situação, o estado, a data e a descrição. O autor e o operador veem também as coordenadas e o histórico; só o operador vê o nome, o e-mail e o telefone do autor.
@@ -97,10 +103,9 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [ ] **0.6** Assinaturas do `LifecycleActions` e do componente de mensagens, na secção 7 do plano.
 
 ### 3.2 João
-- [ ] J4 Mensagens (J7), reabertura (J8) e mapa (aula #4).
+- [ ] J4 Mensagens (J7) e mapa (aula #4).
 - [ ] J5 Localização por GPS quando se tira a foto (aula #4) e vídeo (por definir).
 - [ ] J7 Pedidos de informação e mensagens.
-- [ ] J8 Reabertura (`canReopen` já existe).
 - [ ] J6 Agrupamento a 10 m (aula #4).
 - [ ] J9 Restrição dos 10 km para anónimos (aula #4).
 - [ ] J10 Deteção de impactos (sensores, ainda sem aula).
@@ -146,6 +151,7 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 - [ ] O `gradlew` está no Git sem permissão de execução (`100644`); corrige-se com `git update-index --chmod=+x gradlew`.
 - [ ] Quando entrar o Firestore, as classes do modelo precisam de valores por omissão em todos os campos, porque o `toObject()` exige um construtor sem argumentos.
 - A câmara usa o contrato `TakePicture`, que não exige a permissão `CAMERA` enquanto a app não a declarar no manifesto. O pedido de permissões em runtime que o enunciado exige fica para a aula #4.
+- Os testes no emulador alteram os dados guardados em JSON (por exemplo, a "Água" já foi reaberta). Para voltar aos dados de exemplo: `adb shell pm clear pt.isec.amov.cityfix`.
 - Os dados de exemplo não têm histórico de estados, por isso o detalhe mostra "Ainda sem mudanças de estado" até a L7 registar transições.
 - Os campos de texto seguem o padrão das aulas (`StateFlow`). Com escrita muito rápida num emulador lento perderam-se letras; a escrever normalmente funcionou.
 - O stash `stash@{0}` (alterações antigas do João, de 11/11) já não é preciso: o `Rules.kt` deu origem ao `AccessRules.kt` e o `IncidentChart` foi recuperado.
@@ -161,6 +167,6 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 
 | Quando | O quê |
 |---|---|
-| Até 16/11 | 0.6, J7, J8, L8, L4 e L7 |
+| Até 16/11 | 0.6, J7, L8, L4 e L7 |
 | Depois de cada aula | Aula #4: mapa da J4, localização da J5, J6, J9, georreferenciação da L3 e F1. Firebase: L1, L2, L11 e troca dos repositórios. WorkManager: L9. Sensores: J10. Geofencing: L10 |
 | 17/11 a 22/11 | Integração, limpeza, testes em landscape e em PT/EN, relatório e ZIP |

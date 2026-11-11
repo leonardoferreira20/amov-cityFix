@@ -9,10 +9,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -41,6 +49,7 @@ import java.util.Locale
 fun IncidentDetailScreen(
     state: IncidentDetailUiState,
     modifier: Modifier = Modifier,
+    onReopen: (String) -> Unit = {},
     operatorActions: @Composable () -> Unit = {}
 ) {
     if (state.isLoading) return
@@ -52,6 +61,17 @@ fun IncidentDetailScreen(
         return
     }
     val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    var showReopenDialog by rememberSaveable { mutableStateOf(false) }
+
+    if (showReopenDialog) {
+        ReopenDialog(
+            onConfirm = { justification ->
+                showReopenDialog = false
+                onReopen(justification)
+            },
+            onDismiss = { showReopenDialog = false }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -82,6 +102,17 @@ fun IncidentDetailScreen(
             text = stringResource(R.string.detail_created, dateFormat.format(Date(incident.createdAt))),
             style = MaterialTheme.typography.bodyMedium
         )
+
+        val reopenDeadline = state.reopenDeadline
+        if (state.canReopen && reopenDeadline != null) {
+            Button(onClick = { showReopenDialog = true }) {
+                Text(stringResource(R.string.reopen_button))
+            }
+            Text(
+                text = stringResource(R.string.reopen_deadline, dateFormat.format(Date(reopenDeadline))),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         DetailSection(title = stringResource(R.string.detail_description)) {
             Text(text = incident.description, style = MaterialTheme.typography.bodyLarge)
@@ -126,6 +157,12 @@ fun IncidentDetailScreen(
                         ),
                         style = MaterialTheme.typography.bodyMedium
                     )
+                    change.note?.let { note ->
+                        Text(
+                            text = stringResource(R.string.detail_history_note, note),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
         }
@@ -134,6 +171,43 @@ fun IncidentDetailScreen(
             operatorActions()
         }
     }
+}
+
+@Composable
+private fun ReopenDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var justification by rememberSaveable { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.reopen_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.reopen_dialog_text))
+                OutlinedTextField(
+                    value = justification,
+                    onValueChange = { justification = it },
+                    label = { Text(stringResource(R.string.reopen_justification)) },
+                    minLines = 3,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(justification) },
+                enabled = justification.isNotBlank()
+            ) {
+                Text(stringResource(R.string.reopen_button))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable

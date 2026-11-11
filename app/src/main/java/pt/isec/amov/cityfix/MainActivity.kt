@@ -162,7 +162,14 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                             val detailState by detailViewModel.detailState.collectAsStateWithLifecycle()
-                            IncidentDetailScreen(state = detailState)
+                            IncidentDetailScreen(
+                                state = detailState,
+                                onReopen = { justification ->
+                                    detailViewModel.reopen(justification) {
+                                        incidentsViewModel.refreshIncidents()
+                                    }
+                                }
+                            )
                         }
 
                         composable<CategoryListRoute> {

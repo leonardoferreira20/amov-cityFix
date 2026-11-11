@@ -74,6 +74,14 @@
     <string name="error_situation_required">Choose a situation.</string>
     <string name="error_description_required">The description is required.</string>
 
+    <string name="reopen_button">Reopen</string>
+    <string name="reopen_deadline">You can reopen until %1$s.</string>
+    <string name="reopen_dialog_title">Reopen incident</string>
+    <string name="reopen_dialog_text">Explain why the problem is not solved.</string>
+    <string name="reopen_justification">Justification</string>
+    <string name="cancel">Cancel</string>
+    <string name="detail_history_note">Note: %1$s</string>
+
     <string name="filter_all">All</string>
     <string name="filter_mine">Mine</string>
 

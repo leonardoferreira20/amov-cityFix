@@ -36,9 +36,11 @@ fun canManageCategories(user: User?): Boolean = isOperator(user)
 
 fun canValidateCitizens(user: User?): Boolean = isOperator(user)
 
+fun reopenDeadline(incident: Incident): Long? = incident.resolvedAt?.plus(REOPEN_WINDOW_MILLIS)
+
 fun canReopen(user: User?, incident: Incident, now: Long = System.currentTimeMillis()): Boolean {
-    val resolvedAt = incident.resolvedAt ?: return false
+    val deadline = reopenDeadline(incident) ?: return false
     return isAuthor(user, incident) &&
             incident.status == IncidentStatus.RESOLVED &&
-            now - resolvedAt <= REOPEN_WINDOW_MILLIS
+            now <= deadline
 }

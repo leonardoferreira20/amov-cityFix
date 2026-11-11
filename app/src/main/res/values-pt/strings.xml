@@ -71,6 +71,14 @@
     <string name="error_situation_required">Escolha uma situação.</string>
     <string name="error_description_required">A descrição é obrigatória.</string>
 
+    <string name="reopen_button">Reabrir</string>
+    <string name="reopen_deadline">Pode reabrir até %1$s.</string>
+    <string name="reopen_dialog_title">Reabrir ocorrência</string>
+    <string name="reopen_dialog_text">Explique porque é que o problema não ficou resolvido.</string>
+    <string name="reopen_justification">Justificação</string>
+    <string name="cancel">Cancelar</string>
+    <string name="detail_history_note">Nota: %1$s</string>
+
     <string name="filter_all">Todas</string>
     <string name="filter_mine">As minhas</string>
 

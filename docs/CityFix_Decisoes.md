@@ -30,6 +30,10 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - A base de multimédia (`FileUtils`, `FileProvider`, Coil 3 das aulas e o componente `IncidentPhoto`) foi feita pelo João com a J5; o Leonardo reaproveita-a na L4, na L7 e na L8.
   - Até haver GPS (aula #4), a localização de uma ocorrência nova é a georreferenciação do registo do autor; se não existir, é o centro do município (`CITY_CENTER`).
   - Coordenadas provisórias do centro do município, a Praça da República (3): 40.2085, -8.4196.
+- Reabertura (decidido a 11/11/2026):
+  - O autor reabre no detalhe, com um botão "Reabrir" e o prazo por baixo. A justificação escreve-se num `AlertDialog`.
+  - Ao reabrir, o `resolvedAt` passa a `null`, porque a ocorrência deixa de estar resolvida. A data antiga fica no histórico, e a próxima resolução volta a contar os 5 dias do zero.
+  - A justificação fica guardada como nota da mudança de estado (`StatusChange.note`).
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
