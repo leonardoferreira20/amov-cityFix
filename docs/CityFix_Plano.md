@@ -24,11 +24,11 @@ As regras de negócio, com o estado e o sítio no código, estão em [CityFix_Re
 
 | Ecrã | Anónimo | Munícipe | Operador | Dono |
 |---|---|---|---|---|
-| Início (dashboard + lista) | 3 números, lista pública, botão de registo na barra de topo | + botão "Nova ocorrência", filtro "As minhas" | todas as ocorrências, botões de Categorias e Validação na barra de topo | João |
+| Início (dashboard + lista) | 3 números, lista pública, botão de registo na barra de topo | + botão "Nova ocorrência", filtro "As minhas", botão de perfil na barra de topo | todas as ocorrências, botões de Categorias, Validação e Perfil na barra de topo | João |
 | Detalhe da ocorrência | sem dados do autor, mapa com zoom afastado | se for o autor: mensagens e reabrir | coordenadas, contactos, histórico, ações de estado | João (ecrã) + Leonardo (`LifecycleActions`) |
 | Criar ocorrência | — | ✓ | — | João |
 | Registo | — | NIF, georreferenciação, deteção de impactos; fica pendente | e-mail da autarquia; fica ativo | Leonardo |
-| Perfil | — | campos bloqueados conforme o enunciado | campos bloqueados conforme o enunciado | Leonardo |
+| Perfil | — | altera foto, telefone e deteção de impactos; nome, e-mail, NIF e georreferenciação bloqueados | altera foto e telefone; nome, e-mail e NIF bloqueados | Leonardo |
 | Login / MFA / recuperação | — | ✓ | ✓ | Leonardo |
 | Validar munícipes | — | — | ✓ | Leonardo |
 | Categorias | — | — | ✓ | Leonardo |
@@ -47,7 +47,7 @@ Esta fase é o contrato entre os dois. Faz-se antes de cada um seguir com as sua
 | 0.6 | Combinar os parâmetros do `LifecycleActions` e do componente de mensagens | As assinaturas estão escritas neste ficheiro, secção 7 |
 | 0.7 | Criar `values-pt/strings.xml` | O texto do título aparece em português num dispositivo em português |
 
-Estado a 11/11/2026: 0.1 a 0.5 e 0.7 feitas. Na 0.6, o contrato da J7 está definido e falta fechar o das restantes ações do operador. O detalhe está em [CityFix_Estado.md](CityFix_Estado.md).
+Estado a 11/11/2026: Fase 0 concluída. A 0.6 ficou fechada com a L7 (contratos na secção 7). O detalhe está em [CityFix_Estado.md](CityFix_Estado.md).
 
 A sessão falsa (0.4) e o `NavHost` único (0.5) substituíram o seletor `Screen.JOAO` / `Screen.LEONARDO` e o menu provisório `DevMenuScreen`. A app abre no início e chega-se aos ecrãs do operador e ao registo pelos botões da barra de topo, que dependem do perfil escolhido.
 
@@ -74,7 +74,7 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3) ·
 | L5 | Validação de munícipes | Leonardo | ✅ |
 | L6 | Categorias | Leonardo | ✅ |
 | L7 | `LifecycleActions` | Leonardo | ✅ (vídeo da prova: 🔒) |
-| L8 | Multimédia: câmara, galeria, Coil (a base foi feita pelo João com a J5; falta usá-la na L3, L4 e L7) | Leonardo | ✅ (vídeo: 🔒) |
+| L8 | Multimédia: câmara, galeria, Coil (a base foi feita pelo João com a J5; a L3, a L4 e a L7 já a usam) | Leonardo | ✅ (vídeo: 🔒) |
 | L9 | Compressão, thumbnail, envio com WorkManager | Leonardo | 🔒 |
 | L10 | Geofence de 20 m | Leonardo | 🔒 |
 | L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 |
@@ -96,10 +96,11 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula.
 
 ## 7. Contratos entre os dois
 
-O contrato da J7 está definido. Falta fechar os parâmetros das restantes ações do operador (tarefa 0.6).
+Os dois contratos estão definidos (tarefa 0.6, concluída a 11/11/2026).
 
-- `LifecycleActions(...)`: o `IncidentDetailScreen` já tem o espaço `operatorActions: @Composable () -> Unit`, que só aparece quando `canChangeStatus` é verdadeiro. Falta combinar os parâmetros do componente (ocorrência atual e callbacks para cada transição) e o `refresh()` do `IncidentDetailViewModel` depois de cada mudança.
-  - Proposta para as transições: funções puras em `data/model/IncidentActions.kt`, como a `Incident.reopened()` da J8, que devolvem a ocorrência alterada com o `StatusChange` no histórico. O `IncidentDetailViewModel` grava e faz `refresh()`, como no `reopen()`.
+- `LifecycleActions(status: IncidentStatus, closesAt: Long?, canStartWork: Boolean, canResolve: Boolean, onStartWork: () -> Unit, onResolve: (photoPath: String, note: String) -> Unit)`: componente stateless no espaço `operatorActions` do `IncidentDetailScreen`, dentro da secção «Gestão do estado», que só aparece ao operador (`canChangeStatus`).
+  - As transições são funções puras em `data/model/IncidentActions.kt` (`workStarted`, `resolved` e `closed`), como a `Incident.reopened()` da J8. Cada uma devolve a ocorrência alterada com o `StatusChange` no histórico.
+  - O `IncidentDetailViewModel` (`startWork`, `resolve`) valida com `canStartWork` / `canResolve`, grava e faz `refresh()`, como no `reopen()`. A `MainActivity` atualiza a lista depois de cada mudança.
 - `InformationRequests(requests: List<InformationRequestItem>, canRequest: Boolean, onRequest: () -> Unit, onReply: (String) -> Unit)`: componente stateless no detalhe, partilhado pelo autor e pelo operador. «Pedir informação» e «Responder» abrem o diálogo de texto do detalhe. O ViewModel valida as permissões, grava a ocorrência e atualiza o detalhe. A `MainActivity` atualiza a lista após a gravação.
 
 ## 8. Calendário

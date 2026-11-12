@@ -198,7 +198,9 @@ fun IncidentDetailScreen(
         }
 
         if (state.showOperatorActions) {
-            operatorActions()
+            DetailSection(title = stringResource(R.string.lifecycle_title)) {
+                operatorActions()
+            }
         }
 
         if (state.showInformationRequests) {

@@ -32,12 +32,14 @@ import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.Visibility
+import pt.isec.amov.cityfix.ui.components.LifecycleActions
 import pt.isec.amov.cityfix.ui.components.MainTopAppBar
 import pt.isec.amov.cityfix.ui.navigation.CategoryListRoute
 import pt.isec.amov.cityfix.ui.navigation.CitizenValidationRoute
 import pt.isec.amov.cityfix.ui.navigation.DashboardRoute
 import pt.isec.amov.cityfix.ui.navigation.EditCategoryRoute
 import pt.isec.amov.cityfix.ui.navigation.IncidentDetailRoute
+import pt.isec.amov.cityfix.ui.navigation.ProfileRoute
 import pt.isec.amov.cityfix.ui.navigation.RegisterRoute
 import pt.isec.amov.cityfix.ui.navigation.ReportIncidentRoute
 import pt.isec.amov.cityfix.ui.screens.CategoryListScreen
@@ -46,9 +48,11 @@ import pt.isec.amov.cityfix.ui.screens.EditCategoryScreen
 import pt.isec.amov.cityfix.ui.screens.IncidentDetailScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreenContent
+import pt.isec.amov.cityfix.ui.screens.ProfileScreen
 import pt.isec.amov.cityfix.ui.screens.RegisterScreen
 import pt.isec.amov.cityfix.ui.screens.ReportIncidentScreen
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
+import pt.isec.amov.cityfix.utils.canEditProfile
 import pt.isec.amov.cityfix.utils.canManageCategories
 import pt.isec.amov.cityfix.utils.canValidateCitizens
 import pt.isec.amov.cityfix.viewmodel.CategoriesViewModel
@@ -61,6 +65,8 @@ import pt.isec.amov.cityfix.viewmodel.IncidentDetailViewModel
 import pt.isec.amov.cityfix.viewmodel.IncidentDetailViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModelFactory
+import pt.isec.amov.cityfix.viewmodel.ProfileViewModel
+import pt.isec.amov.cityfix.viewmodel.ProfileViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.RegisterViewModel
 import pt.isec.amov.cityfix.viewmodel.RegisterViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.ReportIncidentViewModel
@@ -104,6 +110,7 @@ class MainActivity : ComponentActivity() {
                             showCategories = isDashboard && canManageCategories(currentUser),
                             showValidation = isDashboard && canValidateCitizens(currentUser),
                             showRegister = isDashboard && currentUser == null,
+                            showProfile = isDashboard && canEditProfile(currentUser),
                             onNavigateBack = { navController.navigateUp() },
                             onToggleAllCards = {
                                 expandedIncidentIds = if (areAllIncidentsExpanded) {
@@ -114,7 +121,8 @@ class MainActivity : ComponentActivity() {
                             },
                             onCategoriesClick = { navController.navigate(CategoryListRoute) },
                             onValidationClick = { navController.navigate(CitizenValidationRoute) },
-                            onRegisterClick = { navController.navigate(RegisterRoute) }
+                            onRegisterClick = { navController.navigate(RegisterRoute) },
+                            onProfileClick = { navController.navigate(ProfileRoute) }
                         )
                     }
                 ) { innerPadding ->
@@ -199,6 +207,24 @@ class MainActivity : ComponentActivity() {
                                         if (error == null) incidentsViewModel.refreshIncidents()
                                         onResult(error)
                                     }
+                                },
+                                operatorActions = {
+                                    detailState.incident?.let { incident ->
+                                        LifecycleActions(
+                                            status = incident.status,
+                                            closesAt = detailState.reopenDeadline,
+                                            canStartWork = detailState.canStartWork,
+                                            canResolve = detailState.canResolve,
+                                            onStartWork = {
+                                                detailViewModel.startWork { incidentsViewModel.refreshIncidents() }
+                                            },
+                                            onResolve = { photoPath, note ->
+                                                detailViewModel.resolve(photoPath, note) {
+                                                    incidentsViewModel.refreshIncidents()
+                                                }
+                                            }
+                                        )
+                                    }
                                 }
                             )
                         }
@@ -250,6 +276,7 @@ class MainActivity : ComponentActivity() {
                                 onNifChange = registerViewModel::onNifChanged,
                                 onRoleChange = registerViewModel::onRoleChanged,
                                 onImpactDetectionChange = registerViewModel::onImpactDetectionChanged,
+                                onPictureChange = registerViewModel::onPictureChanged,
                                 onRegisterClick = registerViewModel::register,
                                 onDone = { navController.popBackStack() }
                             )
@@ -264,6 +291,26 @@ class MainActivity : ComponentActivity() {
                             CitizenValidationScreen(
                                 citizens = pendingCitizens,
                                 onActivate = validationViewModel::activateCitizen
+                            )
+                        }
+
+                        composable<ProfileRoute> { backStack ->
+                            val profileViewModel: ProfileViewModel = viewModel(
+                                viewModelStoreOwner = backStack,
+                                factory = ProfileViewModelFactory(app.userRepository, currentUser?.id.orEmpty())
+                            )
+                            val profileState by profileViewModel.profileState.collectAsStateWithLifecycle()
+                            ProfileScreen(
+                                state = profileState,
+                                onPhoneChange = profileViewModel::onPhoneChanged,
+                                onImpactDetectionChange = profileViewModel::onImpactDetectionChanged,
+                                onPictureChange = profileViewModel::onPictureChanged,
+                                onSaveClick = {
+                                    profileViewModel.saveProfile {
+                                        sessionViewModel.refreshCurrentUser()
+                                        navController.popBackStack()
+                                    }
+                                }
                             )
                         }
                     }
@@ -285,6 +332,7 @@ private fun screenTitle(entry: NavBackStackEntry?): Int {
             else R.string.category_edit
         destination?.hasRoute<RegisterRoute>() == true -> R.string.register_title
         destination?.hasRoute<CitizenValidationRoute>() == true -> R.string.validation_title
+        destination?.hasRoute<ProfileRoute>() == true -> R.string.profile_title
         else -> R.string.app_name
     }
 }

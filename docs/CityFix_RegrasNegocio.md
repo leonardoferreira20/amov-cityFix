@@ -26,10 +26,11 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-08 | Só o munícipe cria ocorrências. | ✅ | `AccessRules.canCreateIncident` (botão +) | I.2.E |
 | RN-09 | Só o operador gere categorias e valida munícipes. | ✅ | `AccessRules.canManageCategories`, `canValidateCitizens` (botões da barra de topo) | I.3.D, I.3.E |
 | RN-10 | O botão de registo aparece só a quem não tem sessão. | ✅ | `MainActivity` (`showRegister`) | I.2.A, I.3.A |
-| RN-11 | As ações de gestão do ciclo de vida destinam-se ao operador. As mudanças na resposta a um pedido e na reabertura seguem RN-57 e RN-60. | 📝 | `AccessRules.canChangeStatus` (regra pronta; falta a L7) | I.3.E, II.2, II.4 |
+| RN-11 | As ações de gestão do ciclo de vida destinam-se ao operador. As mudanças na resposta a um pedido e na reabertura seguem RN-57 e RN-60. | ✅ | `AccessRules.canChangeStatus`, `canStartWork`, `canResolve`; `LifecycleActions` | I.3.E, II.2, II.4 |
 | RN-12 | Um anónimo a mais de 10 km da Praça da República vê apenas o ecrã de login. | 📝 | J9 (aula #4); centro em `CityConstants.CITY_CENTER` | I.1, D3, D5 |
 | RN-13 | Um munícipe pendente não inicia sessão e vê um aviso. | 📝 | L1; a sessão falsa já só escolhe contas ativas (`SessionViewModel`) | I.2.A, D6 |
 | RN-14 | Só o autor e o operador consultam os pedidos e as respostas no detalhe da ocorrência. | ✅ | `AccessRules.canSeeInformationRequests`, `IncidentDetailScreen` | I.2.E, I.3.E, D (11/11) |
+| RN-15 | Só quem tem sessão tem perfil: o botão de conta aparece ao munícipe e ao operador, nunca ao anónimo. | ✅ | `AccessRules.canEditProfile` (botão da barra de topo) | I.2.C, I.3.C |
 
 ## 2. Registo, validação e perfil
 
@@ -40,9 +41,11 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-22 | O telefone tem 9 dígitos e começa por 2 ou 9. | ✅ | `Validators.phoneError` | I.2.A |
 | RN-23 | O NIF tem 9 dígitos e é único por perfil (o mesmo NIF pode existir num munícipe e num operador). | ✅ | `Validators.nifError`, `UsersList.hasNif` | I.2.A, I.3.A |
 | RN-24 | O munícipe registado fica pendente; o operador fica logo ativo. | ✅ | `RegisterViewModel.register` | I.2.A, I.3.A |
-| RN-25 | A opção de deteção de impactos só existe para o munícipe. | ✅ | `RegisterScreen` | I.2.A |
+| RN-25 | A opção de deteção de impactos só existe para o munícipe. | ✅ | `RegisterScreen`, `ProfileScreen` (`ImpactDetectionSwitch`) | I.2.A |
 | RN-26 | O operador ativa um munícipe pendente, vendo o nome, a georreferenciação e o NIF. | ✅ | `CitizenValidationViewModel.activateCitizen` | I.3.D |
-| RN-27 | No perfil não se alteram o nome nem o NIF; o munícipe também não altera a georreferenciação. | 📝 ❓ | L4; conflito 11 | I.2.C, I.3.C |
+| RN-27 | No perfil não se alteram o nome, o e-mail nem o NIF; o munícipe também não altera a georreferenciação. Aparecem como campos desativados. | ✅ | `ProfileScreen`, `ProfileViewModel.saveProfile` | I.2.C, I.3.C, D11 (12/11) |
+| RN-28 | A foto do registo é opcional; vem da galeria ou da câmara e fica no `picturePath` do utilizador. Se o registo for abandonado, a foto escolhida é apagada. | ✅ | `UserPhotoField` (`UserAvatar`, `PhotoSourceButtons`), `RegisterViewModel.onPictureChanged`, `RegisterViewModel.onCleared` | I.2.A, I.3.A, D (11/11) |
+| RN-29 | No perfil alteram-se a foto, o telefone (validado como no registo) e, no munícipe, a deteção de impactos. Uma foto nova só substitui a anterior ao gravar: a anterior é apagada nesse momento, e a nova é apagada se se sair sem gravar. | ✅ | `ProfileViewModel` (`onPhoneChanged`, `onPictureChanged`, `saveProfile`, `onCleared`), `Validators.phoneError` | I.2.C, I.3.C, D11 (12/11) |
 
 ## 3. Categorias
 
@@ -72,10 +75,10 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 |---|---|---|---|---|
 | RN-50 | Os estados são Aberto, Pedido de informações, Em resolução, Resolvido e Encerrado. | ✅ | `IncidentStatus` | II |
 | RN-51 | Uma ocorrência está ativa em qualquer estado exceto Encerrado. | ✅ | `IncidentsList.getDashboardStats` | D14 |
-| RN-52 | Cada mudança de estado fica no histórico, com data, quem a fez e uma nota opcional. | ✅ na reabertura e nos pedidos, 📝 nas outras | `IncidentActions`; L7, L11 | I.3.E |
-| RN-53 | O início dos trabalhos é a passagem a Em resolução e preenche `workStartedAt`. | 📝 | L7 | I.3.E, D27 |
-| RN-54 | Resolver exige foto ou vídeo comprovativo, preenche `resolvedAt` e notifica o autor. | 📝 | L7, L11 | II.4 |
-| RN-55 | Cinco dias depois de resolvida, a ocorrência passa a Encerrada e deixa de aceitar alterações. | 📝 ❓ | L11; ponto 28 | II.5 |
+| RN-52 | Cada mudança de estado fica no histórico, com data, quem a fez e uma nota opcional. | ✅ | `IncidentActions` (`workStarted`, `resolved`, `closed`, `reopened` e pedidos de informação) | I.3.E |
+| RN-53 | O início dos trabalhos é a passagem de Aberto a Em resolução, feita pelo operador, e preenche `workStartedAt`. | ✅ | `AccessRules.canStartWork`, `Incident.workStarted` | I.3.E, D27 |
+| RN-54 | Resolver só é possível a partir de Em resolução (nunca em Aberto nem em Pedido de informações). Exige foto ou vídeo comprovativo, preenche `resolvedAt` e notifica o autor. | ✅ foto e `resolvedAt`; 📝 notificação; ❓ vídeo | `AccessRules.canResolve`, `ResolveDialog`, `Incident.resolved`; notificação: L11; vídeo: pontos 13 e A | II.4, D (11/11) |
+| RN-55 | Cinco dias depois de resolvida, a ocorrência passa a Encerrada e deixa de aceitar alterações. É feito no dispositivo, ao carregar as ocorrências, com `closedAt` = `resolvedAt` + 5 dias. | ✅ | `AccessRules.isClosingDue`, `Incident.closed`, `IncidentRepository.loadIncidents` | II.5, D28 (11/11) |
 | RN-56 | O autor é avisado 24 h antes do encerramento. | 📝 | L11 | III |
 | RN-57 | O operador pode pedir informação em Aberto ou Em resolução. O pedido guarda o estado atual em `previousStatus` e passa a Pedido de informações. A primeira resposta do autor repõe o estado anterior e limpa `previousStatus`. | ✅ | `AccessRules.canRequestInformation`, `IncidentActions.withInformationRequest`, `IncidentActions.withInformationReply` | II.2, D23, D24, C, D (11/11) |
 | RN-58 | O munícipe pode pedir informação numa ocorrência da sua autoria em qualquer estado exceto Encerrado. O pedido mantém o estado. | ✅ | `AccessRules.canRequestInformation`, `IncidentActions.withInformationRequest` | D24, E |

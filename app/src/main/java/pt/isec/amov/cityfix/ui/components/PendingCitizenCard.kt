@@ -18,7 +18,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.User
-import java.util.Locale
+import pt.isec.amov.cityfix.utils.toDisplayText
 
 @Composable
 fun PendingCitizenCard(
@@ -26,9 +26,7 @@ fun PendingCitizenCard(
     onActivate: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val location = citizen.location?.let {
-        String.format(Locale.ROOT, "%.5f, %.5f", it.latitude, it.longitude)
-    }
+    val location = citizen.location?.toDisplayText()
     val activateDescription = stringResource(R.string.validation_activate_description, citizen.name)
 
     Card(

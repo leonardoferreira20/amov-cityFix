@@ -12,6 +12,8 @@ data class IncidentDetailUiState(
     val showLocation: Boolean = false,
     val showHistory: Boolean = false,
     val showOperatorActions: Boolean = false,
+    val canStartWork: Boolean = false,
+    val canResolve: Boolean = false,
     val canReopen: Boolean = false,
     val reopenDeadline: Long? = null,
     val showInformationRequests: Boolean = false,

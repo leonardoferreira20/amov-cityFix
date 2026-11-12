@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 11/11/2026, sobre o commit `41ae99b` mais a atualização dos cartões da lista. Faltam 11 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 12/11/2026, sobre o commit `67596c1` mais a L7, a L4 e as fotos do registo e do perfil (L8) do Leonardo. Faltam 10 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md), as regras de negócio em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -8,9 +8,9 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 | Parte | Feito | Falta |
 |---|---|---|
-| Fase 0 | 0.1 a 0.5 e 0.7; contrato da J7 na 0.6 | 0.6: restantes ações do operador |
+| Fase 0 | Concluída (0.1 a 0.7) | — |
 | João | J1, J2, J3, J7 local, J8; J5 sem vídeo nem GPS; J4 sem mapa; base de multimédia | J6, J9, J10 anotadas |
-| Leonardo | L3, L5, L6 (já restritas ao operador) | L1, L2, L4, L7 a L11 |
+| Leonardo | L3 (com foto), L4 (com foto), L5, L6 (já restritas ao operador), L7 | L1, L2, L8 (vídeo), L9 a L11 |
 | Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica | Firebase, WorkManager, permissões, mapas, notificações, landscape e acessibilidade em todos os ecrãs |
 | Entrega | — | Limpeza, relatório, ZIP |
 
@@ -33,24 +33,42 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - O criador das categorias passou a ser o utilizador da sessão.
 - **0.5 Navegação:**
   - Um só `NavHost` na `MainActivity`, dentro de um `Scaffold`, que arranca em `DashboardRoute`.
-  - `MainTopAppBar` stateless: título conforme a rota, seta de voltar fora do início e ações conforme o perfil (expandir cartões para todos; Categorias e Validação só para o operador; Registo só para o anónimo).
+  - `MainTopAppBar` stateless: título conforme a rota, seta de voltar fora do início e ações conforme o perfil (expandir cartões para todos; Categorias e Validação só para o operador; Registo só para o anónimo; Perfil para o munícipe e o operador).
   - As rotas do Leonardo (`CategoryListRoute`, `EditCategoryRoute`, `RegisterRoute`, `CitizenValidationRoute`) estão neste `NavHost`, sem alterações nos ecrãs.
   - Saíram o `Screen.JOAO` / `Screen.LEONARDO`, o `selectedScreen`, o `DevMenuScreen` e o `SAMPLE_OPERATOR_ID`.
+- **0.6 Contratos:** `InformationRequests` (J7) e `LifecycleActions` (L7), descritos na secção 7 do plano.
 - **0.7:** `values-pt/strings.xml` com todos os textos do Leonardo e do João; já não há textos fixos no código.
 - Dependência `kotlinx-serialization-json` 1.11.0, a mesma das aulas.
 
 ### 2.2 Leonardo
 - **L6 Categorias:** lista ordenada pelo nome; criar e editar no mesmo ecrã, com `EditCategoryRoute(categoryId: String? = null)`; ativar e desativar com um interruptor. `CategoriesList.getActiveSorted()` devolve só as ativas, para a J5.
   - Ficheiros: `CategoryListScreen`, `EditCategoryScreen`, `CategoryCard`, `CategoriesViewModel`, `EditCategoryViewModel`, `EditCategoryUiState`.
+  - Gravar ignora um segundo toque enquanto grava (`isSaving`), como no perfil. Antes, dois toques seguidos no ✓ criavam a categoria duas vezes e voltavam até ao início. Reproduzido e corrigido no emulador a 12/11/2026.
 - **L3 Registo:** um só ecrã para munícipe e operador.
   - Erros campo a campo, NIF único por perfil e domínio `@aac-coimbra.pt` para operadores.
   - A deteção de impactos só aparece para o munícipe.
   - O munícipe fica `PENDING` e o operador `ACTIVE`, com um aviso no fim.
-  - Ficheiros: `RegisterScreen`, `RegisterViewModel`, `RegisterUiState`, `utils/Validators`.
+  - Foto opcional (L8): avatar circular (`UserAvatar`) com as iniciais do nome e os botões Galeria / Câmara (`PhotoSourceButtons`) no topo; fica em `User.picturePath`. A foto é apagada se for trocada ou se o registo for abandonado (`RegisterViewModel.onCleared`). Testado no emulador: iniciais, foto da galeria, apagamento ao sair sem registar e caminho gravado ao registar.
+  - Ficheiros: `RegisterScreen`, `RegisterViewModel`, `RegisterUiState`, `utils/Validators`, `UserAvatar`.
+- **L4 Perfil:** botão de conta na barra de topo, só para o munícipe e o operador (`canEditProfile`). Fecha o conflito 11 a favor do enunciado.
+  - Editáveis: foto (avatar com Galeria / Câmara), telefone (validado com o `Validators.phoneError`) e, no munícipe, a Deteção de Impactos.
+  - Só de leitura, como campos desativados: nome, e-mail, NIF e, no munícipe, georreferenciação. Não há morada: o `address` saiu do `User`.
+  - Ao gravar, volta ao início e o utilizador da sessão é atualizado (`SessionViewModel.refreshCurrentUser`).
+  - Foto: a nova só substitui a antiga ao gravar, e a antiga é apagada nesse momento; se se sair sem gravar, a nova é apagada.
+  - O registo e o perfil partilham os componentes `FormTextField`, `UserPhotoField` e `ImpactDetectionSwitch` (`ui/components/UserFormFields.kt`). As coordenadas escrevem-se com `GeoLocation.toDisplayText()` (`utils/LocationFormat.kt`), que a validação de munícipes também usa.
+  - Ficheiros: `ProfileScreen` (com preview), `ProfileViewModel`, `ProfileUiState`, `ProfileViewModelFactory`.
+  - Testado no emulador a 12/11/2026, como munícipe e como operador: o anónimo não tem o botão; um telefone inválido mostra o erro e não grava; o telefone, a Deteção de Impactos e a foto ficam no JSON e voltam a aparecer ao reabrir; a foto nova é apagada ao sair sem gravar e a antiga ao gravar outra; o operador não vê a georreferenciação nem a Deteção de Impactos; em landscape o ecrã faz scroll. O registo continua igual depois de passar para os componentes partilhados.
 - **L5 Validação de munícipes:** lista dos pendentes com nome, NIF e georreferenciação, e botão para ativar.
   - Ficheiros: `CitizenValidationScreen` (com preview próprio), `PendingCitizenCard`, `CitizenValidationViewModel`.
+- **L7 Ciclo de vida do ticket (operador):** secção «Gestão do estado» no detalhe, com o componente `LifecycleActions`.
+  - «Iniciar trabalhos», em Aberto: passa a Em resolução e preenche `workStartedAt`.
+  - «Marcar como resolvida», em Em resolução: diálogo com foto comprovativa obrigatória (galeria ou câmara, com o `PhotoPicker`) e nota opcional. Passa a Resolvido, preenche `resolvedAt` e junta a foto com o propósito `RESOLUTION_PROOF`.
+  - Em Pedido de informações, Resolvido e Encerrado não há ações; aparece o motivo (à espera da resposta do autor, data do encerramento automático ou ocorrência encerrada).
+  - Encerramento automático: ao carregar as ocorrências, as resolvidas há mais de 5 dias passam a Encerradas (`IncidentRepository.loadIncidents`).
+  - Regras em `AccessRules` (`canStartWork`, `canResolve`, `isClosingDue`) e transições em `IncidentActions` (`workStarted`, `resolved`, `closed`).
+  - Testado no emulador como operador: Aberto → Em resolução → Resolvido com foto da galeria e nota, histórico e data de encerramento; e o "Saneamento" dos dados de exemplo, resolvido há 22 dias, encerrado ao arrancar.
 - **Restrição ao operador (L5 e L6):** os botões de acesso só aparecem na barra de topo quando o perfil é Operador (`canManageCategories`, `canValidateCitizens`).
-- As três tarefas foram testadas no emulador, têm os textos em inglês e português e descrições de acessibilidade nos botões e interruptores.
+- Todas as tarefas do Leonardo foram testadas no emulador, têm os textos em inglês e português e descrições de acessibilidade nos botões e interruptores.
 
 ### 2.3 João
 - **J1 Dashboard:** `IncidentsList.getDashboardStats()` calcula sobre todas as ocorrências, incluindo as privadas, o tempo médio de reparação (de `createdAt` a `closedAt`), o total e a percentagem de ativas. O `IncidentsViewModel` expõe-nos em `dashboardStats` e o `DashboardStatsCard` mostra-os no topo do `Dashboard`.
@@ -100,13 +118,13 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 ### 2.5 Documentação
 - `Padroes_Aulas.md`: ContactsApp de 6/11 (multimédia de fotos) e diferenças em relação às aulas.
-- `CityFix_Decisoes.md`: nomes do modelo, um repositório por entidade, validações do registo, formato das coordenadas, sessão falsa, navegação por perfil e decisão 16 fechada.
+- `CityFix_Decisoes.md`: nomes do modelo, um repositório por entidade, validações do registo, formato das coordenadas, sessão falsa, navegação por perfil, decisão 16 fechada e conflito 11 fechado (perfil, 12/11).
 - `CityFix_Plano.md`: multimédia de fotos marcada como dada, vídeo por definir e estado da Fase 0.
 
 ## 3. O que falta implementar
 
 ### 3.1 Fase 0 (os dois)
-- [ ] **0.6** Fechar os parâmetros das restantes ações do `LifecycleActions`. O contrato do componente de mensagens está na secção 7 do plano.
+- [x] **0.6** Contratos fechados: `InformationRequests` (J7) e `LifecycleActions` (L7).
 
 ### 3.2 João
 - [ ] J4 Mapa (aula #4).
@@ -116,16 +134,16 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [ ] J10 Deteção de impactos (sensores, ainda sem aula).
 
 ### 3.3 Leonardo
-- [ ] L8 Multimédia: a base já existe (feita com a J5); falta usá-la no registo (L3), no perfil (L4) e na prova de resolução (L7). O vídeo está por definir.
-- [ ] L4 Perfil: fechar antes o conflito 11.
-- [ ] L7 `LifecycleActions`: depende da 0.6. O espaço no detalhe (J4) já existe.
+- [ ] L8 Multimédia: as fotos do registo (L3), do perfil (L4) e da prova de resolução (L7) já usam a base feita com a J5. Falta o vídeo, por definir (pontos 13 e A).
+- [x] L4 Perfil (12/11), com o conflito 11 fechado.
+- [x] L7 `LifecycleActions` (11/11). Falta o vídeo comprovativo (pontos 13 e A) e a notificação ao autor (L11).
 - [ ] L1 Login e aviso de conta pendente (Firebase). Substitui o `SessionSelector`.
 - [ ] L2 MFA e recuperação de password (Firebase).
 - [ ] L9 Compressão, thumbnail e envio com WorkManager.
 - [ ] L10 Geofence de 20 m.
-- [ ] L11 Notificações, encerramento aos 5 dias e aviso das 24 h.
+- [ ] L11 Notificações e aviso das 24 h. O encerramento aos 5 dias já é feito no dispositivo (L7).
 - Pendente nas tarefas já feitas:
-  - [ ] L3: password e criação da conta (L1), foto opcional (L8) e georreferenciação (aula #4, ponto 8).
+  - [ ] L3: password e criação da conta (L1) e georreferenciação (aula #4, ponto 8).
 
 ### 3.4 Requisitos gerais do enunciado
 
@@ -145,8 +163,8 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 ### 3.5 Decisões por fechar
 O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
-- Conflitos com o enunciado: 11 (nome editável e morada) e 15 (o tempo médio inclui os 5 dias até ao encerramento). O 16 ficou fechado.
-- Por confirmar, do Leonardo: 7 (falta só a unicidade do e-mail, que o Firebase resolve), 8, 10, 13, 28, 29, 30 e 32.
+- Conflitos com o enunciado: 15 (o tempo médio inclui os 5 dias até ao encerramento). O 11 (fechado a 12/11, a favor do enunciado) e o 16 ficaram fechados.
+- Por confirmar, do Leonardo: 7 (falta só a unicidade do e-mail, que o Firebase resolve), 8, 10, 13, 28 (falta só o aviso das 24 h), 29, 30 e 32.
 - Por confirmar, do João: 17, 31, A e B.
 
 ### 3.6 Problemas conhecidos e limpeza
@@ -158,6 +176,8 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 - A câmara usa o contrato `TakePicture`, que não exige a permissão `CAMERA` enquanto a app não a declarar no manifesto. O pedido de permissões em runtime que o enunciado exige fica para a aula #4.
 - Os testes no emulador alteram os dados guardados em JSON. Os dados de exemplo só são lidos quando o ficheiro ainda não existe; para os repor: `adb shell pm clear pt.isec.amov.cityfix`.
 - Dados de exemplo para testar a reabertura (J8), todos do `citizen-1`: "Iluminação" resolvida há 1 dia (mostra o botão "Reabrir") e "Saneamento" encerrada (não o mostra), ambas com histórico de estados. A "Água" também está resolvida, há 2 dias.
+- [ ] Dados de exemplo trocados no commit `67596c1`: a "Iluminação" (semáforo) está Encerrada sem `closedAt` e com o histórico a terminar em Resolvido, e o "Saneamento" está Resolvido com `closedAt` e o histórico a terminar em Encerrado. Com o encerramento automático, o "Saneamento" passa a Encerrado ao arrancar, mas fica com a mudança Resolvido → Encerrado repetida no histórico, e a "Iluminação" deixa de servir para testar a reabertura. Confirmar com o João e repor os estados.
+- [ ] O detalhe da ocorrência (J4) escreve as coordenadas com `stringResource(R.string.detail_location, ...)`, que formata os números na língua do dispositivo. Pelo código, em português devem sair com vírgula decimal (`40,20860, -8,42070`), ao contrário da decisão de usar sempre ponto decimal (não verificado no emulador). Pode passar a usar a `GeoLocation.toDisplayText()` da L4. Confirmar com o João.
 - Os campos de texto seguem o padrão das aulas (`StateFlow`). Com escrita muito rápida num emulador lento perderam-se letras; a escrever normalmente funcionou.
 - O stash `stash@{0}` (alterações antigas do João, de 11/11) já não é preciso: o `Rules.kt` deu origem ao `AccessRules.kt` e o `IncidentChart` foi recuperado.
 
@@ -172,6 +192,6 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 
 | Quando | O quê |
 |---|---|
-| Até 16/11 | Fechar a 0.6 e avançar com L8, L4 e L7 |
+| 12/11 | L4 com a foto de perfil (feita, com o conflito 11 fechado) |
 | Depois de cada aula | Aula #4: mapa da J4, localização da J5, J6, J9, georreferenciação da L3 e F1. Firebase: L1, L2, L11 e troca dos repositórios. WorkManager: L9. Sensores: J10. Geofencing: L10 |
 | 17/11 a 22/11 | Integração, limpeza, testes em landscape e em PT/EN, relatório e ZIP |

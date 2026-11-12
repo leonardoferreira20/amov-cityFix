@@ -11,6 +11,7 @@ data class RegisterUiState(
     val nif: String = "",
     val role: UserRole = UserRole.CITIZEN,
     val impactDetectionEnabled: Boolean = false,
+    val picturePath: String? = null,
     @StringRes val nameError: Int? = null,
     @StringRes val emailError: Int? = null,
     @StringRes val phoneError: Int? = null,

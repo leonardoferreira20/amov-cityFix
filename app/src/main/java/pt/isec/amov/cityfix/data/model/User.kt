@@ -15,6 +15,5 @@ data class User(
     val createdAt: Long,
     val picturePath: String? = null,
     val location: GeoLocation? = null,
-    val impactDetectionEnabled: Boolean = false,
-    val address: String? = null
+    val impactDetectionEnabled: Boolean = false
 )

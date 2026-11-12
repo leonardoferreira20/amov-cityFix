@@ -3,6 +3,11 @@
     <string name="field_email">E-mail</string>
     <string name="field_phone">Telefone</string>
     <string name="field_nif">NIF</string>
+    <string name="field_photo">Foto (opcional)</string>
+    <string name="field_location">Georreferenciação</string>
+    <string name="field_location_not_set">Não definida</string>
+    <string name="field_impact_detection">Deteção de impactos</string>
+    <string name="field_impact_detection_hint">Sugere abrir uma ocorrência quando é detetado um impacto brusco durante uma deslocação.</string>
 
     <string name="error_name_required">O nome é obrigatório.</string>
     <string name="error_email_invalid">Indique um e-mail válido.</string>
@@ -26,8 +31,6 @@
     <string name="register_title">Registo</string>
     <string name="register_profile_label">Perfil</string>
     <string name="register_operator_email_hint">Use o e-mail da autarquia (@aac-coimbra.pt).</string>
-    <string name="register_impact_detection">Deteção de impactos</string>
-    <string name="register_impact_detection_hint">Sugere abrir uma ocorrência quando é detetado um impacto brusco durante uma deslocação.</string>
     <string name="register_submit">Registar</string>
     <string name="register_done_pending_title">Registo enviado</string>
     <string name="register_done_pending_text">A conta fica ativa depois de os serviços camarários validarem o NIF.</string>
@@ -124,4 +127,18 @@
     <string name="information_send_action">Enviar</string>
     <string name="information_action_unavailable">Esta ação já não está disponível.</string>
     <string name="information_save_error">Não foi possível guardar a mensagem. Tente novamente.</string>
+
+    <string name="lifecycle_title">Gestão do estado</string>
+    <string name="lifecycle_start_work">Iniciar trabalhos</string>
+    <string name="lifecycle_resolve">Marcar como resolvida</string>
+    <string name="lifecycle_resolve_title">Resolver ocorrência</string>
+    <string name="lifecycle_resolve_text">Junte uma foto do trabalho concluído.</string>
+    <string name="lifecycle_resolve_note">Nota (opcional)</string>
+    <string name="lifecycle_waiting_reply">À espera da resposta do autor ao pedido de informação.</string>
+    <string name="lifecycle_closes_on">Encerra automaticamente a %1$s.</string>
+    <string name="lifecycle_closed">Uma ocorrência encerrada não admite alterações.</string>
+
+    <string name="profile_title">Perfil</string>
+    <string name="profile_save">Guardar alterações</string>
+    <string name="profile_photo_description">Fotografia de perfil</string>
 </resources>

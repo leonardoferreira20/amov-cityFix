@@ -18,7 +18,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Um repositório por entidade (`IncidentRepository`, `UserRepository`, `CategoryRepository`), cada um como o `ContactsRepository` das aulas, com o seu ficheiro JSON e dados de exemplo. São todos criados na `Application`. Um ViewModel que precise de várias entidades recebe vários repositórios na Factory.
 - As regras de acesso ficam em `utils/AccessRules.kt`, junto do `Validators.kt`, como funções Kotlin puras.
 - Enquanto não há login, o utilizador atual vem de uma sessão falsa: o `SessionViewModel` guarda um `StateFlow<User?>` (`null` é o anónimo) e o `SessionSelector` escolhe o perfil. Com o login (L1) sai o seletor e fica o `SessionViewModel`.
-- Uma só `MainActivity` com um `NavHost` dentro de um `Scaffold`. A app abre no início (`DashboardRoute`); os ecrãs do operador (categorias, validação) e o registo abrem-se pelos botões da `MainTopAppBar`, que só aparecem ao perfil que os pode usar.
+- Uma só `MainActivity` com um `NavHost` dentro de um `Scaffold`. A app abre no início (`DashboardRoute`); os ecrãs do operador (categorias, validação), o registo e o perfil abrem-se pelos botões da `MainTopAppBar`, que só aparecem ao perfil que os pode usar.
 - Os três números do dashboard são calculados sobre todas as ocorrências (`IncidentsList.getDashboardStats()`); a lista mostra só as que o perfil pode ver.
 - Identidade visual do CityFix (11/11/2026): paleta fixa a partir do azul-petróleo `#0B2833` do ícone, com variantes clara e escura segundo o modo do dispositivo. A barra de topo usa azul-petróleo com texto e ícones brancos. O cartão dos indicadores usa um tom mais suave da paleta e dá destaque aos valores.
 - Barra de topo (11/11/2026): título em seminegrito e círculo branco translúcido atrás do ícone quando todos os cartões da lista estão expandidos. A descrição do botão indica se expande ou recolhe todos os cartões.
@@ -50,7 +50,13 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - telefone com 9 dígitos, a começar por 2 ou 9 (formato português);
   - NIF com 9 dígitos, sem verificar o dígito de controlo; único por perfil, como diz o enunciado (o mesmo NIF pode existir num munícipe e num operador);
   - o e-mail não é verificado como único; o Firebase Authentication fá-lo quando entrar (ponto 7).
-- Campos editáveis no perfil: foto, morada, nome, telefone (11). Há um conflito com o enunciado, ver secção 2.
+- Foto do registo (11/11/2026): avatar circular no topo do formulário, com as iniciais do nome enquanto não há foto (como o `ContactAvatar` das aulas) e os botões Galeria / Câmara ao lado. Fica em `User.picturePath`. Ao trocar de foto, a anterior é apagada; se o registo for abandonado, a foto escolhida também.
+- Perfil (11, fechado a 12/11/2026), como diz o enunciado:
+  - editáveis: a foto, o telefone (com a validação do registo) e, no munícipe, a Deteção de Impactos;
+  - só de leitura, como campos desativados: o nome, o e-mail e o NIF e, no munícipe, a georreferenciação. O nome deixou de ser editável, ao contrário da primeira decisão; o e-mail já não estava entre os campos editáveis;
+  - não há campo de morada: a localização do utilizador é só a georreferenciação, e o `address` saiu do `User`;
+  - abre-se pelo botão de conta na barra de topo, que só aparece ao munícipe e ao operador. Ao gravar, volta ao início e o utilizador da sessão é atualizado;
+  - uma foto nova só substitui a anterior ao gravar, e a anterior é apagada nesse momento; se se sair sem gravar, a foto nova é apagada.
 
 ### Ocorrências
 - A foto é obrigatória na criação. A localização da ocorrência é obtida no momento em que a foto é tirada (12).
@@ -78,12 +84,16 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O autor e o operador criam pedidos e respondem na secção «Pedidos de informação» do detalhe. O botão «Pedir informação» está nessa secção para os dois perfis (11/11/2026).
 - Reabertura sem limite. O ticket volta para Aberto (26).
 - O registo do início dos trabalhos corresponde à passagem para Em Resolução (27).
+- O operador inicia os trabalhos em Aberto e só resolve a partir de Em Resolução; não se resolve diretamente a partir de Aberto (11/11/2026).
+- Enquanto a ocorrência está em Pedido de Informações, o operador não muda o estado: espera pela resposta do autor, que repõe o estado anterior (11/11/2026).
+- Resolver exige uma foto comprovativa, da galeria ou da câmara, guardada como `MediaAttachment` com o propósito `RESOLUTION_PROOF`. A nota é opcional e fica no `StatusChange`. O vídeo depende dos pontos 13 e A (11/11/2026).
+- O encerramento aos 5 dias é feito no dispositivo: ao carregar as ocorrências, as que estão resolvidas há mais de 5 dias passam a Encerradas, com `closedAt` igual a `resolvedAt` + 5 dias e um `StatusChange` feito por `system`. O aviso das 24 h fica para a L11 (28, 11/11/2026).
 
 ## 2. Conflitos com o enunciado (a confirmar)
 
-- **Edição de perfil (11):** o enunciado proíbe alterar o nome, tanto no munícipe como no operador. A decisão tomada inclui o nome nos campos editáveis.
-- **Morada (11):** o enunciado não tem um campo "morada", só "georreferenciação", que o munícipe não pode alterar. Falta decidir se a morada é um campo novo, separado da georreferenciação, ou se é a própria georreferenciação.
 - **Tempo médio de reparação (15):** um ticket só passa a Encerrado 5 dias depois de Resolvido. Medir de Aberto a Encerrado acrescenta sempre esses 5 dias à média. Confirmar se é intencional.
+
+O conflito 11 (nome editável e morada) ficou fechado a 12/11/2026, a favor do enunciado: ver «Acesso e perfis», na secção 1.
 
 ## 3. Por confirmar
 
@@ -93,7 +103,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - (10) Que segundo fator se usa no MFA?
 - (13) O limite de 1 foto e 1 vídeo é definitivo?
 - (17) O que mostra o mapa do detalhe público: um ponto aproximado, uma zona ou só o município?
-- (28) Quem executa o encerramento automático aos 5 dias e o aviso das 24 h: o dispositivo ou o backend?
+- (28) Quem executa o aviso das 24 h antes do encerramento: o dispositivo ou o backend? O encerramento ficou decidido: é feito no dispositivo (11/11/2026).
 - (29) A geofence funciona para ocorrências ativas (secção I do enunciado) ou só em Em Resolução (secção II)?
 - (30) Qualquer operador ativa a geofence, ou só um operador atribuído? Há atribuição de operador a ocorrências?
 - (31) Na Deteção de Impactos, que categoria corresponde a "pavimento" e que limiar de aceleração se usa?
@@ -132,7 +142,6 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 - `picturePath` (opcional): caminho da foto, como no ContactsApp.
 - `location` (opcional): georreferenciação do registo; só o munícipe a tem.
 - `impactDetectionEnabled` (`false` por omissão): só faz sentido no munícipe.
-- `address` (opcional, `null` por omissão): fica assim até se fechar o conflito da morada (secção 2).
 
 ### `Category`
 - `id`, `name`
@@ -164,7 +173,7 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 ### `StatusChange` (histórico do ticket)
 - `fromStatus`, `toStatus`
 - `timestamp`
-- `changedBy`
+- `changedBy` (id de quem fez a mudança; `system` no encerramento automático)
 - `note` (por exemplo, a justificação da reabertura; por isso a ocorrência não tem um campo `justification`)
 
 ### `InfoRequest`
@@ -196,11 +205,13 @@ Implementado em `data/model` (tarefa 0.1). As classes guardadas têm `@Serializa
 
 ### Removido em relação à primeira proposta
 - `OccurrenceGroup`: o grupo passa a ser representado por `primaryIncidentId` na própria ocorrência (decisões 19 e 20).
+- `User.address`: o enunciado não tem morada; a localização do utilizador é a georreferenciação (conflito 11, fechado a 12/11/2026).
 
 ### Regras de negócio que o modelo tem de suportar
 - Só categorias ativas aparecem na criação de ocorrências.
 - Ao criar, procura-se uma ocorrência principal não encerrada, da mesma categoria, a menos de 10 m. Se existir, a nova liga-se a ela.
 - Um pedido de informação do operador guarda o estado atual em `previousStatus` e passa o ticket a INFO_REQUESTED. Na primeira resposta do autor, o ticket volta a `previousStatus` e esse campo é limpo.
 - A reabertura só é possível em RESOLVED, até 5 dias depois de `resolvedAt`. Passa o ticket a OPEN, incrementa `reopenCount` e exige justificação.
+- Só se resolve a partir de IN_PROGRESS, com foto comprovativa. Uma ocorrência RESOLVED passa a CLOSED 5 dias depois de `resolvedAt`.
 - Um ticket em CLOSED não aceita alterações.
 - Cada transição de estado gera um `StatusChange`.

@@ -1,5 +1,48 @@
 package pt.isec.amov.cityfix.data.model
 
+const val SYSTEM_USER_ID = "system"
+
+fun Incident.workStarted(userId: String, now: Long): Incident = copy(
+    status = IncidentStatus.IN_PROGRESS,
+    workStartedAt = now,
+    history = history + StatusChange(
+        fromStatus = status,
+        toStatus = IncidentStatus.IN_PROGRESS,
+        timestamp = now,
+        changedBy = userId
+    )
+)
+
+fun Incident.resolved(userId: String, photoPath: String, note: String?, now: Long): Incident = copy(
+    status = IncidentStatus.RESOLVED,
+    resolvedAt = now,
+    media = media + MediaAttachment(
+        type = MediaType.IMAGE,
+        purpose = MediaPurpose.RESOLUTION_PROOF,
+        localUri = photoPath,
+        uploadedBy = userId,
+        createdAt = now
+    ),
+    history = history + StatusChange(
+        fromStatus = status,
+        toStatus = IncidentStatus.RESOLVED,
+        timestamp = now,
+        changedBy = userId,
+        note = note
+    )
+)
+
+fun Incident.closed(closedAt: Long): Incident = copy(
+    status = IncidentStatus.CLOSED,
+    closedAt = closedAt,
+    history = history + StatusChange(
+        fromStatus = status,
+        toStatus = IncidentStatus.CLOSED,
+        timestamp = closedAt,
+        changedBy = SYSTEM_USER_ID
+    )
+)
+
 fun Incident.reopened(userId: String, justification: String, photoPath: String, now: Long): Incident = copy(
     status = IncidentStatus.OPEN,
     resolvedAt = null,

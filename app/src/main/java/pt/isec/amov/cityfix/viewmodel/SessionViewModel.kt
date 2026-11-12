@@ -24,4 +24,11 @@ class SessionViewModel(private val repository: UserRepository) : ViewModel() {
             }
         }
     }
+
+    fun refreshCurrentUser() {
+        val userId = _currentUser.value?.id ?: return
+        viewModelScope.launch {
+            _currentUser.value = repository.loadUsers().findById(userId)
+        }
+    }
 }

@@ -16,10 +16,14 @@ import pt.isec.amov.cityfix.data.model.InfoRequest
 import pt.isec.amov.cityfix.data.model.Message
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.reopened
+import pt.isec.amov.cityfix.data.model.resolved
 import pt.isec.amov.cityfix.data.model.withInformationReply
 import pt.isec.amov.cityfix.data.model.withInformationRequest
+import pt.isec.amov.cityfix.data.model.workStarted
 import pt.isec.amov.cityfix.utils.canChangeStatus
 import pt.isec.amov.cityfix.utils.canReopen
+import pt.isec.amov.cityfix.utils.canResolve
+import pt.isec.amov.cityfix.utils.canStartWork
 import pt.isec.amov.cityfix.utils.canReplyToInformationRequest
 import pt.isec.amov.cityfix.utils.canRequestInformation
 import pt.isec.amov.cityfix.utils.canSeeAuthorData
@@ -79,6 +83,8 @@ class IncidentDetailViewModel(
                 showLocation = incident != null && canSeeExactLocation(currentUser, incident),
                 showHistory = incident != null && canSeeHistory(currentUser, incident),
                 showOperatorActions = canChangeStatus(currentUser),
+                canStartWork = incident != null && canStartWork(currentUser, incident),
+                canResolve = incident != null && canResolve(currentUser, incident),
                 canReopen = incident != null && canReopen(currentUser, incident),
                 reopenDeadline = incident?.let { reopenDeadline(it) },
                 showInformationRequests = showRequests,
@@ -153,6 +159,35 @@ class IncidentDetailViewModel(
                 _detailState.update { it.copy(isSavingInformation = false) }
             }
             onResult(error)
+        }
+    }
+
+    fun startWork(onSuccess: () -> Unit) {
+        val user = currentUser ?: return
+        viewModelScope.launch {
+            val incidents = incidentRepository.loadIncidents()
+            val incident = incidents.findById(incidentId) ?: return@launch
+            if (!canStartWork(user, incident)) return@launch
+            incidents.upsert(incident.workStarted(user.id, System.currentTimeMillis()))
+            incidentRepository.saveIncidents(incidents)
+            refresh()
+            onSuccess()
+        }
+    }
+
+    fun resolve(photoPath: String?, note: String, onSuccess: () -> Unit) {
+        val user = currentUser ?: return
+        if (photoPath == null) return
+        viewModelScope.launch {
+            val incidents = incidentRepository.loadIncidents()
+            val incident = incidents.findById(incidentId) ?: return@launch
+            if (!canResolve(user, incident)) return@launch
+            incidents.upsert(
+                incident.resolved(user.id, photoPath, note.trim().ifBlank { null }, System.currentTimeMillis())
+            )
+            incidentRepository.saveIncidents(incidents)
+            refresh()
+            onSuccess()
         }
     }
 

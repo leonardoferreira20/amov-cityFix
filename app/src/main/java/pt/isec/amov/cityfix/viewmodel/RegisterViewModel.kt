@@ -12,6 +12,7 @@ import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.data.model.AccountStatus
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
+import pt.isec.amov.cityfix.utils.FileUtils
 import pt.isec.amov.cityfix.utils.Validators
 
 class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
@@ -49,6 +50,17 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
         _registerState.update { it.copy(impactDetectionEnabled = enabled) }
     }
 
+    fun onPictureChanged(newPath: String?) {
+        val oldPath = _registerState.value.picturePath
+        if (oldPath != null && oldPath != newPath) FileUtils.deleteFromPath(oldPath)
+        _registerState.update { it.copy(picturePath = newPath) }
+    }
+
+    override fun onCleared() {
+        val state = _registerState.value
+        if (state.registeredStatus == null) FileUtils.deleteFromPath(state.picturePath)
+    }
+
     fun register() {
         _registerState.update {
             it.copy(
@@ -81,6 +93,7 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
                     role = current.role,
                     status = status,
                     createdAt = System.currentTimeMillis(),
+                    picturePath = current.picturePath,
                     impactDetectionEnabled = current.impactDetectionEnabled
                 )
             )

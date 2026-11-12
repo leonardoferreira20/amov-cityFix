@@ -35,13 +35,14 @@ class EditCategoryViewModel(
 
     fun saveCategory(onSuccess: () -> Unit) {
         val current = _editState.value
+        if (current.isSaving) return
         if (!current.isValid) {
             onNameChanged(current.name)
             return
         }
-        viewModelScope.launch {
-            _editState.update { it.copy(isSaving = true) }
+        _editState.update { it.copy(isSaving = true) }
 
+        viewModelScope.launch {
             val categoriesList = repository.loadCategories()
             val now = System.currentTimeMillis()
             val existing = categoryId?.let { categoriesList.findById(it) }
@@ -50,7 +51,6 @@ class EditCategoryViewModel(
 
             categoriesList.upsert(category)
             repository.saveCategories(categoriesList)
-            _editState.update { it.copy(isSaving = false) }
             onSuccess()
         }
     }

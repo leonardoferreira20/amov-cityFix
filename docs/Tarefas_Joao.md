@@ -8,7 +8,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] 0.3 `utils/AccessRules.kt`.
 - [x] 0.4 Sessão falsa: `SessionViewModel` e `SessionSelector`.
 - [x] 0.5 `NavHost` único com `Scaffold` e `MainTopAppBar`; saíram o `Screen.JOAO` / `Screen.LEONARDO` e o `DevMenuScreen`.
-- [ ] 0.6 Contrato das restantes ações do operador em `LifecycleActions`, com o Leonardo. O contrato do componente de mensagens já está definido.
+- [x] 0.6 Contratos do `LifecycleActions` (fechado com a L7 do Leonardo, a 11/11/2026) e do componente de mensagens, na secção 7 do plano.
 - [x] 0.7 Textos em `strings.xml` (EN e PT); os textos e as cores de teste do `MainScreen` saíram.
 
 Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.

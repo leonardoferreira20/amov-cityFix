@@ -34,9 +34,17 @@ fun canCreateIncident(user: User?): Boolean = isCitizen(user)
 
 fun canChangeStatus(user: User?): Boolean = isOperator(user)
 
+fun canStartWork(user: User?, incident: Incident): Boolean =
+    isOperator(user) && incident.status == IncidentStatus.OPEN
+
+fun canResolve(user: User?, incident: Incident): Boolean =
+    isOperator(user) && incident.status == IncidentStatus.IN_PROGRESS
+
 fun canManageCategories(user: User?): Boolean = isOperator(user)
 
 fun canValidateCitizens(user: User?): Boolean = isOperator(user)
+
+fun canEditProfile(user: User?): Boolean = user != null
 
 fun canSeeInformationRequests(user: User?, incident: Incident): Boolean =
     isOperator(user) || isAuthor(user, incident)
@@ -64,4 +72,9 @@ fun canReopen(user: User?, incident: Incident, now: Long = System.currentTimeMil
     return isAuthor(user, incident) &&
             incident.status == IncidentStatus.RESOLVED &&
             now <= deadline
+}
+
+fun isClosingDue(incident: Incident, now: Long = System.currentTimeMillis()): Boolean {
+    val deadline = reopenDeadline(incident) ?: return false
+    return incident.status == IncidentStatus.RESOLVED && now > deadline
 }

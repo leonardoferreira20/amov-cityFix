@@ -31,6 +31,24 @@ fun PhotoPicker(
     modifier: Modifier = Modifier,
     previewHeight: Dp = 200.dp
 ) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        IncidentPhoto(
+            path = photoPath,
+            contentDescription = stringResource(R.string.incident_photo_description),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(previewHeight)
+        )
+        PhotoSourceButtons(onPhotoChange = onPhotoChange)
+    }
+}
+
+@Composable
+fun PhotoSourceButtons(
+    onPhotoChange: (String?) -> Unit,
+    modifier: Modifier = Modifier,
+    vertical: Boolean = false
+) {
     val context = LocalContext.current
     var cameraFilePath by rememberSaveable { mutableStateOf<String?>(null) }
 
@@ -45,27 +63,24 @@ fun PhotoPicker(
         if (success) onPhotoChange(cameraFilePath) else FileUtils.deleteFromPath(cameraFilePath)
     }
 
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        IncidentPhoto(
-            path = photoPath,
-            contentDescription = stringResource(R.string.incident_photo_description),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(previewHeight)
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = {
-                photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            }) {
-                Text(stringResource(R.string.photo_gallery))
-            }
-            OutlinedButton(onClick = {
-                val (file, uri) = FileUtils.createTempImageFile(context)
-                cameraFilePath = file.absolutePath
-                cameraLauncher.launch(uri)
-            }) {
-                Text(stringResource(R.string.photo_camera))
-            }
+    val buttons: @Composable () -> Unit = {
+        Button(onClick = {
+            photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }) {
+            Text(stringResource(R.string.photo_gallery))
         }
+        OutlinedButton(onClick = {
+            val (file, uri) = FileUtils.createTempImageFile(context)
+            cameraFilePath = file.absolutePath
+            cameraLauncher.launch(uri)
+        }) {
+            Text(stringResource(R.string.photo_camera))
+        }
+    }
+
+    if (vertical) {
+        Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) { buttons() }
+    } else {
+        Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) { buttons() }
     }
 }

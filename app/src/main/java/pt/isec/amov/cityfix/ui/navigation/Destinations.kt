@@ -22,3 +22,6 @@ data object RegisterRoute
 
 @Serializable
 data object CitizenValidationRoute
+
+@Serializable
+data object ProfileRoute

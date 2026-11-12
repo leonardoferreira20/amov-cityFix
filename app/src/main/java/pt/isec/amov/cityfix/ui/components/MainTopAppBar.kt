@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.PersonAdd
@@ -38,11 +39,13 @@ fun MainTopAppBar(
     showCategories: Boolean,
     showValidation: Boolean,
     showRegister: Boolean,
+    showProfile: Boolean,
     onNavigateBack: () -> Unit,
     onToggleAllCards: () -> Unit,
     onCategoriesClick: () -> Unit,
     onValidationClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -99,6 +102,11 @@ fun MainTopAppBar(
             if (showRegister) {
                 IconButton(onClick = onRegisterClick) {
                     Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.register_title))
+                }
+            }
+            if (showProfile) {
+                IconButton(onClick = onProfileClick) {
+                    Icon(Icons.Default.AccountCircle, contentDescription = stringResource(R.string.profile_title))
                 }
             }
         }

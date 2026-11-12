@@ -11,6 +11,9 @@ import pt.isec.amov.cityfix.data.model.IncidentsList
 import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.StatusChange
 import pt.isec.amov.cityfix.data.model.Visibility
+import pt.isec.amov.cityfix.data.model.closed
+import pt.isec.amov.cityfix.utils.isClosingDue
+import pt.isec.amov.cityfix.utils.reopenDeadline
 import java.io.File
 
 private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
@@ -114,18 +117,30 @@ class IncidentRepository(private val context: Context) {
     fun getIncidentById(id: String): Incident? = cachedList?.findById(id)
 
     suspend fun loadIncidents(): IncidentsList = withContext(Dispatchers.IO) {
-        cachedList?.let { return@withContext it }
-        val list = if (!databaseFile.exists()) {
-            IncidentsList(getSeedData())
-        } else {
-            try {
-                IncidentsList(json.decodeFromString<List<Incident>>(databaseFile.readText()))
-            } catch (_: Exception) {
-                IncidentsList(getSeedData())
-            }
+        val list = cachedList ?: readIncidents().also { cachedList = it }
+        if (closeDueIncidents(list)) {
+            databaseFile.writeText(json.encodeToString(list.rawList()))
         }
-        cachedList = list
         list
+    }
+
+    private fun readIncidents(): IncidentsList = if (!databaseFile.exists()) {
+        IncidentsList(getSeedData())
+    } else {
+        try {
+            IncidentsList(json.decodeFromString<List<Incident>>(databaseFile.readText()))
+        } catch (_: Exception) {
+            IncidentsList(getSeedData())
+        }
+    }
+
+    private fun closeDueIncidents(list: IncidentsList): Boolean {
+        val now = System.currentTimeMillis()
+        val dueIncidents = list.rawList().filter { isClosingDue(it, now) }
+        dueIncidents.forEach { incident ->
+            reopenDeadline(incident)?.let { closedAt -> list.upsert(incident.closed(closedAt)) }
+        }
+        return dueIncidents.isNotEmpty()
     }
 
     suspend fun saveIncidents(list: IncidentsList) = withContext(Dispatchers.IO) {

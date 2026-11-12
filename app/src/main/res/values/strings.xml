@@ -5,6 +5,11 @@
     <string name="field_email">E-mail</string>
     <string name="field_phone">Phone</string>
     <string name="field_nif">Tax number (NIF)</string>
+    <string name="field_photo">Photo (optional)</string>
+    <string name="field_location">Location</string>
+    <string name="field_location_not_set">Not set</string>
+    <string name="field_impact_detection">Impact detection</string>
+    <string name="field_impact_detection_hint">Suggests reporting a road problem when a sudden jolt is detected while you travel.</string>
 
     <string name="error_name_required">The name is required.</string>
     <string name="error_email_invalid">Enter a valid e-mail.</string>
@@ -28,8 +33,6 @@
     <string name="register_title">Registration</string>
     <string name="register_profile_label">Profile</string>
     <string name="register_operator_email_hint">Use your municipal e-mail (@aac-coimbra.pt).</string>
-    <string name="register_impact_detection">Impact detection</string>
-    <string name="register_impact_detection_hint">Suggests reporting a road problem when a sudden jolt is detected while you travel.</string>
     <string name="register_submit">Register</string>
     <string name="register_done_pending_title">Registration submitted</string>
     <string name="register_done_pending_text">Your account will be activated after the municipal services validate your NIF.</string>
@@ -127,4 +130,18 @@
     <string name="information_send_action">Send</string>
     <string name="information_action_unavailable">This action is no longer available.</string>
     <string name="information_save_error">Could not save the message. Try again.</string>
+
+    <string name="lifecycle_title">Status management</string>
+    <string name="lifecycle_start_work">Start work</string>
+    <string name="lifecycle_resolve">Mark as resolved</string>
+    <string name="lifecycle_resolve_title">Resolve incident</string>
+    <string name="lifecycle_resolve_text">Add a photo of the completed work.</string>
+    <string name="lifecycle_resolve_note">Note (optional)</string>
+    <string name="lifecycle_waiting_reply">Waiting for the author\'s reply to the information request.</string>
+    <string name="lifecycle_closes_on">Closes automatically on %1$s.</string>
+    <string name="lifecycle_closed">Closed incidents can\'t be changed.</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_save">Save changes</string>
+    <string name="profile_photo_description">Profile photo</string>
 </resources>

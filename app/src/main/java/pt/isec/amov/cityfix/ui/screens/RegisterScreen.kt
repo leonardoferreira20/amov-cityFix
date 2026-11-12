@@ -11,16 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,10 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.AccountStatus
 import pt.isec.amov.cityfix.data.model.UserRole
+import pt.isec.amov.cityfix.ui.components.FormTextField
+import pt.isec.amov.cityfix.ui.components.ImpactDetectionSwitch
+import pt.isec.amov.cityfix.ui.components.UserPhotoField
+import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.viewmodel.RegisterUiState
 
 @Composable
@@ -44,6 +45,7 @@ fun RegisterScreen(
     onNifChange: (String) -> Unit,
     onRoleChange: (UserRole) -> Unit,
     onImpactDetectionChange: (Boolean) -> Unit,
+    onPictureChange: (String?) -> Unit,
     onRegisterClick: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier
@@ -57,17 +59,31 @@ fun RegisterScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            RegisterField(state.name, onNameChange, R.string.field_name, state.nameError, KeyboardType.Text)
-            RegisterField(
+            UserPhotoField(name = state.name, picturePath = state.picturePath, onPictureChange = onPictureChange)
+
+            FormTextField(state.name, onNameChange, R.string.field_name, error = state.nameError)
+            FormTextField(
                 value = state.email,
                 onValueChange = onEmailChange,
                 label = R.string.field_email,
                 error = state.emailError,
-                keyboardType = KeyboardType.Email,
-                hint = if (state.role == UserRole.OPERATOR) R.string.register_operator_email_hint else null
+                hint = if (state.role == UserRole.OPERATOR) R.string.register_operator_email_hint else null,
+                keyboardType = KeyboardType.Email
             )
-            RegisterField(state.phone, onPhoneChange, R.string.field_phone, state.phoneError, KeyboardType.Phone)
-            RegisterField(state.nif, onNifChange, R.string.field_nif, state.nifError, KeyboardType.Number)
+            FormTextField(
+                state.phone,
+                onPhoneChange,
+                R.string.field_phone,
+                error = state.phoneError,
+                keyboardType = KeyboardType.Phone
+            )
+            FormTextField(
+                state.nif,
+                onNifChange,
+                R.string.field_nif,
+                error = state.nifError,
+                keyboardType = KeyboardType.Number
+            )
 
             Text(stringResource(R.string.register_profile_label), style = MaterialTheme.typography.titleSmall)
             Column(modifier = Modifier.selectableGroup()) {
@@ -90,26 +106,10 @@ fun RegisterScreen(
             }
 
             if (state.role == UserRole.CITIZEN) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .toggleable(
-                            value = state.impactDetectionEnabled,
-                            onValueChange = onImpactDetectionChange,
-                            role = Role.Switch
-                        )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.register_impact_detection))
-                        Text(
-                            text = stringResource(R.string.register_impact_detection_hint),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    Switch(checked = state.impactDetectionEnabled, onCheckedChange = null)
-                }
+                ImpactDetectionSwitch(
+                    checked = state.impactDetectionEnabled,
+                    onCheckedChange = onImpactDetectionChange
+                )
             }
 
             Button(
@@ -147,29 +147,35 @@ fun RegisterScreen(
     }
 }
 
-@Composable
-private fun RegisterField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    @StringRes label: Int,
-    @StringRes error: Int?,
-    keyboardType: KeyboardType,
-    @StringRes hint: Int? = null
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(stringResource(label)) },
-        isError = error != null,
-        supportingText = { (error ?: hint)?.let { Text(stringResource(it)) } },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
 @StringRes
 private fun roleLabel(role: UserRole): Int = when (role) {
     UserRole.CITIZEN -> R.string.role_citizen
     UserRole.OPERATOR -> R.string.role_operator
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RegisterScreenPreview() {
+    CityFixTheme {
+        RegisterScreen(
+            state = RegisterUiState(
+                name = "Carla Sousa",
+                email = "carla.sousa@",
+                phone = "913000002",
+                nif = "12345",
+                impactDetectionEnabled = true,
+                emailError = R.string.error_email_invalid,
+                nifError = R.string.error_nif_invalid
+            ),
+            onNameChange = {},
+            onEmailChange = {},
+            onPhoneChange = {},
+            onNifChange = {},
+            onRoleChange = {},
+            onImpactDetectionChange = {},
+            onPictureChange = {},
+            onRegisterClick = {},
+            onDone = {}
+        )
+    }
 }
