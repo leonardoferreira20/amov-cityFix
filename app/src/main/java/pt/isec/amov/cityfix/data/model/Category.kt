@@ -6,9 +6,9 @@ import java.util.UUID
 @Serializable
 data class Category(
     val id: String = UUID.randomUUID().toString(),
-    val name: String,
+    val name: String = "",
     val active: Boolean = true,
-    val createdBy: String,
-    val createdAt: Long,
+    val createdBy: String = "",
+    val createdAt: Long = 0L,
     val updatedAt: Long? = null
 )

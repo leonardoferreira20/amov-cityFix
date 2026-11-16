@@ -6,11 +6,11 @@ import java.util.UUID
 @Serializable
 data class InfoRequest(
     val id: String = UUID.randomUUID().toString(),
-    val incidentId: String,
-    val requestedBy: String,
-    val requesterRole: UserRole,
-    val text: String,
+    val incidentId: String = "",
+    val requestedBy: String = "",
+    val requesterRole: UserRole = UserRole.CITIZEN,
+    val text: String = "",
     val status: InfoRequestStatus = InfoRequestStatus.OPEN,
-    val createdAt: Long,
+    val createdAt: Long = 0L,
     val answeredAt: Long? = null
 )

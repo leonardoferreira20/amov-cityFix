@@ -157,13 +157,6 @@ fun IncidentDetailScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            state.actionError?.let { error ->
-                Text(
-                    text = stringResource(error),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
 
             val reopenDeadline = state.reopenDeadline
             if (state.canReopen && reopenDeadline != null) {

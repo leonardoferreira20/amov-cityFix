@@ -27,8 +27,8 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-09 | Só o operador gere categorias e valida munícipes. | ✅ | `AccessRules.canManageCategories`, `canValidateCitizens` (botões da barra de topo) | I.3.D, I.3.E |
 | RN-10 | O botão de registo aparece só a quem não tem sessão. | ✅ | `MainActivity` (`showRegister`) | I.2.A, I.3.A |
 | RN-11 | As ações de gestão do ciclo de vida destinam-se ao operador. As mudanças na resposta a um pedido e na reabertura seguem RN-57 e RN-60. | ✅ | `AccessRules.canChangeStatus`, `canStartWork`, `canResolve`; `LifecycleActions` | I.3.E, II.2, II.4 |
-| RN-12 | Um anónimo a mais de 10 km da Praça da República, sem permissão de localização ou ainda sem posição não vê o dashboard nem a lista. Até haver login, vê uma mensagem e o seletor de perfil. | ✅ | `AccessRules.anonymousAccess`, `MainScreen` (`AnonymousRestriction`), `CityConstants` | I.1, D3, D5 |
-| RN-13 | Um munícipe pendente não inicia sessão e vê um aviso. | 📝 | L1; a sessão falsa já só escolhe contas ativas (`SessionViewModel`) | I.2.A, D6 |
+| RN-12 | Um anónimo a mais de 10 km da Praça da República, sem permissão de localização ou ainda sem posição não vê o dashboard nem a lista; vê uma mensagem e o botão de login. | ✅ | `AccessRules.anonymousAccess`, `MainScreen` (`AnonymousRestriction`), `CityConstants` | I.1, D3, D5 |
+| RN-13 | Um munícipe pendente não inicia sessão e vê um aviso. | ✅ | `LoginViewModel.finishSignIn`, `SessionViewModel` | I.2.A, D6 |
 | RN-14 | Só o autor e o operador consultam os pedidos e as respostas no detalhe da ocorrência. | ✅ | `AccessRules.canSeeInformationRequests`, `IncidentDetailScreen` | I.2.E, I.3.E, D (11/11) |
 | RN-15 | Só quem tem sessão tem perfil: o botão de conta aparece ao munícipe e ao operador, nunca ao anónimo. | ✅ | `AccessRules.canEditProfile` (botão da barra de topo) | I.2.C, I.3.C |
 
@@ -127,3 +127,14 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-96 | O serviço de proximidade só corre com a sessão de operador e com permissão de localização. | ✅ | `AccessRules.runsProximityService`, `MainActivity` | I.3, D (16/11) |
 | RN-97 | O autor e o operador veem no detalhe quando a equipa camarária esteve a menos de 20 m. | ✅ | `AccessRules.canSeeProximityAlerts`, `IncidentDetailScreen` | I.3, D (16/11) |
 | RN-98 | As notificações pedem-se ao arrancar; a localização em 2.º plano pede-se ao operador e ao munícipe com deteção de impactos, depois de uma explicação. | ✅ | `MainActivity`, `BackgroundLocationDialog`, `AccessRules.needsBackgroundLocation` | V |
+
+## 10. Autenticação (Firebase)
+
+| ID | Regra | Estado | Onde | Origem |
+|---|---|---|---|---|
+| RN-100 | Inicia-se sessão com e-mail e password; a sessão fica guardada no dispositivo. | ✅ | `AuthRepository.signIn`, `SessionViewModel` | I.2.B, I.3.B, IV |
+| RN-101 | O registo pede password (pelo menos 6 caracteres) e confirmação, e o e-mail não pode estar registado. | ✅ | `Validators.passwordError`, `RegisterViewModel` | I.2.A, I.3.A |
+| RN-102 | Se o NIF já existir para o perfil, a conta acabada de criar é apagada e o erro aparece no campo. | ✅ | `UserRepository.hasNif`, `RegisterViewModel` | I.2.A, I.3.A |
+| RN-103 | A password recupera-se por e-mail a partir do login. | ✅ | `LoginViewModel.sendPasswordReset` | I.2.B, I.3.B |
+| RN-104 | A verificação em dois passos (TOTP) é opcional, ativa-se no perfil depois de confirmar o e-mail e passa a ser pedida no login. | ✅ | `ProfileViewModel`, `SecondFactorSection`, `LoginViewModel.confirmSecondFactor` | I.2.B, I.3.B, D10 (16/11) |
+| RN-105 | As categorias de exemplo são criadas quando o primeiro operador entra e a coleção está vazia. | ✅ | `CategoryRepository.seedIfEmpty` | D (16/11) |

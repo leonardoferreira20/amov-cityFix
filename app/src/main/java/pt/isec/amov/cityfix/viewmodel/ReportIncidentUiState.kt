@@ -19,7 +19,6 @@ data class ReportIncidentUiState(
     @StringRes val descriptionError: Int? = null,
     @StringRes val photoError: Int? = null,
     @StringRes val locationError: Int? = null,
-    @StringRes val saveError: Int? = null,
     val isSaving: Boolean = false,
     val isSaved: Boolean = false
 ) {

@@ -51,6 +51,8 @@ fun RegisterScreen(
     onEmailChange: (String) -> Unit,
     onPhoneChange: (String) -> Unit,
     onNifChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordConfirmationChange: (String) -> Unit,
     onRoleChange: (UserRole) -> Unit,
     onImpactDetectionChange: (Boolean) -> Unit,
     onPictureChange: (String?) -> Unit,
@@ -93,6 +95,21 @@ fun RegisterScreen(
                 R.string.field_nif,
                 error = state.nifError,
                 keyboardType = KeyboardType.Number
+            )
+            FormTextField(
+                value = state.password,
+                onValueChange = onPasswordChange,
+                label = R.string.field_password,
+                error = state.passwordError,
+                hint = R.string.register_password_hint,
+                isPassword = true
+            )
+            FormTextField(
+                value = state.passwordConfirmation,
+                onValueChange = onPasswordConfirmationChange,
+                label = R.string.field_password_confirmation,
+                error = state.passwordConfirmationError,
+                isPassword = true
             )
 
             Text(stringResource(R.string.register_profile_label), style = MaterialTheme.typography.titleSmall)
@@ -149,6 +166,14 @@ fun RegisterScreen(
                 ImpactDetectionSwitch(
                     checked = state.impactDetectionEnabled,
                     onCheckedChange = onImpactDetectionChange
+                )
+            }
+
+            state.error?.let {
+                Text(
+                    text = stringResource(it),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -211,6 +236,8 @@ private fun RegisterScreenPreview() {
             onEmailChange = {},
             onPhoneChange = {},
             onNifChange = {},
+            onPasswordChange = {},
+            onPasswordConfirmationChange = {},
             onRoleChange = {},
             onImpactDetectionChange = {},
             onPictureChange = {},

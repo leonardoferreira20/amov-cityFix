@@ -37,7 +37,6 @@
     <string name="register_done_pending_title">Registration submitted</string>
     <string name="register_done_pending_text">Your account will be activated after the municipal services validate your NIF.</string>
     <string name="register_done_active_title">Account created</string>
-    <string name="register_done_active_text">Your operator account is already active.</string>
 
     <string name="validation_title">Citizen validation</string>
     <string name="validation_empty">No pending registrations.</string>
@@ -51,8 +50,6 @@
     <string name="expand_cards">Expand all cards</string>
     <string name="collapse_cards">Collapse all cards</string>
 
-    <string name="session_label">View as</string>
-    <string name="session_anonymous">Anonymous</string>
 
     <string name="stat_average_repair_time">Average repair time</string>
     <string name="stat_total_incidents">Total incidents</string>
@@ -128,7 +125,6 @@
     <string name="information_message_label">Message</string>
     <string name="information_send_action">Send</string>
     <string name="information_action_unavailable">This action is no longer available.</string>
-    <string name="information_save_error">Could not save the message. Try again.</string>
 
     <string name="lifecycle_title">Status management</string>
     <string name="lifecycle_start_work">Start work</string>
@@ -144,7 +140,6 @@
     <string name="profile_save">Save changes</string>
     <string name="profile_photo_description">Profile photo</string>
     <string name="error_location_required">The location is required.</string>
-    <string name="error_save_failed">Could not save the changes. Try again.</string>
     <string name="location_permission_needed">Allow access to your location to set where the incident is.</string>
     <string name="location_permission_allow">Allow location</string>
     <string name="location_waiting">Getting your location…</string>
@@ -157,8 +152,6 @@
     <string name="register_use_current_location">Use my current location</string>
     <string name="camera_permission_denied">Allow camera access to take a photo.</string>
     <string name="anonymous_locating">Checking your location…</string>
-    <string name="anonymous_no_permission">Anonymous access is only available within 10 km of the town centre. Allow location access, or choose a profile.</string>
-    <string name="anonymous_out_of_area">You are more than 10 km from the town centre. Anonymous access is not available here; choose a profile to continue.</string>
     <string name="map_title">Incidents map</string>
     <string name="map_all_description">Map with the incidents you can see</string>
     <string name="map_marker_snippet">%1$s · %2$s · tap to open</string>
@@ -175,4 +168,45 @@
     <string name="background_location_impacts">Impact detection works while you travel, even with the app closed, so CityFix needs your location in the background. On the next screen choose \"Allow all the time\".</string>
     <string name="background_location_allow">Continue</string>
     <string name="not_now">Not now</string>
+    <string name="anonymous_no_permission">Anonymous access is only available within 10 km of the town centre. Allow location access, or sign in.</string>
+    <string name="anonymous_out_of_area">You are more than 10 km from the town centre. Anonymous access is not available here; sign in to continue.</string>
+    <string name="register_done_active_text">Your operator account is already active. You can now sign in.</string>
+    <string name="field_password">Password</string>
+    <string name="field_password_confirmation">Confirm password</string>
+    <string name="register_password_hint">At least 6 characters.</string>
+    <string name="error_password_required">The password is required.</string>
+    <string name="error_password_weak">The password must have at least 6 characters.</string>
+    <string name="error_password_mismatch">The passwords do not match.</string>
+    <string name="error_email_taken">This e-mail is already registered.</string>
+    <string name="error_credentials">Wrong e-mail or password.</string>
+    <string name="error_recent_login">For security, sign out and sign in again before doing this.</string>
+    <string name="error_network">No connection. Check your network and try again.</string>
+    <string name="error_too_many_requests">Too many attempts. Wait a moment and try again.</string>
+    <string name="error_auth_generic">Something went wrong. Try again.</string>
+    <string name="error_profile_missing">This account has no CityFix profile.</string>
+    <string name="error_code_invalid">Invalid code. Enter the 6 digits shown in the authenticator app.</string>
+    <string name="login_title">Sign in</string>
+    <string name="login_intro">Sign in with your CityFix e-mail and password.</string>
+    <string name="login_submit">Sign in</string>
+    <string name="login_forgot_password">Forgot your password?</string>
+    <string name="login_create_account">Create an account</string>
+    <string name="login_pending_title">Account pending</string>
+    <string name="login_pending_text">Your registration is waiting for validation by the municipal services. You can sign in once it is activated.</string>
+    <string name="login_reset_sent_title">E-mail sent</string>
+    <string name="login_reset_sent_text">If there is an account with this e-mail, you will receive a link to set a new password.</string>
+    <string name="mfa_login_title">Two-step verification</string>
+    <string name="mfa_login_text">Enter the 6-digit code from your authenticator app.</string>
+    <string name="mfa_code">Code</string>
+    <string name="mfa_confirm">Confirm</string>
+    <string name="mfa_title">Two-step verification</string>
+    <string name="mfa_active">Two-step verification is on. You will be asked for a code from your authenticator app when you sign in.</string>
+    <string name="mfa_needs_verified_email">To turn on two-step verification, first confirm your e-mail address.</string>
+    <string name="mfa_verification_sent">We sent you an e-mail. Open the link and then tap \"I have confirmed\".</string>
+    <string name="mfa_send_verification">Send e-mail</string>
+    <string name="mfa_check_verification">I have confirmed</string>
+    <string name="mfa_description">Protect your account with a code from an authenticator app, such as Google Authenticator.</string>
+    <string name="mfa_enable">Turn on two-step verification</string>
+    <string name="mfa_enroll_instructions">Add this key to your authenticator app (or open it directly), then enter the code it shows.</string>
+    <string name="mfa_open_app">Open in authenticator app</string>
+    <string name="profile_sign_out">Sign out</string>
 </resources>

@@ -11,7 +11,6 @@ import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.IncidentRepository
 import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.data.model.Incident
-import pt.isec.amov.cityfix.data.model.IncidentsList
 import pt.isec.amov.cityfix.data.model.InfoRequest
 import pt.isec.amov.cityfix.data.model.Message
 import pt.isec.amov.cityfix.data.model.User
@@ -34,7 +33,6 @@ import pt.isec.amov.cityfix.utils.canSeeHistory
 import pt.isec.amov.cityfix.utils.canSeeInformationRequests
 import pt.isec.amov.cityfix.utils.canViewIncident
 import pt.isec.amov.cityfix.utils.reopenDeadline
-import java.io.IOException
 
 class IncidentDetailViewModel(
     private val incidentRepository: IncidentRepository,
@@ -59,7 +57,7 @@ class IncidentDetailViewModel(
 
     private suspend fun showIncident(incident: Incident?) {
         val author = if (incident != null && canSeeAuthorData(currentUser)) {
-            userRepository.loadUsers().findById(incident.authorId)
+            userRepository.loadUser(incident.authorId)
         } else {
             null
         }
@@ -150,23 +148,14 @@ class IncidentDetailViewModel(
 
         _detailState.update { it.copy(isSavingInformation = true) }
         viewModelScope.launch {
-            val error = try {
-                val incidents = incidentRepository.loadIncidents()
-                val updated = incidents.findById(incidentId)?.let { change(it, user, text.trim()) }
-                if (updated == null) {
-                    R.string.information_action_unavailable
-                } else {
-                    val updatedIncidents = IncidentsList(incidents.rawList()).apply { upsert(updated) }
-                    incidentRepository.saveIncidents(updatedIncidents)
-                    showIncident(updated)
-                    null
-                }
-            } catch (_: IOException) {
-                R.string.information_save_error
-            } finally {
-                _detailState.update { it.copy(isSavingInformation = false) }
+            val updated = incidentRepository.loadIncidents().findById(incidentId)
+                ?.let { change(it, user, text.trim()) }
+            if (updated != null) {
+                incidentRepository.saveIncident(updated)
+                showIncident(updated)
             }
-            onResult(error)
+            _detailState.update { it.copy(isSavingInformation = false) }
+            onResult(if (updated == null) R.string.information_action_unavailable else null)
         }
     }
 
@@ -193,17 +182,11 @@ class IncidentDetailViewModel(
     private fun saveStatusChange(onSuccess: () -> Unit, change: (Incident, User) -> Incident?) {
         val user = currentUser ?: return
         viewModelScope.launch {
-            try {
-                val incidents = IncidentsList(incidentRepository.loadIncidents().rawList())
-                val updated = incidents.findById(incidentId)?.let { change(it, user) } ?: return@launch
-                incidents.upsert(updated)
-                incidentRepository.saveIncidents(incidents)
-                _detailState.update { it.copy(actionError = null) }
-                showIncident(updated)
-                onSuccess()
-            } catch (_: IOException) {
-                _detailState.update { it.copy(actionError = R.string.error_save_failed) }
-            }
+            val updated = incidentRepository.loadIncidents().findById(incidentId)
+                ?.let { change(it, user) } ?: return@launch
+            incidentRepository.saveIncident(updated)
+            showIncident(updated)
+            onSuccess()
         }
     }
 }

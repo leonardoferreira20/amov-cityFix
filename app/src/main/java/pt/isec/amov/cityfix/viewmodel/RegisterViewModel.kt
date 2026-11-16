@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pt.isec.amov.cityfix.R
+import pt.isec.amov.cityfix.data.AuthRepository
 import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.data.model.AccountStatus
 import pt.isec.amov.cityfix.data.model.GeoLocation
@@ -15,8 +16,12 @@ import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.utils.FileUtils
 import pt.isec.amov.cityfix.utils.Validators
+import pt.isec.amov.cityfix.utils.authErrorMessage
 
-class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
+class RegisterViewModel(
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
     private val _registerState = MutableStateFlow(RegisterUiState())
     val registerState: StateFlow<RegisterUiState> = _registerState.asStateFlow()
 
@@ -34,6 +39,29 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
 
     fun onNifChanged(newNif: String) {
         _registerState.update { it.copy(nif = newNif, nifError = Validators.nifError(newNif)) }
+    }
+
+    fun onPasswordChanged(newPassword: String) {
+        _registerState.update {
+            it.copy(
+                password = newPassword,
+                passwordError = Validators.passwordError(newPassword),
+                passwordConfirmationError = if (it.passwordConfirmation.isEmpty()) {
+                    null
+                } else {
+                    Validators.passwordConfirmationError(newPassword, it.passwordConfirmation)
+                }
+            )
+        }
+    }
+
+    fun onPasswordConfirmationChanged(confirmation: String) {
+        _registerState.update {
+            it.copy(
+                passwordConfirmation = confirmation,
+                passwordConfirmationError = Validators.passwordConfirmationError(it.password, confirmation)
+            )
+        }
     }
 
     fun onRoleChanged(newRole: UserRole) {
@@ -73,39 +101,53 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
                 emailError = Validators.emailError(it.email, it.role),
                 phoneError = Validators.phoneError(it.phone),
                 nifError = Validators.nifError(it.nif),
+                passwordError = Validators.passwordError(it.password),
+                passwordConfirmationError = Validators.passwordConfirmationError(it.password, it.passwordConfirmation),
                 locationError = if (it.role == UserRole.CITIZEN && it.location == null) R.string.error_location_required else null
             )
         }
         val current = _registerState.value
-        if (!current.isValid) return
+        if (!current.isValid || current.isSaving) return
 
+        _registerState.update { it.copy(isSaving = true, error = null) }
         viewModelScope.launch {
-            _registerState.update { it.copy(isSaving = true) }
-
-            val usersList = repository.loadUsers()
-            val nif = current.nif.trim()
-            if (usersList.hasNif(nif, current.role)) {
-                _registerState.update { it.copy(nifError = R.string.error_nif_taken, isSaving = false) }
-                return@launch
-            }
-
-            val status = if (current.role == UserRole.CITIZEN) AccountStatus.PENDING else AccountStatus.ACTIVE
-            usersList.upsert(
-                User(
-                    name = current.name.trim(),
-                    email = current.email.trim(),
-                    phone = current.phone.trim(),
-                    nif = nif,
-                    role = current.role,
-                    status = status,
-                    createdAt = System.currentTimeMillis(),
-                    picturePath = current.picturePath,
-                    location = if (current.role == UserRole.CITIZEN) current.location else null,
-                    impactDetectionEnabled = current.impactDetectionEnabled
+            try {
+                val userId = authRepository.register(current.email.trim(), current.password)
+                val nif = current.nif.trim()
+                if (userRepository.hasNif(nif, current.role)) {
+                    authRepository.deleteCurrentUser()
+                    _registerState.update { it.copy(nifError = R.string.error_nif_taken, isSaving = false) }
+                    return@launch
+                }
+                val status = if (current.role == UserRole.CITIZEN) AccountStatus.PENDING else AccountStatus.ACTIVE
+                userRepository.createUser(
+                    User(
+                        id = userId,
+                        name = current.name.trim(),
+                        email = current.email.trim(),
+                        phone = current.phone.trim(),
+                        nif = nif,
+                        role = current.role,
+                        status = status,
+                        createdAt = System.currentTimeMillis(),
+                        picturePath = current.picturePath,
+                        location = if (current.role == UserRole.CITIZEN) current.location else null,
+                        impactDetectionEnabled = current.impactDetectionEnabled
+                    )
                 )
-            )
-            repository.saveUsers(usersList)
-            _registerState.update { it.copy(isSaving = false, registeredStatus = status) }
+                authRepository.signOut()
+                _registerState.update { it.copy(isSaving = false, registeredStatus = status) }
+            } catch (e: Exception) {
+                if (authRepository.currentUserId != null) authRepository.deleteCurrentUser()
+                val message = authErrorMessage(e)
+                _registerState.update {
+                    when (message) {
+                        R.string.error_email_taken -> it.copy(isSaving = false, emailError = message)
+                        R.string.error_password_weak -> it.copy(isSaving = false, passwordError = message)
+                        else -> it.copy(isSaving = false, error = message)
+                    }
+                }
+            }
         }
     }
 }

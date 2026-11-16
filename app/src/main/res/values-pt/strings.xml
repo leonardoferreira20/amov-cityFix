@@ -35,7 +35,6 @@
     <string name="register_done_pending_title">Registo enviado</string>
     <string name="register_done_pending_text">A conta fica ativa depois de os serviços camarários validarem o NIF.</string>
     <string name="register_done_active_title">Conta criada</string>
-    <string name="register_done_active_text">A conta de operador já está ativa.</string>
 
     <string name="validation_title">Validação de munícipes</string>
     <string name="validation_empty">Não há registos pendentes.</string>
@@ -49,8 +48,6 @@
     <string name="expand_cards">Expandir todos os cartões</string>
     <string name="collapse_cards">Recolher todos os cartões</string>
 
-    <string name="session_label">Ver como</string>
-    <string name="session_anonymous">Anónimo</string>
 
     <string name="stat_average_repair_time">Tempo médio de reparação</string>
     <string name="stat_total_incidents">Total de ocorrências</string>
@@ -125,7 +122,6 @@
     <string name="information_message_label">Mensagem</string>
     <string name="information_send_action">Enviar</string>
     <string name="information_action_unavailable">Esta ação já não está disponível.</string>
-    <string name="information_save_error">Não foi possível guardar a mensagem. Tente novamente.</string>
 
     <string name="lifecycle_title">Gestão do estado</string>
     <string name="lifecycle_start_work">Iniciar trabalhos</string>
@@ -141,7 +137,6 @@
     <string name="profile_save">Guardar alterações</string>
     <string name="profile_photo_description">Fotografia de perfil</string>
     <string name="error_location_required">A localização é obrigatória.</string>
-    <string name="error_save_failed">Não foi possível guardar as alterações. Tente novamente.</string>
     <string name="location_permission_needed">Permita o acesso à localização para indicar onde está a ocorrência.</string>
     <string name="location_permission_allow">Permitir localização</string>
     <string name="location_waiting">A obter a sua localização…</string>
@@ -154,8 +149,6 @@
     <string name="register_use_current_location">Usar a minha localização atual</string>
     <string name="camera_permission_denied">Permita o acesso à câmara para tirar uma fotografia.</string>
     <string name="anonymous_locating">A verificar a sua localização…</string>
-    <string name="anonymous_no_permission">O acesso anónimo só está disponível até 10 km do centro da cidade. Permita o acesso à localização ou escolha um perfil.</string>
-    <string name="anonymous_out_of_area">Está a mais de 10 km do centro da cidade. O acesso anónimo não está disponível aqui; escolha um perfil para continuar.</string>
     <string name="map_title">Mapa de ocorrências</string>
     <string name="map_all_description">Mapa com as ocorrências que pode ver</string>
     <string name="map_marker_snippet">%1$s · %2$s · toque para abrir</string>
@@ -172,4 +165,45 @@
     <string name="background_location_impacts">A deteção de impactos funciona durante as deslocações, mesmo com a app fechada, por isso o CityFix precisa da localização em segundo plano. No ecrã seguinte escolha \"Permitir sempre\".</string>
     <string name="background_location_allow">Continuar</string>
     <string name="not_now">Agora não</string>
+    <string name="anonymous_no_permission">O acesso anónimo só está disponível até 10 km do centro da cidade. Permita o acesso à localização ou inicie sessão.</string>
+    <string name="anonymous_out_of_area">Está a mais de 10 km do centro da cidade. O acesso anónimo não está disponível aqui; inicie sessão para continuar.</string>
+    <string name="register_done_active_text">A conta de operador já está ativa. Já pode iniciar sessão.</string>
+    <string name="field_password">Palavra-passe</string>
+    <string name="field_password_confirmation">Confirmar palavra-passe</string>
+    <string name="register_password_hint">Pelo menos 6 caracteres.</string>
+    <string name="error_password_required">A palavra-passe é obrigatória.</string>
+    <string name="error_password_weak">A palavra-passe tem de ter pelo menos 6 caracteres.</string>
+    <string name="error_password_mismatch">As palavras-passe não coincidem.</string>
+    <string name="error_email_taken">Este e-mail já está registado.</string>
+    <string name="error_credentials">E-mail ou palavra-passe errados.</string>
+    <string name="error_recent_login">Por segurança, termine a sessão e volte a entrar antes de fazer isto.</string>
+    <string name="error_network">Sem ligação. Verifique a rede e tente novamente.</string>
+    <string name="error_too_many_requests">Demasiadas tentativas. Aguarde um pouco e tente novamente.</string>
+    <string name="error_auth_generic">Ocorreu um erro. Tente novamente.</string>
+    <string name="error_profile_missing">Esta conta não tem perfil no CityFix.</string>
+    <string name="error_code_invalid">Código inválido. Indique os 6 dígitos da app autenticadora.</string>
+    <string name="login_title">Iniciar sessão</string>
+    <string name="login_intro">Inicie sessão com o e-mail e a palavra-passe do CityFix.</string>
+    <string name="login_submit">Entrar</string>
+    <string name="login_forgot_password">Esqueceu-se da palavra-passe?</string>
+    <string name="login_create_account">Criar conta</string>
+    <string name="login_pending_title">Conta pendente</string>
+    <string name="login_pending_text">O registo aguarda validação pelos serviços camarários. Pode iniciar sessão depois de a conta ser ativada.</string>
+    <string name="login_reset_sent_title">E-mail enviado</string>
+    <string name="login_reset_sent_text">Se existir uma conta com este e-mail, vai receber uma ligação para definir uma nova palavra-passe.</string>
+    <string name="mfa_login_title">Verificação em dois passos</string>
+    <string name="mfa_login_text">Indique o código de 6 dígitos da app autenticadora.</string>
+    <string name="mfa_code">Código</string>
+    <string name="mfa_confirm">Confirmar</string>
+    <string name="mfa_title">Verificação em dois passos</string>
+    <string name="mfa_active">A verificação em dois passos está ativa. Ao iniciar sessão, é pedido um código da app autenticadora.</string>
+    <string name="mfa_needs_verified_email">Para ativar a verificação em dois passos, confirme primeiro o seu e-mail.</string>
+    <string name="mfa_verification_sent">Enviámos-lhe um e-mail. Abra a ligação e depois toque em \"Já confirmei\".</string>
+    <string name="mfa_send_verification">Enviar e-mail</string>
+    <string name="mfa_check_verification">Já confirmei</string>
+    <string name="mfa_description">Proteja a conta com um código de uma app autenticadora, como o Google Authenticator.</string>
+    <string name="mfa_enable">Ativar verificação em dois passos</string>
+    <string name="mfa_enroll_instructions">Junte esta chave à app autenticadora (ou abra-a diretamente) e indique o código que ela mostra.</string>
+    <string name="mfa_open_app">Abrir na app autenticadora</string>
+    <string name="profile_sign_out">Terminar sessão</string>
 </resources>

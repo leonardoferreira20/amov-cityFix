@@ -78,7 +78,7 @@ app/src/main/java/pt/isec/amov/cityfix/
    ```
 2. Criar um projeto na [Consola do Firebase](https://console.firebase.google.com/) e registar a app Android com o package `pt.isec.amov.cityfix`.
 3. O `app/google-services.json` do projeto Firebase `cityfix-3dbb1` já está no repositório; os dois alunos usam o mesmo projeto.
-4. Na consola, ativar **Authentication** (e-mail/password + MFA), **Firestore**, **Storage** e **Cloud Messaging**.
+4. Na consola, ativar **Authentication** (e-mail/password), criar a base de dados **Firestore** e publicar as regras do ficheiro `firestore.rules` (Firestore Database > Rules). Para o MFA: Authentication > Settings > *Upgrade to Identity Platform* e ativar o TOTP com o pedido REST da [documentação](https://firebase.google.com/docs/auth/android/totp-mfa) (por exemplo no Cloud Shell).
 5. A chave do Google Maps já está no `AndroidManifest.xml` (como nas aulas) e é partilhada pelos dois alunos.
 6. Abrir o projeto no Android Studio, sincronizar o Gradle e executar num dispositivo ou emulador. No emulador, a localização define-se com `adb emu geo fix <longitude> <latitude>` (por exemplo `-8.4196 40.2085`, a Praça da República).
 

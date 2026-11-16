@@ -12,7 +12,6 @@ import pt.isec.amov.cityfix.data.CategoryRepository
 import pt.isec.amov.cityfix.data.IncidentRepository
 import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.Incident
-import pt.isec.amov.cityfix.data.model.IncidentsList
 import pt.isec.amov.cityfix.data.model.MediaAttachment
 import pt.isec.amov.cityfix.data.model.MediaPurpose
 import pt.isec.amov.cityfix.data.model.MediaType
@@ -20,7 +19,6 @@ import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.utils.FileUtils
-import java.io.IOException
 
 class ReportIncidentViewModel(
     private val incidentRepository: IncidentRepository,
@@ -98,40 +96,34 @@ class ReportIncidentViewModel(
             return
         }
 
-        _reportState.update { it.copy(isSaving = true, saveError = null) }
+        _reportState.update { it.copy(isSaving = true) }
         viewModelScope.launch {
-            try {
-                val now = System.currentTimeMillis()
-                val incidents = IncidentsList(incidentRepository.loadIncidents().rawList())
-                val primary = incidents.findGroupPrimary(category.id, location)
-                incidents.upsert(
-                    Incident(
-                        authorId = author.id,
-                        categoryId = category.id,
-                        categoryName = category.name,
-                        situation = situation,
-                        description = current.description.trim(),
-                        visibility = current.visibility,
-                        location = location,
-                        media = listOf(
-                            MediaAttachment(
-                                type = MediaType.IMAGE,
-                                purpose = MediaPurpose.REPORT,
-                                localUri = photoPath,
-                                uploadedBy = author.id,
-                                createdAt = now
-                            )
-                        ),
-                        primaryIncidentId = primary?.id,
-                        createdAt = now
-                    )
+            val now = System.currentTimeMillis()
+            val primary = incidentRepository.loadIncidents().findGroupPrimary(category.id, location)
+            incidentRepository.saveIncident(
+                Incident(
+                    authorId = author.id,
+                    categoryId = category.id,
+                    categoryName = category.name,
+                    situation = situation,
+                    description = current.description.trim(),
+                    visibility = current.visibility,
+                    location = location,
+                    media = listOf(
+                        MediaAttachment(
+                            type = MediaType.IMAGE,
+                            purpose = MediaPurpose.REPORT,
+                            localUri = photoPath,
+                            uploadedBy = author.id,
+                            createdAt = now
+                        )
+                    ),
+                    primaryIncidentId = primary?.id,
+                    createdAt = now
                 )
-                incidentRepository.saveIncidents(incidents)
-                _reportState.update { it.copy(isSaving = false, isSaved = true) }
-                onSuccess()
-            } catch (_: IOException) {
-                _reportState.update { it.copy(isSaving = false, saveError = R.string.error_save_failed) }
-            }
+            )
+            _reportState.update { it.copy(isSaving = false, isSaved = true) }
+            onSuccess()
         }
     }
 

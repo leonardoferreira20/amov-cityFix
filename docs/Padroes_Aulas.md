@@ -13,7 +13,7 @@ Se uma solução precisar de algo que não está aqui, avisar antes de o propor.
 | #2 | Formulários com `UiState` e validação, `DatePicker`, repositório com JSON | Dada |
 | #3 | Multimédia: Photo Picker, câmara com `FileProvider` e `TakePicture`, imagens com Coil 3 | Dada |
 | #4 | GPS com `FusedLocationProvider`, permissões em runtime, Maps Compose e OSM, serviço em primeiro plano com proximidade, layouts adaptativos (ficha P10) | Dada; aplicada a 16/11 |
-| — | Firebase, WorkManager, sensores, geofencing | Ainda sem data |
+| — | Firebase, WorkManager, sensores | Sem ficha; segue-se a documentação oficial (decidido a 16/11) |
 
 Também foram dados, em projetos com Views: recursos por língua (`values-pt`), `layout-land`, menus e notificações (`NotificationChannel`, `NotificationCompat`, permissão `POST_NOTIFICATIONS`).
 
@@ -168,3 +168,14 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - O serviço é arrancado e parado num `LaunchedEffect(currentUser?.id, hasLocationPermission)`, para correr só com a sessão de operador. Nas aulas arranca uma vez, no resultado do pedido de permissões.
 - A localização em 2.º plano (`ACCESS_BACKGROUND_LOCATION`) não foi dada nas aulas. O Android obriga a pedi-la depois da de 1.º plano e abre as definições, por isso o CityFix mostra antes um `AlertDialog` a explicar e só a pede ao operador e ao munícipe com a deteção de impactos.
 - O pedido inicial de permissões é lançado se faltar a localização ou as notificações (nas aulas é lançado sempre).
+
+## Firebase (sem ficha das aulas, segundo a documentação oficial)
+
+- Dependências pelo Firebase BoM 34 (`firebase-auth`, `firebase-firestore`), sem os módulos `-ktx`, que saíram do BoM 34; as extensões Kotlin importam-se de `com.google.firebase.Firebase`, `com.google.firebase.auth.auth` e `com.google.firebase.firestore.firestore`.
+- `kotlinx-coroutines-play-services` para usar `task.await()` dentro de `viewModelScope.launch`.
+- Os repositórios continuam a ser classes concretas em `data/`, criadas na `CityFixApp` e passadas por `Factory`, como nas aulas; só muda o armazenamento (Firestore em vez de JSON). Por isso deixaram de receber `Context`.
+- `toObject()` / `toObjects()` exigem um construtor sem argumentos: todos os campos dos modelos têm valor por omissão.
+- Leituras com `get().await()`; gravações com `set()` sem `await`, porque o `await` só termina quando o servidor responde e a app tem de funcionar offline. A exceção é a criação do utilizador no registo, que espera, porque a sessão termina logo a seguir.
+- A lista do início usa `addSnapshotListener` dentro de um `callbackFlow`, como o `locationUpdates` da P10.
+- MFA com `TotpMultiFactorGenerator`: no perfil, `multiFactor.session` → `generateSecret` → `getAssertionForEnrollment` → `enroll`; no login, `FirebaseAuthMultiFactorException` → `resolver` → `getAssertionForSignIn` → `resolveSignIn`.
+- Os erros do Firebase convertem-se em ids de `strings.xml` numa função (`utils/authErrorMessage`), como os erros de validação.

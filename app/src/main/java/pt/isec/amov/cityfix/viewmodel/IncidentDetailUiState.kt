@@ -1,7 +1,5 @@
 package pt.isec.amov.cityfix.viewmodel
 
-import androidx.annotation.StringRes
-
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.InfoRequest
 import pt.isec.amov.cityfix.data.model.Message
@@ -24,8 +22,7 @@ data class IncidentDetailUiState(
     val isSavingInformation: Boolean = false,
     val groupSize: Int = 1,
     val showDirections: Boolean = false,
-    val showProximityAlerts: Boolean = false,
-    @StringRes val actionError: Int? = null
+    val showProximityAlerts: Boolean = false
 )
 
 data class InformationRequestItem(

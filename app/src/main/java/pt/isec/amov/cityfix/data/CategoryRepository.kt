@@ -1,52 +1,41 @@
 package pt.isec.amov.cityfix.data
 
-import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
 import pt.isec.amov.cityfix.data.model.CategoriesList
 import pt.isec.amov.cityfix.data.model.Category
-import java.io.File
 
-class CategoryRepository(private val context: Context) {
-    private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
-    private val databaseFile by lazy { File(context.filesDir, "categories_database.json") }
-    private var cachedList: CategoriesList? = null
+class CategoryRepository {
+    private val collection = Firebase.firestore.collection("categories")
 
-    private fun getSeedData(): List<Category> {
+    private fun getSeedData(operatorId: String): List<Category> {
         val now = System.currentTimeMillis()
         return listOf(
-            Category(id = "cat-roads", name = "Vias Públicas", createdBy = "operator-1", createdAt = now),
-            Category(id = "cat-water", name = "Água", createdBy = "operator-1", createdAt = now),
-            Category(id = "cat-lighting", name = "Iluminação", createdBy = "operator-1", createdAt = now),
-            Category(id = "cat-sanitation", name = "Saneamento", createdBy = "operator-1", createdAt = now),
-            Category(
-                id = "cat-green",
-                name = "Espaços Verdes",
-                active = false,
-                createdBy = "operator-1",
-                createdAt = now
-            )
+            Category(id = "cat-roads", name = "Vias Públicas", createdBy = operatorId, createdAt = now),
+            Category(id = "cat-water", name = "Água", createdBy = operatorId, createdAt = now),
+            Category(id = "cat-lighting", name = "Iluminação", createdBy = operatorId, createdAt = now),
+            Category(id = "cat-sanitation", name = "Saneamento", createdBy = operatorId, createdAt = now),
+            Category(id = "cat-green", name = "Espaços Verdes", active = false, createdBy = operatorId, createdAt = now)
         )
     }
 
-    suspend fun loadCategories(): CategoriesList = withContext(Dispatchers.IO) {
-        cachedList?.let { return@withContext it }
-        val list = if (!databaseFile.exists()) {
-            CategoriesList(getSeedData())
-        } else {
-            try {
-                CategoriesList(json.decodeFromString<List<Category>>(databaseFile.readText()))
-            } catch (_: Exception) {
-                CategoriesList(getSeedData())
-            }
-        }
-        cachedList = list
-        list
+    suspend fun loadCategories(): CategoriesList = try {
+        CategoriesList(collection.get().await().toObjects(Category::class.java))
+    } catch (_: Exception) {
+        CategoriesList()
     }
 
-    suspend fun saveCategories(list: CategoriesList) = withContext(Dispatchers.IO) {
-        cachedList = list
-        databaseFile.writeText(json.encodeToString(list.rawList()))
+    fun saveCategory(category: Category) {
+        collection.document(category.id).set(category)
+    }
+
+    suspend fun seedIfEmpty(operatorId: String) {
+        val isEmpty = try {
+            collection.limit(1).get().await().isEmpty
+        } catch (_: Exception) {
+            false
+        }
+        if (isEmpty) getSeedData(operatorId).forEach { saveCategory(it) }
     }
 }

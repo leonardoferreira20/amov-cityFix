@@ -40,6 +40,7 @@ import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.data.model.Situation
+import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.Visibility
 import androidx.core.content.ContextCompat
 import pt.isec.amov.cityfix.services.ProximityService
@@ -53,6 +54,7 @@ import pt.isec.amov.cityfix.ui.navigation.DashboardRoute
 import pt.isec.amov.cityfix.ui.navigation.EditCategoryRoute
 import pt.isec.amov.cityfix.ui.navigation.IncidentDetailRoute
 import pt.isec.amov.cityfix.ui.navigation.IncidentsMapRoute
+import pt.isec.amov.cityfix.ui.navigation.LoginRoute
 import pt.isec.amov.cityfix.ui.navigation.ProfileRoute
 import pt.isec.amov.cityfix.ui.navigation.RegisterRoute
 import pt.isec.amov.cityfix.ui.navigation.ReportIncidentRoute
@@ -61,6 +63,7 @@ import pt.isec.amov.cityfix.ui.screens.CitizenValidationScreen
 import pt.isec.amov.cityfix.ui.screens.EditCategoryScreen
 import pt.isec.amov.cityfix.ui.screens.IncidentDetailScreen
 import pt.isec.amov.cityfix.ui.screens.IncidentsMapScreen
+import pt.isec.amov.cityfix.ui.screens.LoginScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreenContent
 import pt.isec.amov.cityfix.ui.screens.ProfileScreen
@@ -87,6 +90,8 @@ import pt.isec.amov.cityfix.viewmodel.IncidentDetailViewModel
 import pt.isec.amov.cityfix.viewmodel.IncidentDetailViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModelFactory
+import pt.isec.amov.cityfix.viewmodel.LoginViewModel
+import pt.isec.amov.cityfix.viewmodel.LoginViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.ProfileViewModel
 import pt.isec.amov.cityfix.viewmodel.ProfileViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.RegisterViewModel
@@ -109,7 +114,7 @@ class MainActivity : ComponentActivity() {
                 val incidentsViewModel: IncidentsViewModel =
                     viewModel(factory = IncidentsViewModelFactory(app.incidentRepository))
                 val sessionViewModel: SessionViewModel =
-                    viewModel(factory = SessionViewModelFactory(app.userRepository))
+                    viewModel(factory = SessionViewModelFactory(app.authRepository, app.userRepository, app.categoryRepository))
                 val categoriesViewModel: CategoriesViewModel =
                     viewModel(factory = CategoriesViewModelFactory(app.categoryRepository))
                 val currentUser by sessionViewModel.currentUser.collectAsStateWithLifecycle()
@@ -192,7 +197,7 @@ class MainActivity : ComponentActivity() {
                             showMap = isDashboard && access == AnonymousAccess.ALLOWED,
                             showCategories = isDashboard && canManageCategories(currentUser),
                             showValidation = isDashboard && canValidateCitizens(currentUser),
-                            showRegister = isDashboard && currentUser == null,
+                            showLogin = isDashboard && currentUser == null,
                             showProfile = isDashboard && canEditProfile(currentUser),
                             onNavigateBack = { navController.navigateUp() },
                             onToggleAllCards = {
@@ -205,7 +210,7 @@ class MainActivity : ComponentActivity() {
                             onMapClick = { navController.navigate(IncidentsMapRoute) },
                             onCategoriesClick = { navController.navigate(CategoryListRoute) },
                             onValidationClick = { navController.navigate(CitizenValidationRoute) },
-                            onRegisterClick = { navController.navigate(RegisterRoute) },
+                            onLoginClick = { navController.navigate(LoginRoute) },
                             onProfileClick = { navController.navigate(ProfileRoute) }
                         )
                     }
@@ -220,8 +225,9 @@ class MainActivity : ComponentActivity() {
                         composable<DashboardRoute> {
                             MainScreen(
                                 viewModel = incidentsViewModel,
-                                sessionViewModel = sessionViewModel,
+                                currentUser = currentUser,
                                 incidents = incidents,
+                                onLoginClick = { navController.navigate(LoginRoute) },
                                 anonymousAccess = access,
                                 onRequestLocationPermission = requestLocationPermission,
                                 expandedIncidentIds = expandedIncidentIds,
@@ -234,6 +240,30 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onOpenIncident = { id -> navController.navigate(IncidentDetailRoute(id)) },
                                 onCreateIncident = { navController.navigate(ReportIncidentRoute) }
+                            )
+                        }
+
+                        composable<LoginRoute> { backStack ->
+                            val loginViewModel: LoginViewModel = viewModel(
+                                viewModelStoreOwner = backStack,
+                                factory = LoginViewModelFactory(app.authRepository, app.userRepository)
+                            )
+                            val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+                            val onSignedIn: (User) -> Unit = { user ->
+                                sessionViewModel.onSignedIn(user)
+                                navController.popBackStack(DashboardRoute, inclusive = false)
+                            }
+                            LoginScreen(
+                                state = loginState,
+                                onEmailChange = loginViewModel::onEmailChanged,
+                                onPasswordChange = loginViewModel::onPasswordChanged,
+                                onSignInClick = { loginViewModel.signIn(onSignedIn) },
+                                onForgotPasswordClick = loginViewModel::sendPasswordReset,
+                                onRegisterClick = { navController.navigate(RegisterRoute) },
+                                onSecondFactorCodeChange = loginViewModel::onSecondFactorCodeChanged,
+                                onConfirmSecondFactor = { loginViewModel.confirmSecondFactor(onSignedIn) },
+                                onCancelSecondFactor = loginViewModel::cancelSecondFactor,
+                                onDismissMessage = loginViewModel::dismissMessages
                             )
                         }
 
@@ -268,10 +298,7 @@ class MainActivity : ComponentActivity() {
                                 onVisibilityChange = reportViewModel::onVisibilityChanged,
                                 onPhotoChange = reportViewModel::onPhotoChanged,
                                 onSaveClick = {
-                                    reportViewModel.saveIncident {
-                                        incidentsViewModel.refreshIncidents()
-                                        navController.popBackStack()
-                                    }
+                                    reportViewModel.saveIncident { navController.popBackStack() }
                                 }
                             )
                         }
@@ -292,21 +319,13 @@ class MainActivity : ComponentActivity() {
                                 state = detailState,
                                 deviceLocation = deviceLocation,
                                 onReopen = { justification, photoPath ->
-                                    detailViewModel.reopen(justification, photoPath) {
-                                        incidentsViewModel.refreshIncidents()
-                                    }
+                                    detailViewModel.reopen(justification, photoPath) {}
                                 },
                                 onRequestInformation = { text, onResult ->
-                                    detailViewModel.requestInformation(text) { error ->
-                                        if (error == null) incidentsViewModel.refreshIncidents()
-                                        onResult(error)
-                                    }
+                                    detailViewModel.requestInformation(text, onResult)
                                 },
                                 onReplyToInformationRequest = { requestId, text, onResult ->
-                                    detailViewModel.replyToInformationRequest(requestId, text) { error ->
-                                        if (error == null) incidentsViewModel.refreshIncidents()
-                                        onResult(error)
-                                    }
+                                    detailViewModel.replyToInformationRequest(requestId, text, onResult)
                                 },
                                 operatorActions = {
                                     detailState.incident?.let { incident ->
@@ -316,12 +335,10 @@ class MainActivity : ComponentActivity() {
                                             canStartWork = detailState.canStartWork,
                                             canResolve = detailState.canResolve,
                                             onStartWork = {
-                                                detailViewModel.startWork { incidentsViewModel.refreshIncidents() }
+                                                detailViewModel.startWork {}
                                             },
                                             onResolve = { photoPath, note ->
-                                                detailViewModel.resolve(photoPath, note) {
-                                                    incidentsViewModel.refreshIncidents()
-                                                }
+                                                detailViewModel.resolve(photoPath, note) {}
                                             }
                                         )
                                     }
@@ -365,7 +382,7 @@ class MainActivity : ComponentActivity() {
                         composable<RegisterRoute> { backStack ->
                             val registerViewModel: RegisterViewModel = viewModel(
                                 viewModelStoreOwner = backStack,
-                                factory = RegisterViewModelFactory(app.userRepository)
+                                factory = RegisterViewModelFactory(app.authRepository, app.userRepository)
                             )
                             val registerState by registerViewModel.registerState.collectAsStateWithLifecycle()
                             RegisterScreen(
@@ -374,6 +391,8 @@ class MainActivity : ComponentActivity() {
                                 onEmailChange = registerViewModel::onEmailChanged,
                                 onPhoneChange = registerViewModel::onPhoneChanged,
                                 onNifChange = registerViewModel::onNifChanged,
+                                onPasswordChange = registerViewModel::onPasswordChanged,
+                                onPasswordConfirmationChange = registerViewModel::onPasswordConfirmationChanged,
                                 onRoleChange = registerViewModel::onRoleChanged,
                                 onImpactDetectionChange = registerViewModel::onImpactDetectionChanged,
                                 onPictureChange = registerViewModel::onPictureChanged,
@@ -399,7 +418,7 @@ class MainActivity : ComponentActivity() {
                         composable<ProfileRoute> { backStack ->
                             val profileViewModel: ProfileViewModel = viewModel(
                                 viewModelStoreOwner = backStack,
-                                factory = ProfileViewModelFactory(app.userRepository, currentUser?.id.orEmpty())
+                                factory = ProfileViewModelFactory(app.authRepository, app.userRepository, currentUser?.id.orEmpty())
                             )
                             val profileState by profileViewModel.profileState.collectAsStateWithLifecycle()
                             ProfileScreen(
@@ -412,6 +431,16 @@ class MainActivity : ComponentActivity() {
                                         sessionViewModel.refreshCurrentUser()
                                         navController.popBackStack()
                                     }
+                                },
+                                onSendVerificationEmail = profileViewModel::sendVerificationEmail,
+                                onCheckEmailVerified = profileViewModel::checkEmailVerified,
+                                onStartSecondFactor = profileViewModel::startSecondFactorEnrollment,
+                                onTotpCodeChange = profileViewModel::onTotpCodeChanged,
+                                onConfirmSecondFactor = profileViewModel::confirmSecondFactorEnrollment,
+                                onCancelSecondFactor = profileViewModel::cancelSecondFactorEnrollment,
+                                onSignOut = {
+                                    sessionViewModel.signOut()
+                                    navController.popBackStack(DashboardRoute, inclusive = false)
                                 }
                             )
                         }
@@ -436,6 +465,7 @@ private fun screenTitle(entry: NavBackStackEntry?): Int {
         destination?.hasRoute<CitizenValidationRoute>() == true -> R.string.validation_title
         destination?.hasRoute<ProfileRoute>() == true -> R.string.profile_title
         destination?.hasRoute<IncidentsMapRoute>() == true -> R.string.map_title
+        destination?.hasRoute<LoginRoute>() == true -> R.string.login_title
         else -> R.string.app_name
     }
 }
@@ -491,7 +521,7 @@ fun PreviewMainScreen() {
             currentRole = null,
             anonymousAccess = AnonymousAccess.ALLOWED,
             onRequestLocationPermission = {},
-            onProfileSelected = {},
+            onLoginClick = {},
             onlyMine = false,
             onOnlyMineChange = {},
             expandedIncidentIds = listOf("1"),

@@ -28,3 +28,6 @@ data object ProfileRoute
 
 @Serializable
 data object IncidentsMapRoute
+
+@Serializable
+data object LoginRoute

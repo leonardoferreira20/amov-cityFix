@@ -26,14 +26,12 @@ class IncidentsViewModel(private val repository: IncidentRepository) : ViewModel
     private var currentUser: User? = null
 
     init {
-        refreshIncidents()
-    }
-
-    fun refreshIncidents() {
         viewModelScope.launch {
-            currentIncidentsList = repository.loadIncidents()
-            _dashboardStats.value = currentIncidentsList.getDashboardStats()
-            updateVisibleIncidents()
+            repository.observeIncidents().collect { incidents ->
+                currentIncidentsList = incidents
+                _dashboardStats.value = incidents.getDashboardStats()
+                updateVisibleIncidents()
+            }
         }
     }
 
@@ -47,8 +45,6 @@ class IncidentsViewModel(private val repository: IncidentRepository) : ViewModel
         _onlyMine.value = onlyMine
         updateVisibleIncidents()
     }
-
-    fun getIncidentById(id: String): Incident? = currentIncidentsList.findById(id)
 
     private fun updateVisibleIncidents() {
         _incidentsList.value = currentIncidentsList.getAllSorted()

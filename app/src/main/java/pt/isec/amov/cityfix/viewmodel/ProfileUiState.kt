@@ -14,7 +14,15 @@ data class ProfileUiState(
     val impactDetectionEnabled: Boolean = false,
     val picturePath: String? = null,
     @StringRes val phoneError: Int? = null,
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val isEmailVerified: Boolean = false,
+    val hasSecondFactor: Boolean = false,
+    val isVerificationEmailSent: Boolean = false,
+    val totpSecretKey: String? = null,
+    val totpUri: String? = null,
+    val totpCode: String = "",
+    @StringRes val secondFactorError: Int? = null,
+    val isSecondFactorLoading: Boolean = false
 ) {
     val isValid: Boolean
         get() = phoneError == null && phone.isNotBlank()

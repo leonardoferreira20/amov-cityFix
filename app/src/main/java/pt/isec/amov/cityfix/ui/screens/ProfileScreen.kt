@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.FormTextField
 import pt.isec.amov.cityfix.ui.components.ImpactDetectionSwitch
+import pt.isec.amov.cityfix.ui.components.SecondFactorSection
 import pt.isec.amov.cityfix.ui.components.UserPhotoField
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.utils.toDisplayText
@@ -34,6 +37,13 @@ fun ProfileScreen(
     onImpactDetectionChange: (Boolean) -> Unit,
     onPictureChange: (String?) -> Unit,
     onSaveClick: () -> Unit,
+    onSendVerificationEmail: () -> Unit,
+    onCheckEmailVerified: () -> Unit,
+    onStartSecondFactor: () -> Unit,
+    onTotpCodeChange: (String) -> Unit,
+    onConfirmSecondFactor: () -> Unit,
+    onCancelSecondFactor: () -> Unit,
+    onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(modifier = modifier.imePadding()) { innerPadding ->
@@ -78,6 +88,22 @@ fun ProfileScreen(
             ) {
                 Text(stringResource(R.string.profile_save))
             }
+
+            HorizontalDivider()
+            SecondFactorSection(
+                state = state,
+                onSendVerificationEmail = onSendVerificationEmail,
+                onCheckEmailVerified = onCheckEmailVerified,
+                onStart = onStartSecondFactor,
+                onCodeChange = onTotpCodeChange,
+                onConfirm = onConfirmSecondFactor,
+                onCancel = onCancelSecondFactor
+            )
+
+            HorizontalDivider()
+            OutlinedButton(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.profile_sign_out))
+            }
         }
     }
 }
@@ -100,7 +126,14 @@ private fun ProfileScreenPreview() {
             onPhoneChange = {},
             onImpactDetectionChange = {},
             onPictureChange = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onSendVerificationEmail = {},
+            onCheckEmailVerified = {},
+            onStartSecondFactor = {},
+            onTotpCodeChange = {},
+            onConfirmSecondFactor = {},
+            onCancelSecondFactor = {},
+            onSignOut = {}
         )
     }
 }

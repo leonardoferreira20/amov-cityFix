@@ -8,11 +8,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,14 +40,14 @@ fun MainTopAppBar(
     showMap: Boolean,
     showCategories: Boolean,
     showValidation: Boolean,
-    showRegister: Boolean,
+    showLogin: Boolean,
     showProfile: Boolean,
     onNavigateBack: () -> Unit,
     onToggleAllCards: () -> Unit,
     onMapClick: () -> Unit,
     onCategoriesClick: () -> Unit,
     onValidationClick: () -> Unit,
-    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
     TopAppBar(
@@ -107,9 +107,9 @@ fun MainTopAppBar(
                     Icon(Icons.Default.HowToReg, contentDescription = stringResource(R.string.validation_title))
                 }
             }
-            if (showRegister) {
-                IconButton(onClick = onRegisterClick) {
-                    Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.register_title))
+            if (showLogin) {
+                IconButton(onClick = onLoginClick) {
+                    Icon(Icons.AutoMirrored.Filled.Login, contentDescription = stringResource(R.string.login_title))
                 }
             }
             if (showProfile) {

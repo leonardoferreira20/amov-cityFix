@@ -138,9 +138,24 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - Testado no emulador: mapa do anónimo afastado e mapa do operador ajustado aos 7 pinos; pedido de notificações; diálogo e definições da localização em 2.º plano; serviço em primeiro plano ativo como operador e parado como munícipe; alerta gravado nas duas ocorrências em Aberto a 1 m e não na que está Em resolução; distância, «Navegar» e secção do alerta no detalhe do operador.
 - Testado no emulador a 16/11/2026: pedido de localização ao arrancar; anónimo em Coimbra com lista e em Lisboa bloqueado; mapa exato do autor e mapa afastado do anónimo; detalhe e início em landscape; pedido da permissão da câmara; nova ocorrência com foto da câmara a 2 m da "Vias Públicas", ligada a ela como grupo de 2; mapa do registo com o pino no toque.
 
+### 2.4b Firebase: Firestore e Authentication (16/11/2026, segundo a documentação oficial)
+- **Firestore com cache offline:** os três repositórios deixaram o JSON e passaram para as coleções `users`, `categories` e `incidents`. A cache persistente fica ligada na `CityFixApp` (`persistentCacheSettings`). As leituras usam `get().await()`; as gravações usam `set()` sem esperar, para funcionarem offline (o Firestore aplica-as logo na cache e envia-as quando houver rede).
+- A lista do início ouve o Firestore em tempo real (`addSnapshotListener` em `IncidentRepository.observeIncidents`), por isso já não é preciso `refreshIncidents()`.
+- Os modelos têm valores por omissão em todos os campos, como pede o `toObject()`.
+- Dados iniciais: só as categorias. São criadas quando o primeiro operador inicia sessão e a coleção está vazia (`CategoryRepository.seedIfEmpty`). Utilizadores e ocorrências criam-se a usar a app.
+- **Authentication (L1, L2):** `AuthRepository` com login por e-mail e password, registo, recuperação da password por e-mail, verificação do e-mail e MFA com TOTP. A sessão fica guardada pelo Firebase e é retomada ao abrir a app (`SessionViewModel`).
+  - Ecrã de login (`LoginScreen`, `LoginViewModel`): erros campo a campo, «Esqueceu-se da palavra-passe?», «Criar conta», código do segundo fator num diálogo e aviso de conta pendente (a sessão é terminada logo).
+  - Registo: password e confirmação; cria a conta no Authentication, verifica o NIF no Firestore (se já existir, apaga a conta acabada de criar), grava o utilizador com o uid e envia o e-mail de verificação. Depois termina a sessão e pede para entrar.
+  - Perfil: «Verificação em dois passos» (envio e confirmação do e-mail, chave TOTP e botão para a abrir na app autenticadora, código de confirmação) e «Terminar sessão».
+  - Saíram o `SessionSelector` e os utilizadores de exemplo. O anónimo tem o botão de login na barra de topo e no ecrã de acesso restrito.
+- **Regras de segurança:** `firestore.rules` na raiz do repositório, para publicar na consola.
+- Compilado e lint sem erros. Regras publicadas a 16/11 e confirmadas pela API REST (categorias e ocorrências legíveis sem sessão; utilizadores não).
+- Testado no emulador com o Firebase a 16/11/2026, com as contas de [Contas_Teste.md](Contas_Teste.md): registo do operador (conta ativa); primeiro login do operador, que criou as 5 categorias; palavra-passe errada ("E-mail ou palavra-passe errados"); registo do munícipe com a localização atual (pendente); login do munícipe pendente (aviso e sessão terminada); validação pelo operador; login do munícipe ativo; nova ocorrência com foto da câmara, gravada no Firestore e mostrada no dashboard; recuperação da palavra-passe ("E-mail enviado"); terminar sessão.
+- Por testar: a verificação em dois passos. Exige um e-mail que receba a verificação e o TOTP ativo no projeto (comando no Cloud Shell), por isso tem de ser feita com uma conta real.
+
 ### 2.5 Provisório (sai antes da entrega)
-- `SessionSelector`: sai quando houver login (L1). O `SessionViewModel` fica; muda só a forma de preencher o `currentUser`.
-- Repositórios em JSON: são trocados pelo Firestore quando o Firebase entrar.
+- ~~`SessionSelector`~~: saiu a 16/11 com o login (L1).
+- ~~Repositórios em JSON~~: trocados pelo Firestore a 16/11.
 
 ### 2.6 Documentação
 - `Padroes_Aulas.md`: ContactsApp de 6/11 (multimédia de fotos) e diferenças em relação às aulas.
@@ -163,13 +178,13 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [ ] L8 Multimédia: as fotos do registo (L3), do perfil (L4) e da prova de resolução (L7) já usam a base feita com a J5. Falta o vídeo, por definir (pontos 13 e A).
 - [x] L4 Perfil (12/11), com o conflito 11 fechado.
 - [x] L7 `LifecycleActions` (11/11). Falta o vídeo comprovativo (pontos 13 e A) e a notificação ao autor (L11).
-- [ ] L1 Login e aviso de conta pendente (Firebase). Substitui o `SessionSelector`.
-- [ ] L2 MFA e recuperação de password (Firebase).
+- [x] L1 Login e aviso de conta pendente (16/11).
+- [x] L2 MFA com TOTP e recuperação de password (16/11).
 - [ ] L9 Compressão, thumbnail e envio com WorkManager.
 - [ ] L10 Alerta de 20 m: a deteção e o registo do alerta estão feitos (serviço de proximidade, 16/11); falta notificar o autor no telemóvel dele (Firebase).
 - [ ] L11 Notificações e aviso das 24 h. O encerramento aos 5 dias já é feito no dispositivo (L7).
 - Pendente nas tarefas já feitas:
-  - [ ] L3: password e criação da conta (L1). A georreferenciação no mapa ficou feita a 16/11.
+  - [x] L3: password e criação da conta no Authentication (16/11).
 
 ### 3.4 Requisitos gerais do enunciado
 
@@ -178,8 +193,8 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Requisito | Estado |
 |---|---|
 | Kotlin, Jetpack Compose, MVVM com ecrãs stateful e stateless | Seguido no código novo |
-| Firebase Authentication (e-mail/password, MFA, recuperação por e-mail) | Por fazer (L1, L2) |
-| Cloud Firestore com cache offline | Por fazer; substitui os repositórios JSON |
+| Firebase Authentication (e-mail/password, MFA, recuperação por e-mail) | Feito a 16/11; falta testar com as regras publicadas e o TOTP ativo no projeto |
+| Cloud Firestore com cache offline | Feito a 16/11 (cache persistente, gravações offline, lista em tempo real) |
 | Firebase Storage e WorkManager, com envio só quando há rede | Por fazer (L9) |
 | Imagens comprimidas e com thumbnail | Por fazer (L9) |
 | Cloud Messaging e notificações | Por fazer (L11) |

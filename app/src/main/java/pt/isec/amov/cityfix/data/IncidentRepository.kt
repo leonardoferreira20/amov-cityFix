@@ -1,151 +1,52 @@
 package pt.isec.amov.cityfix.data
 
-import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import pt.isec.amov.cityfix.data.model.GeoLocation
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import pt.isec.amov.cityfix.data.model.Incident
-import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.data.model.IncidentsList
-import pt.isec.amov.cityfix.data.model.SYSTEM_USER_ID
-import pt.isec.amov.cityfix.data.model.Situation
-import pt.isec.amov.cityfix.data.model.StatusChange
-import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.data.model.closed
 import pt.isec.amov.cityfix.utils.isClosingDue
 import pt.isec.amov.cityfix.utils.reopenDeadline
-import java.io.File
 
-private const val DAY_MILLIS = 24 * 60 * 60 * 1000L
+class IncidentRepository {
+    private val collection = Firebase.firestore.collection("incidents")
 
-class IncidentRepository(private val context: Context) {
-    private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
-    private val databaseFile by lazy { File(context.filesDir, "incidents_database.json") }
-    private var cachedList: IncidentsList? = null
-
-    private fun getSeedData(): List<Incident> {
-        val now = System.currentTimeMillis()
-        return listOf(
-            Incident(
-                authorId = "citizen-1",
-                categoryId = "cat-roads",
-                categoryName = "Vias Públicas",
-                situation = Situation.DAMAGE,
-                description = "Buraco grande na faixa da direita.",
-                visibility = Visibility.PUBLIC,
-                location = GeoLocation(40.2086, -8.4207),
-                createdAt = now - 2 * DAY_MILLIS
-            ),
-            Incident(
-                authorId = "citizen-2",
-                categoryId = "cat-lighting",
-                categoryName = "Iluminação",
-                situation = Situation.MALFUNCTION,
-                description = "Candeeiro apagado há uma semana.",
-                visibility = Visibility.PUBLIC,
-                location = GeoLocation(40.2101, -8.4189),
-                status = IncidentStatus.IN_PROGRESS,
-                createdAt = now - 6 * DAY_MILLIS,
-                workStartedAt = now - DAY_MILLIS
-            ),
-            Incident(
-                authorId = "citizen-1",
-                categoryId = "cat-water",
-                categoryName = "Água",
-                situation = Situation.DESTRUCTION,
-                description = "Rotura na conduta junto ao passeio.",
-                visibility = Visibility.PRIVATE,
-                location = GeoLocation(40.2072, -8.4231),
-                status = IncidentStatus.RESOLVED,
-                createdAt = now - 10 * DAY_MILLIS,
-                workStartedAt = now - 8 * DAY_MILLIS,
-                resolvedAt = now - 2 * DAY_MILLIS
-            ),
-            Incident(
-                authorId = "citizen-2",
-                categoryId = "cat-roads",
-                categoryName = "Vias Públicas",
-                situation = Situation.THEFT,
-                description = "Sinal de stop roubado no cruzamento.",
-                visibility = Visibility.PUBLIC,
-                location = GeoLocation(40.2115, -8.4250),
-                status = IncidentStatus.CLOSED,
-                createdAt = now - 20 * DAY_MILLIS,
-                workStartedAt = now - 18 * DAY_MILLIS,
-                resolvedAt = now - 15 * DAY_MILLIS,
-                closedAt = now - 10 * DAY_MILLIS
-            ),
-            Incident(
-                authorId = "citizen-1",
-                categoryId = "cat-lighting",
-                categoryName = "Iluminação",
-                situation = Situation.MALFUNCTION,
-                description = "Semáforo avariado no cruzamento da Avenida Sá da Bandeira.",
-                visibility = Visibility.PUBLIC,
-                location = GeoLocation(40.2095, -8.4215),
-                status = IncidentStatus.RESOLVED,
-                history = listOf(
-                    StatusChange(IncidentStatus.OPEN, IncidentStatus.IN_PROGRESS, now - 4 * DAY_MILLIS, "operator-1"),
-                    StatusChange(IncidentStatus.IN_PROGRESS, IncidentStatus.RESOLVED, now - DAY_MILLIS, "operator-1")
-                ),
-                createdAt = now - 7 * DAY_MILLIS,
-                workStartedAt = now - 4 * DAY_MILLIS,
-                resolvedAt = now - DAY_MILLIS
-            ),
-            Incident(
-                authorId = "citizen-1",
-                categoryId = "cat-sanitation",
-                categoryName = "Saneamento",
-                situation = Situation.DAMAGE,
-                description = "Tampa de esgoto partida em frente à escola.",
-                visibility = Visibility.PUBLIC,
-                location = GeoLocation(40.2079, -8.4202),
-                status = IncidentStatus.CLOSED,
-                history = listOf(
-                    StatusChange(IncidentStatus.OPEN, IncidentStatus.IN_PROGRESS, now - 25 * DAY_MILLIS, "operator-1"),
-                    StatusChange(IncidentStatus.IN_PROGRESS, IncidentStatus.RESOLVED, now - 22 * DAY_MILLIS, "operator-1"),
-                    StatusChange(IncidentStatus.RESOLVED, IncidentStatus.CLOSED, now - 17 * DAY_MILLIS, SYSTEM_USER_ID)
-                ),
-                createdAt = now - 30 * DAY_MILLIS,
-                workStartedAt = now - 25 * DAY_MILLIS,
-                resolvedAt = now - 22 * DAY_MILLIS,
-                closedAt = now - 17 * DAY_MILLIS
-            )
-        )
-    }
-
-    fun getIncidentById(id: String): Incident? = cachedList?.findById(id)
-
-    suspend fun loadIncidents(): IncidentsList = withContext(Dispatchers.IO) {
-        val list = cachedList ?: readIncidents().also { cachedList = it }
-        if (closeDueIncidents(list)) {
-            databaseFile.writeText(json.encodeToString(list.rawList()))
-        }
-        list
-    }
-
-    private fun readIncidents(): IncidentsList = if (!databaseFile.exists()) {
-        IncidentsList(getSeedData())
-    } else {
-        try {
-            IncidentsList(json.decodeFromString<List<Incident>>(databaseFile.readText()))
+    suspend fun loadIncidents(): IncidentsList {
+        val incidents = try {
+            collection.get().await().toObjects(Incident::class.java)
         } catch (_: Exception) {
-            IncidentsList(getSeedData())
+            emptyList()
         }
+        return IncidentsList(incidents).also { closeDueIncidents(it) }
     }
 
-    private fun closeDueIncidents(list: IncidentsList): Boolean {
+    fun observeIncidents(): Flow<IncidentsList> = callbackFlow {
+        val registration = collection.addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) {
+                val list = IncidentsList(snapshot.toObjects(Incident::class.java))
+                closeDueIncidents(list)
+                trySend(list)
+            }
+        }
+        awaitClose { registration.remove() }
+    }
+
+    fun saveIncident(incident: Incident) {
+        collection.document(incident.id).set(incident)
+    }
+
+    private fun closeDueIncidents(list: IncidentsList) {
         val now = System.currentTimeMillis()
-        val dueIncidents = list.rawList().filter { isClosingDue(it, now) }
-        dueIncidents.forEach { incident ->
-            reopenDeadline(incident)?.let { closedAt -> list.upsert(incident.closed(closedAt)) }
+        list.rawList().filter { isClosingDue(it, now) }.forEach { incident ->
+            reopenDeadline(incident)?.let { closedAt ->
+                val closed = incident.closed(closedAt)
+                list.upsert(closed)
+                saveIncident(closed)
+            }
         }
-        return dueIncidents.isNotEmpty()
-    }
-
-    suspend fun saveIncidents(list: IncidentsList) = withContext(Dispatchers.IO) {
-        databaseFile.writeText(json.encodeToString(list.rawList()))
-        cachedList = list
     }
 }

@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
 
@@ -30,7 +32,8 @@ fun FormTextField(
     @StringRes error: Int? = null,
     @StringRes hint: Int? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    isPassword: Boolean = false
 ) {
     OutlinedTextField(
         value = value,
@@ -39,7 +42,8 @@ fun FormTextField(
         enabled = enabled,
         isError = error != null,
         supportingText = { (error ?: hint)?.let { Text(stringResource(it)) } },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        keyboardOptions = KeyboardOptions(keyboardType = if (isPassword) KeyboardType.Password else keyboardType),
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         singleLine = true,
         modifier = modifier.fillMaxWidth()
     )

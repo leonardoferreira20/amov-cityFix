@@ -23,12 +23,10 @@ import kotlinx.coroutines.launch
 import pt.isec.amov.cityfix.CityFixApp
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.GeoLocation
-import pt.isec.amov.cityfix.data.model.IncidentsList
 import pt.isec.amov.cityfix.data.model.withProximityAlert
 import pt.isec.amov.cityfix.utils.LocationUtils
 import pt.isec.amov.cityfix.utils.PROXIMITY_RADIUS_METERS
 import pt.isec.amov.cityfix.utils.isProximityAlertTarget
-import java.io.IOException
 
 class ProximityService : Service() {
     private val locationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
@@ -83,25 +81,15 @@ class ProximityService : Service() {
 
     private fun checkProximity(operatorLocation: GeoLocation) = serviceScope.launch {
         val operator = operatorId ?: return@launch
-        val incidents = IncidentsList(repository.loadIncidents().rawList())
-        var changed = false
-        incidents.rawList().forEach { incident ->
+        repository.loadIncidents().rawList().forEach { incident ->
             val isNear = isProximityAlertTarget(incident) &&
                 LocationUtils.distanceMeters(operatorLocation, incident.location) <= PROXIMITY_RADIUS_METERS
             if (isNear) {
                 if (notifiedIncidents.add(incident.id)) {
-                    incidents.upsert(incident.withProximityAlert(operator, System.currentTimeMillis()))
-                    changed = true
+                    repository.saveIncident(incident.withProximityAlert(operator, System.currentTimeMillis()))
                 }
             } else {
                 notifiedIncidents.remove(incident.id)
-            }
-        }
-        if (changed) {
-            try {
-                repository.saveIncidents(incidents)
-            } catch (_: IOException) {
-                notifiedIncidents.clear()
             }
         }
     }

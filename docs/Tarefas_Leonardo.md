@@ -19,10 +19,10 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] Operador: conta fica `ACTIVE`.
 - [x] Gravar o utilizador através do repositório.
 - **Feito quando:** os dois perfis registam-se com dados válidos e os erros aparecem campo a campo.
-- 📝 **Anotado (🔒 Firebase):** criação da conta no Firebase Authentication.
+- [x] Criação da conta no Firebase Authentication, com password e confirmação (16/11).
 - [x] Georreferenciação do munícipe (aula #4, 16/11): `MapLocationPicker` (toque no mapa, como o da P10) ou «Usar a minha localização atual»; obrigatória para o munícipe; fica em `User.location`.
 - [x] Foto opcional no registo (L8): avatar circular (`UserAvatar`) com as iniciais do nome e os botões Galeria / Câmara no topo do formulário; fica em `User.picturePath`.
-- 📝 **Anotado (🔒 Firebase):** password, que entra com a criação da conta (L1).
+- [x] Envio do e-mail de verificação ao registar (necessário para o MFA).
 
 ### L4 — Perfil
 - [x] Conflito 11 de [CityFix_Decisoes.md](CityFix_Decisoes.md) fechado a 12/11/2026, a favor do enunciado: o nome não se altera e não há morada (o `address` saiu do `User`).
@@ -59,12 +59,22 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - **Feito quando:** o operador leva uma ocorrência de Aberto a Resolvido e o histórico mostra cada passo. Verificado no emulador a 11/11/2026.
 - 📝 **Anotado:** vídeo comprovativo (pontos 13 e A) e notificação ao autor quando a ocorrência é resolvida (L11).
 
+### L1 — Login (16/11, documentação oficial do Firebase)
+- [x] `LoginScreen` + `LoginViewModel` com e-mail e password (`signInWithEmailAndPassword`).
+- [x] Conta pendente: termina a sessão e mostra o aviso (decisão 6).
+- [x] Sessão guardada pelo Firebase e retomada ao abrir (`SessionViewModel`); «Terminar sessão» no perfil.
+- [x] Saiu o seletor de perfil.
+
+### L2 — MFA e recuperação (16/11)
+- [x] Recuperação por e-mail (`sendPasswordResetEmail`) no login.
+- [x] MFA com TOTP, opcional, ativado no perfil depois de confirmar o e-mail (`TotpMultiFactorGenerator`); pedido no login quando está ativo.
+- [x] Login, conta pendente e recuperação testados com o Firebase a 16/11.
+- [ ] Testar a verificação em dois passos com uma conta real e o TOTP ativo no projeto (Cloud Shell).
+
 ## Anotado — tarefas a criar depois da aula
 
 | Tarefa | O que é | Aula |
 |---|---|---|
-| L1 | Login com e-mail e password; aviso de conta pendente (decisão 6). Método ativo na consola e SDK configurado no Gradle | Firebase |
-| L2 | MFA e recuperação de password por e-mail (ponto 10 por confirmar) | Firebase |
 | L8 | Multimédia: a base já existe (feita pelo João com a J5: `utils/FileUtils`, `FileProvider`, Coil 3 e os componentes `IncidentPhoto` e `PhotoPicker`; basta pôr o `PhotoPicker` no ecrã e guardar o caminho que ele devolve). Já é usada na foto opcional do registo (L3, com o `UserAvatar`), na foto de perfil (L4) e na prova de resolução (L7); o vídeo está por definir (ponto 13 por confirmar) | #3 |
 | L9 | Compressão, thumbnail e envio com WorkManager só com rede | por definir |
 | L10 | Falta só notificar o autor no telemóvel dele (Firebase). Já feito a 16/11: `ProximityService` em primeiro plano para o operador, alerta gravado na ocorrência (`ProximityAlert`) para Aberto e Pedido de informações a menos de 20 m, secção no detalhe e pedido da localização em 2.º plano | Firebase |

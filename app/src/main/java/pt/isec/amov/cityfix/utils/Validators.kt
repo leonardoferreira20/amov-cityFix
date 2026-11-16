@@ -6,6 +6,7 @@ import pt.isec.amov.cityfix.data.model.UserRole
 
 object Validators {
     private const val OPERATOR_EMAIL_DOMAIN = "@aac-coimbra.pt"
+    private const val MIN_PASSWORD_LENGTH = 6
 
     private val EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
     private val PHONE_REGEX = "^[29][0-9]{8}$".toRegex()
@@ -16,7 +17,7 @@ object Validators {
         if (name.isBlank()) R.string.error_name_required else null
 
     @StringRes
-    fun emailError(email: String, role: UserRole): Int? {
+    fun emailError(email: String, role: UserRole?): Int? {
         val trimmed = email.trim()
         return when {
             !EMAIL_REGEX.matches(trimmed) -> R.string.error_email_invalid
@@ -29,6 +30,14 @@ object Validators {
     @StringRes
     fun phoneError(phone: String): Int? =
         if (PHONE_REGEX.matches(phone.trim())) null else R.string.error_phone_invalid
+
+    @StringRes
+    fun passwordError(password: String): Int? =
+        if (password.length >= MIN_PASSWORD_LENGTH) null else R.string.error_password_weak
+
+    @StringRes
+    fun passwordConfirmationError(password: String, confirmation: String): Int? =
+        if (password == confirmation) null else R.string.error_password_mismatch
 
     @StringRes
     fun nifError(nif: String): Int? =

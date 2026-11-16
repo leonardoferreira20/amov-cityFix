@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,21 +34,21 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.DashboardStats
 import pt.isec.amov.cityfix.data.model.Incident
+import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.Dashboard
 import pt.isec.amov.cityfix.ui.components.DashboardStatsCard
 import pt.isec.amov.cityfix.ui.components.IncidentFilter
-import pt.isec.amov.cityfix.ui.components.SessionSelector
 import pt.isec.amov.cityfix.utils.AnonymousAccess
 import pt.isec.amov.cityfix.utils.canCreateIncident
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
-import pt.isec.amov.cityfix.viewmodel.SessionViewModel
 
 @Composable
 fun MainScreen(
     viewModel: IncidentsViewModel,
-    sessionViewModel: SessionViewModel,
+    currentUser: User?,
     incidents: List<Incident>,
+    onLoginClick: () -> Unit,
     anonymousAccess: AnonymousAccess,
     onRequestLocationPermission: () -> Unit,
     expandedIncidentIds: List<String>,
@@ -57,7 +58,6 @@ fun MainScreen(
 ) {
     val stats by viewModel.dashboardStats.collectAsStateWithLifecycle()
     val onlyMine by viewModel.onlyMine.collectAsStateWithLifecycle()
-    val currentUser by sessionViewModel.currentUser.collectAsStateWithLifecycle()
 
     LaunchedEffect(currentUser) {
         viewModel.setCurrentUser(currentUser)
@@ -69,7 +69,7 @@ fun MainScreen(
         currentRole = currentUser?.role,
         anonymousAccess = anonymousAccess,
         onRequestLocationPermission = onRequestLocationPermission,
-        onProfileSelected = sessionViewModel::selectProfile,
+        onLoginClick = onLoginClick,
         onlyMine = onlyMine,
         onOnlyMineChange = viewModel::setOnlyMine,
         expandedIncidentIds = expandedIncidentIds,
@@ -87,7 +87,7 @@ fun MainScreenContent(
     currentRole: UserRole?,
     anonymousAccess: AnonymousAccess,
     onRequestLocationPermission: () -> Unit,
-    onProfileSelected: (UserRole?) -> Unit,
+    onLoginClick: () -> Unit,
     onlyMine: Boolean,
     onOnlyMineChange: (Boolean) -> Unit,
     expandedIncidentIds: List<String>,
@@ -101,7 +101,6 @@ fun MainScreenContent(
 
     val headerContent: @Composable (Modifier) -> Unit = { headerModifier ->
         Column(modifier = headerModifier) {
-            SessionSelector(currentRole = currentRole, onProfileSelected = onProfileSelected)
             if (currentRole == UserRole.CITIZEN) {
                 IncidentFilter(onlyMine = onlyMine, onOnlyMineChange = onOnlyMineChange)
             }
@@ -127,6 +126,7 @@ fun MainScreenContent(
             AnonymousRestriction(
                 access = anonymousAccess,
                 onRequestLocationPermission = onRequestLocationPermission,
+                onLoginClick = onLoginClick,
                 modifier = bodyModifier
             )
         }
@@ -176,6 +176,7 @@ fun MainScreenContent(
 private fun AnonymousRestriction(
     access: AnonymousAccess,
     onRequestLocationPermission: () -> Unit,
+    onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -204,6 +205,11 @@ private fun AnonymousRestriction(
         if (access == AnonymousAccess.NO_PERMISSION) {
             Button(onClick = onRequestLocationPermission) {
                 Text(stringResource(R.string.location_permission_allow))
+            }
+        }
+        if (access != AnonymousAccess.LOCATING) {
+            OutlinedButton(onClick = onLoginClick) {
+                Text(stringResource(R.string.login_title))
             }
         }
     }

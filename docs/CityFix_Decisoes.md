@@ -49,7 +49,12 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O alerta de proximidade do operador (20 m) vale só para ocorrências ativas que ainda não estão Em resolução: Aberto e Pedido de informações (29).
 - O segundo fator do MFA é TOTP, com uma app autenticadora (10). Exige ativar o "Firebase Authentication with Identity Platform" e o TOTP na consola.
 - O projeto Firebase passa para o plano Blaze, porque desde fevereiro de 2026 o Cloud Storage não existe no plano Spark. A quota gratuita mantém-se.
-- Firebase, WorkManager e sensores seguem as fichas das aulas seguintes, que os alunos vão fornecer. A app Contactos das aulas (`Contacts_#3`) só tem matéria até à P10.
+- Firebase, WorkManager e sensores seguem a documentação oficial, porque não há fichas das aulas sobre eles (decidido a 16/11).
+- Firestore (16/11): coleções `users` (id = uid do Authentication), `categories` e `incidents`, com cache persistente. Só as categorias de exemplo são criadas, quando o primeiro operador entra e a coleção está vazia. As gravações não esperam pela resposta do servidor, para funcionarem offline.
+- Coroutines com `task.await()` da biblioteca `kotlinx-coroutines-play-services` (16/11).
+- Authentication (16/11): o registo cria a conta, verifica o NIF e grava o perfil; se o NIF já existir, a conta criada é apagada. Depois de registar, a sessão termina e o utilizador entra pelo login. O registo envia o e-mail de verificação.
+- MFA (10, 16/11): TOTP opcional, ativado no perfil depois de o e-mail estar confirmado; quem o ativou passa a ter de indicar o código no login. Está no enunciado (I.2.B e I.3.B).
+- Regras do Firestore (16/11, `firestore.rules`): utilizadores legíveis por quem tem sessão e alteráveis pelo próprio ou por um operador; categorias legíveis por todos e alteráveis só por operadores; ocorrências legíveis por todos (o anónimo precisa da lista e o dashboard conta as privadas), criadas só pelo próprio autor e alteradas por quem tem sessão. A app Contactos das aulas (`Contacts_#3`) só tem matéria até à P10.
 - Mapa com todas as ocorrências para todos os perfis com acesso, com os pinos das ocorrências que cada um vê na lista. Quem não vê a localização exata de todas fica com o mapa afastado e sem gestos.
 - O operador vê no detalhe a distância até à ocorrência e um botão «Navegar» que abre o trajeto no Google Maps.
 - Alerta de proximidade: o serviço em primeiro plano corre com a sessão de operador e grava o alerta na ocorrência; o autor vê-o no detalhe. A notificação no telemóvel do autor entra com o Firebase.
@@ -113,7 +118,7 @@ O conflito 11 (nome editável e morada) ficou fechado a 12/11/2026, a favor do e
 ## 3. Por confirmar
 
 ### Da análise inicial
-- (7) O mesmo NIF ou e-mail pode existir como munícipe e como operador?
+- (7) O mesmo NIF pode existir como munícipe e como operador? O e-mail ficou resolvido: o Authentication não deixa repetir.
 - (13) O limite de 1 foto e 1 vídeo é definitivo?
 - (28) Quem executa o aviso das 24 h antes do encerramento: o dispositivo ou o backend? O encerramento ficou decidido: é feito no dispositivo (11/11/2026).
 - (30) Qualquer operador ativa a geofence, ou só um operador atribuído? Há atribuição de operador a ocorrências?

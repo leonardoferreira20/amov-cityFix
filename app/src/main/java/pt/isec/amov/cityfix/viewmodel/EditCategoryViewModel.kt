@@ -49,8 +49,7 @@ class EditCategoryViewModel(
             val category = existing?.copy(name = current.name.trim(), updatedAt = now)
                 ?: Category(name = current.name.trim(), createdBy = operatorId, createdAt = now)
 
-            categoriesList.upsert(category)
-            repository.saveCategories(categoriesList)
+            repository.saveCategory(category)
             onSuccess()
         }
     }

@@ -25,10 +25,9 @@ class CitizenValidationViewModel(private val repository: UserRepository) : ViewM
 
     fun activateCitizen(userId: String) {
         val user = currentUsersList.findById(userId) ?: return
-        viewModelScope.launch {
-            currentUsersList.upsert(user.copy(status = AccountStatus.ACTIVE))
-            repository.saveUsers(currentUsersList)
-            _pendingCitizens.value = currentUsersList.getPendingCitizensSorted()
-        }
+        val activated = user.copy(status = AccountStatus.ACTIVE)
+        currentUsersList.upsert(activated)
+        repository.saveUser(activated)
+        _pendingCitizens.value = currentUsersList.getPendingCitizensSorted()
     }
 }

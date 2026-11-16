@@ -28,12 +28,9 @@ class CategoriesViewModel(private val repository: CategoryRepository) : ViewMode
 
     fun setCategoryActive(categoryId: String, active: Boolean) {
         val category = currentCategoriesList.findById(categoryId) ?: return
-        viewModelScope.launch {
-            currentCategoriesList.upsert(
-                category.copy(active = active, updatedAt = System.currentTimeMillis())
-            )
-            repository.saveCategories(currentCategoriesList)
-            _categoriesList.value = currentCategoriesList.getAllSorted()
-        }
+        val updated = category.copy(active = active, updatedAt = System.currentTimeMillis())
+        currentCategoriesList.upsert(updated)
+        repository.saveCategory(updated)
+        _categoriesList.value = currentCategoriesList.getAllSorted()
     }
 }

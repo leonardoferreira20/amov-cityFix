@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ProximityAlert(
-    val operatorId: String,
-    val timestamp: Long
+    val operatorId: String = "",
+    val timestamp: Long = 0L
 )

@@ -125,7 +125,6 @@ fun ReportIncidentScreen(
                 label = { stringResource(it.labelRes()) },
                 onSelect = onVisibilityChange
             )
-            ErrorText(state.saveError)
 
             Spacer(modifier = Modifier.height(72.dp))
         }

@@ -18,8 +18,6 @@ class UsersList(initialUsers: List<User> = emptyList()) {
 
     fun findById(id: String): User? = _users.find { it.id == id }
 
-    fun hasNif(nif: String, role: UserRole): Boolean = _users.any { it.nif == nif && it.role == role }
-
     fun rawList(): List<User> = _users.toList()
 
     fun upsert(user: User) {

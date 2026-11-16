@@ -67,9 +67,9 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3, e 
 | J8 | Reabertura | João | ✅ |
 | J9 | Restrição dos 10 km para anónimos | João | ✅ |
 | J10 | Deteção de impactos | João | 🔒 |
-| L1 | Login + aviso de conta pendente | Leonardo | 🔒 |
-| L2 | MFA + recuperação de password | Leonardo | 🔒 |
-| L3 | Registo (munícipe e operador), com georreferenciação no mapa | Leonardo | ✅ (criação da conta: 🔒) |
+| L1 | Login + aviso de conta pendente | Leonardo | ✅ (documentação oficial) |
+| L2 | MFA + recuperação de password | Leonardo | ✅ (documentação oficial) |
+| L3 | Registo (munícipe e operador), com georreferenciação no mapa e conta no Authentication | Leonardo | ✅ |
 | L4 | Perfil | Leonardo | ✅ |
 | L5 | Validação de munícipes | Leonardo | ✅ |
 | L6 | Categorias | Leonardo | ✅ |
@@ -87,7 +87,7 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula. A aula #4 (
 
 | Tema | Aula | Tarefas afetadas |
 |---|---|---|
-| Firebase: Authentication, Firestore, Storage, Cloud Messaging. Configuração Gradle inicial feita para Authentication. | por definir | L1, L2, L3, L11 e a troca do repositório |
+| Firebase: Storage e Cloud Messaging (Authentication e Firestore feitos a 16/11 com a documentação oficial) | sem aula; documentação oficial | L9, L11 |
 | WorkManager | por definir | L9, L11 |
 | Vídeo (gravar, escolher e mostrar) | por definir | J5, L7, L8 |
 | Sensores (acelerómetro) | por definir | J10 |
