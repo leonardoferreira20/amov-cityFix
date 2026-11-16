@@ -20,7 +20,7 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 ## Configuração do Firebase
 
 - Configuração inicial baseada na [documentação do Firebase para Android](https://firebase.google.com/docs/android/setup). O plugin Google Services gera os recursos da aplicação a partir de `app/google-services.json`. O catálogo do Gradle define a versão do Firebase BoM, que gere a versão do SDK de Authentication.
-- O BoM 34.19.0 é usado para manter a compatibilidade com o Kotlin 2.2.10 do projeto. Para compilar noutra cópia do projeto, descarregar o `google-services.json` da aplicação Android `pt.isec.amov.cityfix` nas definições do projeto `cityfix-3dbb1` e colocá-lo na pasta `app/`.
+- O BoM 34.19.0 é usado para manter a compatibilidade com o Kotlin 2.2.10 do projeto. O `google-services.json` do projeto `cityfix-3dbb1` está no repositório e é partilhado pelos dois.
 
 ## Pacotes
 
@@ -156,7 +156,7 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - O registo e o perfil partilham os campos do formulário (`FormTextField`, `UserPhotoField` e `ImpactDetectionSwitch`, em `ui/components/UserFormFields.kt`), em vez de cada ecrã ter a sua cópia.
 - A troca de foto no perfil segue o `initialPicturePath` do `EditContactViewModel` das aulas: a foto anterior só é apagada ao gravar. O CityFix acrescenta duas coisas: uma foto escolhida e logo trocada por outra é apagada na troca, e uma foto nova que não chegou a ser gravada é apagada em `onCleared()`.
 - No `EditContactViewModel` das aulas, nada impede um segundo toque no botão de gravar enquanto a gravação decorre. No CityFix isso viu-se no emulador: dois toques seguidos no ✓ das categorias gravavam a categoria duas vezes e faziam voltar dois ecrãs atrás. Por isso, o `EditCategoryViewModel` e o `ProfileViewModel` ignoram os toques seguintes enquanto o `isSaving` está a `true`. Também não o voltam a pôr a `false` depois de gravar, porque o ecrã fecha a seguir: assim, um toque durante a animação de saída não grava outra vez nem faz voltar atrás duas vezes.
-- Nas aulas, a chave do Google Maps está escrita no `AndroidManifest.xml`. No CityFix fica em `MAPS_API_KEY` no `local.properties` (que não vai para o Git, porque o repositório está no GitHub) e chega ao manifesto com `manifestPlaceholders` no `app/build.gradle.kts`. Não foi dado nas aulas.
+- A chave do Google Maps está escrita no `AndroidManifest.xml`, como nas aulas, e é a mesma para os dois alunos.
 - O `LocationUtils` do CityFix emite `GeoLocation` (a classe do modelo) em vez de `android.location.Location`, para o ViewModel não depender de classes do Android. Não tem geocoder, porque só se guardam coordenadas.
 - O mapa do detalhe público desliga os gestos de zoom e deslocação com `MapUiSettings`, que não foi dado nas aulas: sem isso, o zoom afastado não esconderia o local exato.
 - Os mapas mostram uma caixa cinzenta nos previews (`LocalInspectionMode`, não dado nas aulas), porque o `GoogleMap` não desenha no preview do Android Studio.

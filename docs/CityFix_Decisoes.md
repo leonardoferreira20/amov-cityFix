@@ -42,7 +42,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - O detalhe mostra todas as fotos numa fila com scroll horizontal; a primeira continua a ser o thumbnail da lista.
 
 ### Aula #4 e Firebase (decidido a 16/11/2026)
-- Mapas com o Google Maps Compose, como na ficha P10. A chave fica em `MAPS_API_KEY` no `local.properties`, fora do Git, e chega ao manifesto por `manifestPlaceholders`.
+- Mapas com o Google Maps Compose, como na ficha P10. Os dois alunos usam a chave do João, escrita no `AndroidManifest.xml` como nas aulas, e o `google-services.json` do projeto `cityfix-3dbb1` vai para o Git (decidido a 16/11). Assim o projeto compila e mostra os mapas em qualquer máquina, incluindo a do professor, já que o ZIP da entrega não pode levar o `local.properties`. Recomenda-se restringir a chave na Google Cloud ao package `pt.isec.amov.cityfix` e às impressões SHA-1 dos dois computadores.
 - O detalhe público mostra o mapa com zoom de cidade e o pino, sem coordenadas e sem gestos de zoom ou deslocação, para não se perceber o local exato. O autor e o operador veem o pino com zoom próximo e as coordenadas (17).
 - A georreferenciação do registo do munícipe escolhe-se no mapa (toque) ou com a localização atual; guardam-se só as coordenadas, sem morada; é obrigatória para o munícipe (8). Proposta do assistente, a validar pelos dois.
 - O anónimo fora dos 10 km, sem permissão de localização ou ainda sem posição não vê o dashboard nem a lista. Até haver login (L1), vê uma mensagem e o seletor de perfil (5).
