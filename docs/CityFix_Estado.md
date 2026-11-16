@@ -52,7 +52,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - Ficheiros: `RegisterScreen`, `RegisterViewModel`, `RegisterUiState`, `utils/Validators`, `UserAvatar`.
 - **L4 Perfil:** botão de conta na barra de topo, só para o munícipe e o operador (`canEditProfile`). Fecha o conflito 11 a favor do enunciado.
   - Editáveis: foto (avatar com Galeria / Câmara), telefone (validado com o `Validators.phoneError`) e, no munícipe, a Deteção de Impactos.
-  - Só de leitura, como campos desativados: nome, e-mail, NIF e, no munícipe, georreferenciação. Não há morada: o `address` saiu do `User`.
+  - A secção «Dados da conta» apresenta o nome, o e-mail, o NIF e, no munícipe, a georreferenciação como texto só de leitura. Em «Editar perfil» altera-se o telefone, troca-se ou remove-se a foto e, no munícipe, muda-se a deteção de impactos. Não há morada: o `address` saiu do `User`.
   - Ao gravar, volta ao início e o utilizador da sessão é atualizado (`SessionViewModel.refreshCurrentUser`).
   - Foto: a nova só substitui a antiga ao gravar, e a antiga é apagada nesse momento; se se sair sem gravar, a nova é apagada.
   - O registo e o perfil partilham os componentes `FormTextField`, `UserPhotoField` e `ImpactDetectionSwitch` (`ui/components/UserFormFields.kt`). As coordenadas escrevem-se com `GeoLocation.toDisplayText()` (`utils/LocationFormat.kt`), que a validação de munícipes também usa.
@@ -85,9 +85,9 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - `ReportIncidentScreen`, `ReportIncidentUiState` e `ReportIncidentViewModel` + `Factory`, no padrão do `EditScreen` / `EditContactUiState` das aulas.
   - Categoria (só as ativas) e situação em listas dropdown, descrição, visibilidade com `RadioButton` e foto obrigatória, com erros campo a campo.
   - Foto da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), guardada em `filesDir/images/` e registada como `MediaAttachment` (`IMAGE`, `REPORT`).
-  - Localização por GPS no momento em que se junta a foto (decisão 12), com mapa e coordenadas no formulário (aula #4, 16/11).
+  - O munícipe escolhe o local com um toque no mapa e vê as coordenadas no formulário. O ponto é obrigatório e é independente da foto (decisão 12, revista a 16/11).
   - Ao gravar, a lista e o dashboard atualizam-se.
-  - Testado no emulador com uma foto da câmara.
+  - Testado no emulador a 16/11: submeter sem marcar um ponto mostrou o erro. Tocar no mapa apresentou as coordenadas, que se mantiveram ao juntar uma foto da câmara. O rascunho foi abandonado antes de gravar.
 - **Base de multimédia:** `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, dependência `coil-compose` 3.0.4 (a das aulas) e os componentes `IncidentPhoto` (mostra uma foto) e `PhotoPicker` (pré-visualização e botões Galeria / Câmara, usado na criação e na reabertura). Serve também para a L3, a L4 e a L7 do Leonardo.
 - **J8 Reabertura:**
   - Botão "Reabrir" no detalhe, só para o autor, em Resolvido e dentro dos 5 dias (`canReopen`), com o prazo por baixo (`reopenDeadline`).
@@ -104,19 +104,20 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - Testado no emulador como anónimo, autor (`citizen-1`) e operador.
 - **J7 Pedidos de informação:** secção partilhada pelo autor e pelo operador no detalhe. O operador pede em Aberto ou Em Resolução; a primeira resposta do autor repõe o estado anterior. O autor pede em qualquer estado exceto Encerrado, mantendo o estado. Os pedidos, as respostas em texto e as transições da J7 ficam gravados com a ocorrência no JSON local. As notificações ficam para a L11.
   - Compilação debug e teste no emulador concluídos. Verificados pedidos e respostas nos dois sentidos, reposição de Aberto após a resposta do autor, bloqueio de um segundo pedido do operador enquanto aguarda, histórico, detalhe público sem mensagens, bloqueio de ações em Encerrado e persistência após reiniciar a app.
-- **Gráfico:** a segunda página do `Dashboard` mostra o número de ocorrências por categoria (`IncidentChart`, barras feitas com `Row` e `Box`).
+- **Gráficos no início:** a secção «Estatísticas» mostra os gráficos por estado e por categoria juntos. Os dois contam as ocorrências visíveis na lista, incluindo o filtro «As minhas». Em portrait, o resumo, os gráficos e a lista partilham o scroll vertical e há um atalho para a lista. Em landscape, os indicadores e os gráficos ficam ao lado da lista.
 - `EnumLabels.kt` liga cada `Situation` e `IncidentStatus` ao seu texto no `strings.xml`.
-- **Design alinhado com os ecrãs do Leonardo (11/11):** sem cores de teste; títulos de secção em `titleMedium` alinhados à esquerda; cartões com elevação de 2 dp, `padding(16.dp)`, título em `titleMedium` e `onClickLabel` para a acessibilidade. As duas páginas do dashboard usam o mesmo `DashboardPage`.
+- **Design alinhado com os ecrãs do Leonardo:** títulos de secção alinhados à esquerda, cartões com elevação de 2 dp e `onClickLabel` para a acessibilidade. Os cartões das ocorrências mostram o estado e uma seta que acompanha a expansão.
 - **Tema azul-petróleo (11/11):** `CityFixTheme` usa uma paleta fixa com variantes clara e escura. A `MainTopAppBar` partilhada usa o azul-petróleo do ícone com texto e ícones brancos. O `DashboardStatsCard` usa `primaryContainer` e dá mais peso aos valores.
   - Compilação debug concluída e ecrã inicial verificado no Medium Phone em modo claro, incluindo os ícones da barra de estado e os três indicadores.
-- **Barra de topo:** títulos em seminegrito. O botão de expansão realça o ícone quando todos os cartões da lista estão expandidos e indica a ação disponível na descrição de acessibilidade em EN/PT.
+- **Barra de topo e sessão:** títulos em seminegrito e botão «Login» com texto e ícone para o anónimo. O botão «Terminar sessão» fica no topo do início dos utilizadores autenticados e também no perfil. O botão de expansão só aparece quando há ocorrências visíveis. O botão flutuante do munícipe identifica a ação «Nova ocorrência».
+- A 16/11, o `Medium_Phone` confirmou os dois gráficos em simultâneo nos perfis anónimo e munícipe, o fim da sessão pelo início, o filtro «As minhas», o atalho para a lista, a expansão, a validação do telefone, a disposição em colunas em landscape e o acesso anónimo limitado aos 10 km. A versão debug, os testes unitários existentes e o lint passaram.
 - Testado no emulador com os dados de exemplo: 11,5 dias, 6 ocorrências e 67% ativas; o munícipe `citizen-1` tem 4 ocorrências suas em "As minhas", e o operador vê as 6.
 
 ### 2.4 Aula #4 e correções (16/11/2026)
 - **Base de localização** (ficha P10): `maps-compose` 6.1.0 e `play-services-location` 21.3.0; `utils/LocationUtils` (`hasLocationPermission`, `locationUpdates` com o `FusedLocationProviderClient`, `distanceMeters` com `Location.distanceBetween`); `rememberDeviceLocation` (`produceState`, como o `ContactDistanceSection` das aulas).
 - **Permissões em runtime:** a `MainActivity` pede a localização ao arrancar (`RequestMultiplePermissions`, como na P10). O botão Câmara pede a permissão `CAMERA` antes de abrir a câmara e mostra um aviso se for recusada.
 - **Chave do Google Maps:** escrita no `AndroidManifest.xml`, como nas aulas, e partilhada pelos dois; o `google-services.json` também está no Git (decisão de 16/11). Não é preciso configurar nada para compilar.
-- **J5 GPS:** a localização é a do dispositivo quando se junta a foto; se ainda não houver posição, fica a primeira que chegar. Sem localização não se grava (`error_location_required`). Sem permissão, o formulário mostra o botão «Permitir localização».
+- **J5 localização:** o formulário usa o `MapLocationPicker` com o centro inicial em Coimbra. O toque define o ponto e sem ponto o formulário mostra `error_location_required`. A seleção manual funciona sem a permissão de localização do dispositivo.
 - **J6 Agrupamento:** ao gravar, `IncidentsList.findGroupPrimary` procura a principal mais antiga, não encerrada, da mesma categoria, a menos de 10 m; a nova fica com o `primaryIncidentId` dela. O detalhe mostra «Ocorrência de grupo: N participações neste local».
 - **J4 Mapa:** `IncidentMap` em todos os detalhes. O autor e o operador veem o pino com zoom 17 e as coordenadas; os restantes veem o pino com zoom 11 (cidade), sem coordenadas e sem gestos de zoom ou deslocação (decisão 17).
 - **J9 Restrição dos 10 km:** `AccessRules.anonymousAccess` devolve `ALLOWED`, `LOCATING`, `NO_PERMISSION` ou `OUT_OF_AREA`. Fora do raio, sem permissão ou enquanto localiza, o anónimo não vê o dashboard nem a lista; vê uma mensagem e o seletor de perfil (que faz de login até à L1).
@@ -131,7 +132,8 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - os enums passaram de `data/model/enums/` para `data/model/`, a pasta do seu pacote;
   - o `gradlew` ficou com permissão de execução no Git.
 - **Resto da app Contactos (`Contacts_#3`), 16/11, segunda parte:**
-  - **Mapa de ocorrências** (`IncidentsMapScreen`, como o `ContactsMapScreen`): botão de mapa na barra de topo para todos os perfis com acesso. Mostra as ocorrências que o perfil vê na lista; tocar no balão do pino abre o detalhe. Se o perfil vê a localização exata de todas, a câmara ajusta-se aos pinos (`LatLngBounds`); senão, fica com zoom de cidade e sem gestos.
+  - **Mapa de ocorrências** (`IncidentsMapScreen`, como o `ContactsMapScreen`): botão de mapa na barra de topo para todos os perfis com acesso. Mostra as ocorrências que o perfil vê na lista; tocar no balão do pino abre o detalhe. Se o perfil vê a localização exata de todas, a câmara ajusta-se aos pinos com `LatLngBounds` depois de o mapa ter dimensões. Alterações ao conteúdo das ocorrências que mantenham os pinos nas mesmas coordenadas preservam o zoom. Nos restantes casos, o mapa fica com zoom de cidade e sem gestos.
+  - A 16/11, no `Medium_Phone`, o mapa ficou aberto após 14 toques no botão de afastar e após rodar para landscape. O teste instrumentado confirmou que a pinça de dois dedos alterou o zoom e manteve o ecrã do mapa aberto.
   - **Distância e «Navegar»** para o operador no detalhe (`IncidentDirections`, como o `ContactDistanceSection`): distância em km até à ocorrência e botão que abre o trajeto no Google Maps (`LocationUtils.openDirections`).
   - **Serviço de proximidade** (`services/ProximityService`, como o da P10): serviço em primeiro plano do tipo `location`, arrancado pela `MainActivity` enquanto a sessão é de operador e parado nos outros perfis. A cada posição, procura ocorrências em Aberto ou Pedido de informações a menos de 20 m e grava um `ProximityAlert` na ocorrência. O autor e o operador veem os alertas no detalhe («Equipa camarária na zona»). A notificação ao autor entra com o Firebase.
   - **Permissões:** as notificações (`POST_NOTIFICATIONS`, Android 13+) são pedidas com a localização ao arrancar, como na P10. A localização em 2.º plano é pedida ao operador e ao munícipe com a deteção de impactos ativa, com um diálogo a explicar antes (`BackgroundLocationDialog`); o Android abre as definições para escolher «Permitir sempre».
@@ -169,7 +171,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 ### 3.2 João
 - [x] J4 Mapa (16/11).
-- [x] J5 Localização por GPS quando se junta a foto (16/11). Falta o vídeo (por definir).
+- [x] J5 Escolha obrigatória do ponto no mapa pelo munícipe (16/11). Falta o vídeo (por definir).
 - [x] J6 Agrupamento a 10 m (16/11).
 - [x] J9 Restrição dos 10 km para anónimos (16/11). Quando houver login (L1), o anónimo bloqueado passa a ver o ecrã de login.
 - [ ] J10 Deteção de impactos (sensores, ainda sem aula).

@@ -20,6 +20,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Enquanto não há login, o utilizador atual vem de uma sessão falsa: o `SessionViewModel` guarda um `StateFlow<User?>` (`null` é o anónimo) e o `SessionSelector` escolhe o perfil. Com o login (L1) sai o seletor e fica o `SessionViewModel`.
 - Uma só `MainActivity` com um `NavHost` dentro de um `Scaffold`. A app abre no início (`DashboardRoute`); os ecrãs do operador (categorias, validação), o registo e o perfil abrem-se pelos botões da `MainTopAppBar`, que só aparecem ao perfil que os pode usar.
 - Os três números do dashboard são calculados sobre todas as ocorrências (`IncidentsList.getDashboardStats()`); a lista mostra só as que o perfil pode ver.
+- Os gráficos por estado e por categoria aparecem juntos na secção «Estatísticas» do início e usam os dados da lista visível. A barra de topo do anónimo mostra «Login» com texto e ícone. O utilizador autenticado pode terminar a sessão no topo do início ou no perfil (16/11).
 - Identidade visual do CityFix (11/11/2026): paleta fixa a partir do azul-petróleo `#0B2833` do ícone, com variantes clara e escura segundo o modo do dispositivo. A barra de topo usa azul-petróleo com texto e ícones brancos. O cartão dos indicadores usa um tom mais suave da paleta e dá destaque aos valores.
 - Barra de topo (11/11/2026): título em seminegrito e círculo branco translúcido atrás do ícone quando todos os cartões da lista estão expandidos. A descrição do botão indica se expande ou recolhe todos os cartões.
 - Lista de ocorrências (11/11/2026): tocar num cartão alterna a sua expansão. Na zona expandida, «Ver detalhes» abre o ecrã da ocorrência. O botão da barra de topo expande todos os cartões da lista atual se ainda houver algum recolhido e recolhe todos quando estão todos expandidos.
@@ -32,7 +33,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - O botão "Nova ocorrência" é um botão flutuante (+) no início, só para o munícipe, como o + das categorias.
   - No formulário, a categoria e a situação escolhem-se em listas dropdown, para ocupar menos espaço; a visibilidade fica com `RadioButton`.
   - A base de multimédia (`FileUtils`, `FileProvider`, Coil 3 das aulas e o componente `IncidentPhoto`) foi feita pelo João com a J5; o Leonardo reaproveita-a na L4, na L7 e na L8.
-  - A localização de uma ocorrência nova vem do GPS no momento em que se junta a foto (decisão 12, implementada a 16/11). Sem localização não se grava.
+  - A localização de uma ocorrência nova é escolhida pelo munícipe com um toque no mapa. Sem ponto escolhido, o formulário não grava (decisão 12, revista a 16/11).
   - Coordenadas provisórias do centro do município, a Praça da República (3): 40.2085, -8.4196.
 - Reabertura (decidido a 11/11/2026):
   - O autor reabre no detalhe, com um botão "Reabrir" e o prazo por baixo. A justificação escreve-se num `AlertDialog`.
@@ -73,13 +74,13 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - Foto do registo (11/11/2026): avatar circular no topo do formulário, com as iniciais do nome enquanto não há foto (como o `ContactAvatar` das aulas) e os botões Galeria / Câmara ao lado. Fica em `User.picturePath`. Ao trocar de foto, a anterior é apagada; se o registo for abandonado, a foto escolhida também.
 - Perfil (11, fechado a 12/11/2026), como diz o enunciado:
   - editáveis: a foto, o telefone (com a validação do registo) e, no munícipe, a Deteção de Impactos;
-  - só de leitura, como campos desativados: o nome, o e-mail e o NIF e, no munícipe, a georreferenciação. O nome deixou de ser editável, ao contrário da primeira decisão; o e-mail já não estava entre os campos editáveis;
+  - só de leitura na secção «Dados da conta»: o nome, o e-mail e o NIF e, no munícipe, a georreferenciação. A opção de manter o e-mail só de leitura foi confirmada a 16/11;
   - não há campo de morada: a localização do utilizador é só a georreferenciação, e o `address` saiu do `User`;
   - abre-se pelo botão de conta na barra de topo, que só aparece ao munícipe e ao operador. Ao gravar, volta ao início e o utilizador da sessão é atualizado;
   - uma foto nova só substitui a anterior ao gravar, e a anterior é apagada nesse momento; se se sair sem gravar, a foto nova é apagada.
 
 ### Ocorrências
-- A foto é obrigatória na criação. A localização da ocorrência é obtida no momento em que a foto é tirada (12).
+- Só o munícipe com conta ativa cria ocorrências. A foto e o ponto no mapa são obrigatórios. Juntar ou trocar a foto não altera o ponto escolhido (12, revista a 16/11).
 - Anexos por ocorrência: 1 foto e 1 vídeo na criação, mais 1 foto obrigatória em cada reabertura (13; alterado a 11/11/2026).
 - Ocorrência ativa: qualquer estado exceto Encerrado (14).
 - Tempo médio de reparação: de Aberto a Encerrado (15).

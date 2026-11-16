@@ -1,5 +1,6 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,10 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -53,43 +56,50 @@ fun ProfileScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            UserPhotoField(name = state.name, picturePath = state.picturePath, onPictureChange = onPictureChange)
-
-            FormTextField(value = state.name, onValueChange = {}, label = R.string.field_name, enabled = false)
-            FormTextField(value = state.email, onValueChange = {}, label = R.string.field_email, enabled = false)
-            FormTextField(
-                value = state.phone,
-                onValueChange = onPhoneChange,
-                label = R.string.field_phone,
-                error = state.phoneError,
-                keyboardType = KeyboardType.Phone
-            )
-            FormTextField(value = state.nif, onValueChange = {}, label = R.string.field_nif, enabled = false)
-
-            if (state.role == UserRole.CITIZEN) {
+            ProfileSection(title = R.string.profile_edit_details) {
+                UserPhotoField(name = state.name, picturePath = state.picturePath, onPictureChange = onPictureChange)
+                if (state.picturePath != null) {
+                    TextButton(onClick = { onPictureChange(null) }) {
+                        Text(stringResource(R.string.profile_remove_photo))
+                    }
+                }
                 FormTextField(
-                    value = state.location?.toDisplayText() ?: stringResource(R.string.field_location_not_set),
-                    onValueChange = {},
-                    label = R.string.field_location,
-                    enabled = false
+                    value = state.phone,
+                    onValueChange = onPhoneChange,
+                    label = R.string.field_phone,
+                    error = state.phoneError,
+                    keyboardType = KeyboardType.Phone,
+                    enabled = !state.isSaving
                 )
-                ImpactDetectionSwitch(
-                    checked = state.impactDetectionEnabled,
-                    onCheckedChange = onImpactDetectionChange
-                )
+                if (state.role == UserRole.CITIZEN) {
+                    ImpactDetectionSwitch(
+                        checked = state.impactDetectionEnabled,
+                        onCheckedChange = onImpactDetectionChange
+                    )
+                }
+                Button(
+                    onClick = onSaveClick,
+                    enabled = state.isValid && !state.isSaving,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(if (state.isSaving) R.string.profile_saving else R.string.profile_save))
+                }
             }
 
-            Button(
-                onClick = onSaveClick,
-                enabled = !state.isSaving,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.profile_save))
+            ProfileSection(title = R.string.profile_account_details) {
+                ReadOnlyProfileValue(R.string.field_name, state.name)
+                ReadOnlyProfileValue(R.string.field_email, state.email)
+                ReadOnlyProfileValue(R.string.field_nif, state.nif)
+                if (state.role == UserRole.CITIZEN) {
+                    ReadOnlyProfileValue(
+                        R.string.field_location,
+                        state.location?.toDisplayText() ?: stringResource(R.string.field_location_not_set)
+                    )
+                }
             }
 
-            HorizontalDivider()
             SecondFactorSection(
                 state = state,
                 onSendVerificationEmail = onSendVerificationEmail,
@@ -100,11 +110,28 @@ fun ProfileScreen(
                 onCancel = onCancelSecondFactor
             )
 
-            HorizontalDivider()
             OutlinedButton(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.profile_sign_out))
             }
         }
+    }
+}
+
+@Composable
+private fun ProfileSection(@StringRes title: Int, content: @Composable () -> Unit) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+            content()
+        }
+    }
+}
+
+@Composable
+private fun ReadOnlyProfileValue(@StringRes label: Int, value: String) {
+    Column {
+        Text(stringResource(label), style = MaterialTheme.typography.labelMedium)
+        Text(value, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

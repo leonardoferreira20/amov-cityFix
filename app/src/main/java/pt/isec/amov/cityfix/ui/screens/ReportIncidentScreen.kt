@@ -3,11 +3,11 @@ package pt.isec.amov.cityfix.ui.screens
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import pt.isec.amov.cityfix.data.model.GeoLocation
-import pt.isec.amov.cityfix.ui.components.IncidentMap
+import pt.isec.amov.cityfix.ui.components.MapLocationPicker
+import pt.isec.amov.cityfix.utils.CITY_CENTER
 import pt.isec.amov.cityfix.utils.toDisplayText
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -60,8 +60,7 @@ import pt.isec.amov.cityfix.viewmodel.ReportIncidentUiState
 @Composable
 fun ReportIncidentScreen(
     state: ReportIncidentUiState,
-    hasLocationPermission: Boolean,
-    onRequestLocationPermission: () -> Unit,
+    onLocationSelected: (GeoLocation) -> Unit,
     onCategorySelected: (String) -> Unit,
     onSituationSelected: (Situation) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -74,14 +73,10 @@ fun ReportIncidentScreen(
 
     val mediaContent: @Composable (Modifier) -> Unit = { mediaModifier ->
         Column(modifier = mediaModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            ReportLocation(state = state, onLocationSelected = onLocationSelected)
             SectionTitle(R.string.report_photo)
             PhotoPicker(photoPath = state.photoPath, onPhotoChange = onPhotoChange)
             ErrorText(state.photoError)
-            ReportLocation(
-                state = state,
-                hasLocationPermission = hasLocationPermission,
-                onRequestLocationPermission = onRequestLocationPermission
-            )
         }
     }
 
@@ -178,35 +173,19 @@ fun ReportIncidentScreen(
 @Composable
 private fun ReportLocation(
     state: ReportIncidentUiState,
-    hasLocationPermission: Boolean,
-    onRequestLocationPermission: () -> Unit
+    onLocationSelected: (GeoLocation) -> Unit
 ) {
     SectionTitle(R.string.detail_location_title)
-    val location = state.location
-    when {
-        !hasLocationPermission -> {
-            Text(stringResource(R.string.location_permission_needed), style = MaterialTheme.typography.bodyMedium)
-            OutlinedButton(onClick = onRequestLocationPermission) {
-                Text(stringResource(R.string.location_permission_allow))
-            }
-        }
-        location != null -> {
-            IncidentMap(
-                location = location,
-                exact = true,
-                contentDescription = stringResource(R.string.map_incident_description),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            )
-            Text(location.toDisplayText(), style = MaterialTheme.typography.bodyMedium)
-        }
-        state.photoPath != null -> Text(
-            stringResource(R.string.location_waiting),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        else -> Text(stringResource(R.string.report_location_hint), style = MaterialTheme.typography.bodyMedium)
+    Text(stringResource(R.string.report_location_hint), style = MaterialTheme.typography.bodyMedium)
+    MapLocationPicker(
+        selected = state.location,
+        initialCenter = CITY_CENTER,
+        contentDescription = stringResource(R.string.map_picker_description),
+        onLocationSelected = onLocationSelected,
+        modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp))
+    )
+    state.location?.let {
+        Text(it.toDisplayText(), style = MaterialTheme.typography.bodyMedium)
     }
     ErrorText(state.locationError)
 }
@@ -307,8 +286,7 @@ private fun ReportIncidentScreenPreview() {
                 photoError = R.string.error_photo_required,
                 location = GeoLocation(40.2086, -8.4207)
             ),
-            hasLocationPermission = true,
-            onRequestLocationPermission = {},
+            onLocationSelected = {},
             onCategorySelected = {},
             onSituationSelected = {},
             onDescriptionChange = {},

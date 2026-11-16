@@ -2,6 +2,8 @@ package pt.isec.amov.cityfix.ui.components
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -19,9 +21,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -35,7 +40,7 @@ import pt.isec.amov.cityfix.ui.theme.CityFixPetrol
 fun MainTopAppBar(
     @StringRes titleRes: Int,
     canNavigateBack: Boolean,
-    isDashboard: Boolean,
+    showExpandCards: Boolean,
     areAllCardsExpanded: Boolean,
     showMap: Boolean,
     showCategories: Boolean,
@@ -75,7 +80,7 @@ fun MainTopAppBar(
             }
         },
         actions = {
-            if (isDashboard) {
+            if (showExpandCards) {
                 IconButton(onClick = onToggleAllCards) {
                     Icon(
                         imageVector = if (areAllCardsExpanded) Icons.Default.ViewAgenda else Icons.AutoMirrored.Filled.List,
@@ -108,8 +113,21 @@ fun MainTopAppBar(
                 }
             }
             if (showLogin) {
-                IconButton(onClick = onLoginClick) {
-                    Icon(Icons.AutoMirrored.Filled.Login, contentDescription = stringResource(R.string.login_title))
+                TextButton(
+                    onClick = onLoginClick,
+                    modifier = Modifier.padding(end = 8.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color.White.copy(alpha = 0.14f),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.login_action))
+                    }
                 }
             }
             if (showProfile) {

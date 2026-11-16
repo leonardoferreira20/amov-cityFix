@@ -97,7 +97,13 @@
     <string name="detail_history_entry">%1$s: %2$s → %3$s</string>
 
     <string name="recent_incidents_title">Ocorrências mais recentes</string>
-    <string name="incidents_by_category">Ocorrências por categoria</string>
+    <string name="dashboard_municipal_summary">Resumo do município</string>
+    <string name="dashboard_statistics">Estatísticas</string>
+    <string name="dashboard_visible_stats">Ocorrências desta lista</string>
+    <string name="dashboard_view_incidents">Ir para as ocorrências</string>
+    <string name="chart_by_status">Por estado</string>
+    <string name="chart_by_category">Por categoria</string>
+    <string name="chart_no_data">O gráfico mostra dados quando há ocorrências nesta lista.</string>
     <string name="no_incidents">Não há ocorrências registadas.</string>
     <string name="incident_status">Estado: %1$s</string>
 
@@ -135,12 +141,14 @@
 
     <string name="profile_title">Perfil</string>
     <string name="profile_save">Guardar alterações</string>
+    <string name="profile_edit_details">Editar perfil</string>
+    <string name="profile_account_details">Dados da conta</string>
+    <string name="profile_remove_photo">Remover foto</string>
+    <string name="profile_saving">A guardar…</string>
     <string name="profile_photo_description">Fotografia de perfil</string>
     <string name="error_location_required">A localização é obrigatória.</string>
-    <string name="location_permission_needed">Permita o acesso à localização para indicar onde está a ocorrência.</string>
     <string name="location_permission_allow">Permitir localização</string>
-    <string name="location_waiting">A obter a sua localização…</string>
-    <string name="report_location_hint">A localização é registada quando junta a fotografia.</string>
+    <string name="report_location_hint">Toque no mapa para marcar o local da ocorrência.</string>
     <string name="map_incident_description">Mapa com a localização da ocorrência</string>
     <string name="map_area_description">Mapa da zona da ocorrência</string>
     <string name="map_picker_description">Mapa para escolher a sua localização. Toque para colocar o marcador.</string>
@@ -183,6 +191,7 @@
     <string name="error_profile_missing">Esta conta não tem perfil no CityFix.</string>
     <string name="error_code_invalid">Código inválido. Indique os 6 dígitos da app autenticadora.</string>
     <string name="login_title">Iniciar sessão</string>
+    <string name="login_action">Login</string>
     <string name="login_intro">Inicie sessão com o e-mail e a palavra-passe do CityFix.</string>
     <string name="login_submit">Entrar</string>
     <string name="login_forgot_password">Esqueceu-se da palavra-passe?</string>

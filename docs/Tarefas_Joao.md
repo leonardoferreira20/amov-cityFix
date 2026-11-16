@@ -26,7 +26,7 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - **Feito:** testado no emulador a 11/11 (10,0 dias, 4 ocorrências, 75% ativas com os dados de exemplo).
 
 ### J2 — Lista com cartões expansíveis e filtro por perfil
-- [x] Tocar no `IncidentCard` alterna a sua expansão. Categoria e situação sempre visíveis; estado, descrição e botão «Ver detalhes» dentro do `AnimatedVisibility(isExpanded)`.
+- [x] Tocar no `IncidentCard` alterna a sua expansão. Categoria, situação e estado sempre visíveis e uma seta indica a expansão. A descrição e «Ver detalhes» aparecem ao expandir.
 - [x] Botão na `MainTopAppBar` para expandir ou recolher todos os cartões da lista atual. Os IDs expandidos são guardados com `rememberSaveable`.
 - [x] Realce visual do ícone quando todos os cartões estão expandidos e descrições de acessibilidade distintas em EN/PT para as ações do cartão e da barra.
 - [x] Filtrar a lista com `canViewIncident` no `IncidentsViewModel`:
@@ -35,14 +35,14 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
   - operador: todas.
 - [x] Filtro "As minhas" para o munícipe: chips "Todas" / "As minhas" (`IncidentFilter`), estado `onlyMine` no `IncidentsViewModel`.
 - [x] O botão «Ver detalhes» navega para `IncidentDetailRoute(incidentId)`.
-- [x] Thumbnail da primeira foto no cartão (`IncidentPhoto`, 56 dp); sem foto, mostra um ícone.
+- [x] Thumbnail da primeira foto no cartão (`IncidentPhoto`, 56 dp). Mostra um ícone quando a imagem está indisponível.
 - **Feito quando:** cada perfil do seletor de sessão vê a lista certa. Já verificado no emulador: 2 ocorrências para o anónimo, 3 para o munícipe e 4 para o operador.
 
-### Gráfico por categoria (extra)
-- [x] Segunda página do `Dashboard` com o número de ocorrências por categoria (`IncidentChart`).
+### Gráficos por estado e categoria (extra)
+- [x] Dois gráficos na secção «Estatísticas» do início com o número de ocorrências visíveis por estado e categoria (`IncidentCharts`). O filtro «As minhas» também se aplica aos gráficos.
 
 ### J3 — Botão "Nova ocorrência"
-- [x] Botão flutuante +, visível só para o munícipe (`canCreateIncident`).
+- [x] Botão flutuante com ícone + e texto «Nova ocorrência», visível só para o munícipe (`canCreateIncident`).
 - [x] Navega para `ReportIncidentRoute`.
 - **Feito:** o botão aparece com o perfil Munícipe e não aparece com os outros dois.
 
@@ -67,7 +67,7 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - [x] Foto obrigatória, da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), como no Contacts das aulas.
 - [x] Base de multimédia feita aqui: `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, Coil 3 e `IncidentPhoto`.
 - **Feito:** testado no emulador a 11/11 com uma foto da câmara; a ocorrência nova aparece na lista com thumbnail e o dashboard passa a 5 ocorrências e 80% ativas.
-- [x] Localização por GPS quando se junta a foto (decisão 12, aula #4, 16/11), com mapa e coordenadas no formulário; obrigatória para gravar.
+- [x] Ponto obrigatório no mapa, escolhido pelo munícipe. O formulário mostra as coordenadas e mantém a escolha quando se junta ou troca a foto (decisão 12, revista a 16/11).
 - [x] A foto de uma ocorrência abandonada é apagada (`onCleared`) e um erro de gravação aparece no formulário.
 - [x] Landscape: foto e localização à esquerda, formulário à direita.
 - 📝 **Por definir:** vídeo (ponto A por confirmar).

@@ -8,11 +8,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -43,32 +49,18 @@ fun IncidentsMapScreen(
         Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant))
         return
     }
-    val cameraState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(CITY_CENTER.latitude, CITY_CENTER.longitude), CITY_ZOOM)
+    val cityCamera = remember {
+        CameraPosition.fromLatLngZoom(LatLng(CITY_CENTER.latitude, CITY_CENTER.longitude), CITY_ZOOM)
     }
-
-    LaunchedEffect(incidents, exact) {
-        if (!exact) return@LaunchedEffect
-        when (incidents.size) {
-            0 -> Unit
-            1 -> {
-                val location = incidents.first().location
-                cameraState.animate(
-                    CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), SINGLE_ZOOM)
-                )
-            }
-            else -> {
-                val bounds = LatLngBounds.builder().apply {
-                    incidents.forEach { include(LatLng(it.location.latitude, it.location.longitude)) }
-                }.build()
-                cameraState.animate(CameraUpdateFactory.newLatLngBounds(bounds, BOUNDS_PADDING))
-            }
-        }
+    val cameraState = rememberCameraPositionState { position = cityCamera }
+    val pinPositions = remember(incidents) {
+        incidents.map { LatLng(it.location.latitude, it.location.longitude) }.toSet()
     }
+    var mapSize by remember { mutableStateOf(IntSize.Zero) }
 
     Box(modifier = modifier.fillMaxSize()) {
         GoogleMap(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().onSizeChanged { mapSize = it },
             cameraPositionState = cameraState,
             contentDescription = stringResource(R.string.map_all_description),
             uiSettings = MapUiSettings(
@@ -80,8 +72,27 @@ fun IncidentsMapScreen(
                 mapToolbarEnabled = false
             )
         ) {
+            LaunchedEffect(exact, pinPositions, mapSize) {
+                when {
+                    !exact || pinPositions.isEmpty() -> cameraState.position = cityCamera
+                    pinPositions.size == 1 -> {
+                        cameraState.position = CameraPosition.fromLatLngZoom(pinPositions.first(), SINGLE_ZOOM)
+                    }
+                    mapSize.width > 0 && mapSize.height > 0 -> {
+                        val bounds = LatLngBounds.builder().apply {
+                            pinPositions.forEach { include(it) }
+                        }.build()
+                        val padding = minOf(BOUNDS_PADDING, minOf(mapSize.width, mapSize.height) / 4)
+                        cameraState.move(
+                            CameraUpdateFactory.newLatLngBounds(bounds, mapSize.width, mapSize.height, padding)
+                        )
+                    }
+                }
+            }
             incidents.forEach { incident ->
-                IncidentMarker(incident = incident, onOpenIncident = onOpenIncident)
+                key(incident.id) {
+                    IncidentMarker(incident = incident, onOpenIncident = onOpenIncident)
+                }
             }
         }
 

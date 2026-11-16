@@ -19,6 +19,7 @@ import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.utils.FileUtils
+import pt.isec.amov.cityfix.utils.canCreateIncident
 
 class ReportIncidentViewModel(
     private val incidentRepository: IncidentRepository,
@@ -28,8 +29,6 @@ class ReportIncidentViewModel(
     private val _reportState = MutableStateFlow(ReportIncidentUiState())
     val reportState: StateFlow<ReportIncidentUiState> = _reportState.asStateFlow()
 
-    private var deviceLocation: GeoLocation? = null
-
     init {
         viewModelScope.launch {
             val categories = categoryRepository.loadCategories().getActiveSorted()
@@ -37,11 +36,8 @@ class ReportIncidentViewModel(
         }
     }
 
-    fun onDeviceLocationChanged(location: GeoLocation?) {
-        deviceLocation = location
-        if (location != null && _reportState.value.photoPath != null && _reportState.value.location == null) {
-            _reportState.update { it.copy(location = location, locationError = null) }
-        }
+    fun onLocationSelected(location: GeoLocation) {
+        _reportState.update { it.copy(location = location, locationError = null) }
     }
 
     fun onCategorySelected(categoryId: String) {
@@ -68,14 +64,12 @@ class ReportIncidentViewModel(
     fun onPhotoChanged(path: String?) {
         val previousPath = _reportState.value.photoPath
         if (previousPath != null && previousPath != path) FileUtils.deleteFromPath(previousPath)
-        _reportState.update {
-            it.copy(photoPath = path, photoError = null, location = deviceLocation, locationError = null)
-        }
+        _reportState.update { it.copy(photoPath = path, photoError = null) }
     }
 
     fun saveIncident(onSuccess: () -> Unit) {
         val current = _reportState.value
-        val author = currentUser ?: return
+        val author = currentUser?.takeIf(::canCreateIncident) ?: return
         val category = current.categories.find { it.id == current.categoryId }
         val situation = current.situation
         val photoPath = current.photoPath
@@ -90,7 +84,7 @@ class ReportIncidentViewModel(
                     situationError = if (situation == null) R.string.error_situation_required else null,
                     descriptionError = if (it.description.isBlank()) R.string.error_description_required else null,
                     photoError = if (photoPath == null) R.string.error_photo_required else null,
-                    locationError = if (photoPath != null && location == null) R.string.error_location_required else null
+                    locationError = if (location == null) R.string.error_location_required else null
                 )
             }
             return

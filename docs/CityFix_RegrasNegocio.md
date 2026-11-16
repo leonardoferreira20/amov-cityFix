@@ -23,7 +23,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-05 | As coordenadas exatas e o histórico de estados aparecem ao operador e ao autor. | ✅ | `AccessRules.canSeeExactLocation`, `canSeeHistory` | D (11/11) |
 | RN-06 | Os dados do autor (nome, e-mail, telefone) aparecem só ao operador. | ✅ | `AccessRules.canSeeAuthorData` | I.3.E |
 | RN-07 | Uma ocorrência que o perfil não pode ver aparece como "não encontrada". | ✅ | `IncidentDetailViewModel.refresh` | RN-01 a RN-03 |
-| RN-08 | Só o munícipe cria ocorrências. | ✅ | `AccessRules.canCreateIncident` (botão +) | I.2.E |
+| RN-08 | Só o munícipe autenticado com conta ativa pode abrir a criação e escolher o ponto da ocorrência para a registar. | ✅ | `AccessRules.canCreateIncident`, `MainScreen`, `ReportIncidentViewModel.saveIncident` | I.2.A, I.2.E |
 | RN-09 | Só o operador gere categorias e valida munícipes. | ✅ | `AccessRules.canManageCategories`, `canValidateCitizens` (botões da barra de topo) | I.3.D, I.3.E |
 | RN-10 | O botão de registo aparece só a quem não tem sessão. | ✅ | `MainActivity` (`showRegister`) | I.2.A, I.3.A |
 | RN-11 | As ações de gestão do ciclo de vida destinam-se ao operador. As mudanças na resposta a um pedido e na reabertura seguem RN-57 e RN-60. | ✅ | `AccessRules.canChangeStatus`, `canStartWork`, `canResolve`; `LifecycleActions` | I.3.E, II.2, II.4 |
@@ -43,9 +43,9 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-24 | O munícipe registado fica pendente; o operador fica logo ativo. | ✅ | `RegisterViewModel.register` | I.2.A, I.3.A |
 | RN-25 | A opção de deteção de impactos só existe para o munícipe. | ✅ | `RegisterScreen`, `ProfileScreen` (`ImpactDetectionSwitch`) | I.2.A |
 | RN-26 | O operador ativa um munícipe pendente, vendo o nome, a georreferenciação e o NIF. | ✅ | `CitizenValidationViewModel.activateCitizen` | I.3.D |
-| RN-27 | No perfil não se alteram o nome, o e-mail nem o NIF; o munícipe também não altera a georreferenciação. Aparecem como campos desativados. | ✅ | `ProfileScreen`, `ProfileViewModel.saveProfile` | I.2.C, I.3.C, D11 (12/11) |
+| RN-27 | No perfil, o nome, o e-mail e o NIF são de leitura. A georreferenciação do munícipe também é de leitura. Estes valores aparecem em «Dados da conta». | ✅ | `ProfileScreen`, `ProfileViewModel.saveProfile` | I.2.C, I.3.C, D11 (12/11 e 16/11) |
 | RN-28 | A foto do registo é opcional; vem da galeria ou da câmara e fica no `picturePath` do utilizador. Se o registo for abandonado, a foto escolhida é apagada. | ✅ | `UserPhotoField` (`UserAvatar`, `PhotoSourceButtons`), `RegisterViewModel.onPictureChanged`, `RegisterViewModel.onCleared` | I.2.A, I.3.A, D (11/11) |
-| RN-29 | No perfil alteram-se a foto, o telefone (validado como no registo) e, no munícipe, a deteção de impactos. Uma foto nova só substitui a anterior ao gravar: a anterior é apagada nesse momento, e a nova é apagada se se sair sem gravar. | ✅ | `ProfileViewModel` (`onPhoneChanged`, `onPictureChanged`, `saveProfile`, `onCleared`), `Validators.phoneError` | I.2.C, I.3.C, D11 (12/11) |
+| RN-29 | No perfil altera-se o telefone (validado como no registo), pode trocar-se ou remover-se a foto e, no munícipe, pode mudar-se a deteção de impactos. A foto anterior é apagada ao gravar a alteração. Uma foto nova é apagada se se sair sem gravar. | ✅ | `ProfileViewModel` (`onPhoneChanged`, `onPictureChanged`, `saveProfile`, `onCleared`), `Validators.phoneError` | I.2.C, I.3.C, D11 (12/11) |
 
 ## 3. Categorias
 
@@ -65,7 +65,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-42 | Uma ocorrência nova começa em Aberto. | ✅ | `Incident.status` (valor por omissão) | II.1 |
 | RN-43 | A foto da criação vem da galeria ou da câmara e é guardada com o propósito `REPORT`. | ✅ | `PhotoPicker`, `ReportIncidentViewModel` | I.2.E, D13 |
 | ~~RN-44~~ | ~~Provisório: a localização é a georreferenciação do autor ou, se não existir, o centro do município.~~ Substituída pela RN-45 a 16/11. | — | — | D (11/11) |
-| RN-45 | A localização é obtida por GPS quando se junta a foto (ou na primeira posição que chegar depois). Substitui a RN-44. | ✅ | `ReportIncidentViewModel.onPhotoChanged`, `onDeviceLocationChanged`; `LocationUtils` | D12 |
+| RN-45 | O munícipe tem de marcar o local da ocorrência com um toque no mapa. Juntar ou trocar a foto mantém o ponto escolhido. | ✅ | `ReportIncidentScreen`, `MapLocationPicker`, `ReportIncidentViewModel.onLocationSelected` | D12 (revista a 16/11) |
 | RN-46 | Um vídeo pode acompanhar ou substituir a foto. | ❓ | J5 | D13, ponto A |
 | RN-47 | Uma ocorrência nova a menos de 10 m de uma principal não encerrada da mesma categoria liga-se a ela; a primeira é a principal; as encerradas não contam. O detalhe mostra quantas participações tem o grupo. | ✅ ❓ | `IncidentsList.findGroupPrimary`, `groupSize` | I.2, D18–D22, ponto B (assumido) |
 
@@ -103,8 +103,8 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-71 | O tempo médio de reparação é a média de `closedAt − createdAt` das ocorrências encerradas; sem nenhuma, mostra "—". | ✅ ❓ | `IncidentsList.getDashboardStats`, `DashboardStatsCard` | D15, conflito 15 |
 | RN-72 | O total conta todas as ocorrências. | ✅ | `IncidentsList.getDashboardStats` | I.1.A |
 | RN-73 | A percentagem de ativas é ativas / total × 100 (RN-51). | ✅ | `IncidentsList.getDashboardStats` | I.1.A, D14 |
-| RN-74 | O gráfico por categoria conta as ocorrências que o perfil vê na lista. | ✅ | `Dashboard` (`groupingBy`) | D (11/11) |
-| RN-75 | O munícipe pode limitar a lista e o gráfico às suas ocorrências ("As minhas"). | ✅ | `IncidentsViewModel.setOnlyMine` | I.2.E |
+| RN-74 | A secção «Estatísticas» do início mostra juntos os gráficos por estado e categoria e conta as ocorrências que o perfil vê na lista. | ✅ | `IncidentCharts` (`groupingBy`) | D (11/11 e 16/11) |
+| RN-75 | O munícipe pode limitar a lista e os gráficos às suas ocorrências ("As minhas"). | ✅ | `IncidentsViewModel.setOnlyMine` | I.2.E |
 
 ## 8. Proximidade, sensores e notificações
 
@@ -132,7 +132,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 
 | ID | Regra | Estado | Onde | Origem |
 |---|---|---|---|---|
-| RN-100 | Inicia-se sessão com e-mail e password; a sessão fica guardada no dispositivo. | ✅ | `AuthRepository.signIn`, `SessionViewModel` | I.2.B, I.3.B, IV |
+| RN-100 | Inicia-se sessão com e-mail e password e a sessão fica guardada no dispositivo. Pode terminar-se a sessão no topo do início ou no perfil. | ✅ | `AuthRepository.signIn`, `SessionViewModel`, `MainActivity` | I.2.B, I.3.B, IV, D (16/11) |
 | RN-101 | O registo pede password (pelo menos 6 caracteres) e confirmação, e o e-mail não pode estar registado. | ✅ | `Validators.passwordError`, `RegisterViewModel` | I.2.A, I.3.A |
 | RN-102 | Se o NIF já existir para o perfil, a conta acabada de criar é apagada e o erro aparece no campo. | ✅ | `UserRepository.hasNif`, `RegisterViewModel` | I.2.A, I.3.A |
 | RN-103 | A password recupera-se por e-mail a partir do login. | ✅ | `LoginViewModel.sendPasswordReset` | I.2.B, I.3.B |

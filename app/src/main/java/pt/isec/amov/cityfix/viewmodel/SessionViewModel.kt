@@ -43,6 +43,7 @@ class SessionViewModel(
     private fun loadSession(userId: String) {
         viewModelScope.launch {
             val user = userRepository.loadUser(userId)
+            if (authRepository.currentUserId != userId) return@launch
             if (user == null || user.status != AccountStatus.ACTIVE) {
                 signOut()
             } else {

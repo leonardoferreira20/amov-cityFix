@@ -38,26 +38,29 @@ fun DashboardStatsCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StatItem(
-                value = averageRepairDays?.let { stringResource(R.string.stat_days_value, it) }
-                    ?: stringResource(R.string.stat_no_value),
-                label = stringResource(R.string.stat_average_repair_time),
-                modifier = Modifier.weight(1f)
-            )
-            StatItem(
-                value = stats.totalIncidents.toString(),
-                label = stringResource(R.string.stat_total_incidents),
-                modifier = Modifier.weight(1f)
-            )
-            StatItem(
-                value = stringResource(R.string.stat_percentage_value, stats.activePercentage),
-                label = stringResource(R.string.stat_active_incidents),
-                modifier = Modifier.weight(1f)
-            )
+            Text(stringResource(R.string.dashboard_municipal_summary), style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatItem(
+                    value = stats.totalIncidents.toString(),
+                    label = stringResource(R.string.stat_total_incidents),
+                    modifier = Modifier.weight(1f)
+                )
+                StatItem(
+                    value = stringResource(R.string.stat_percentage_value, stats.activePercentage),
+                    label = stringResource(R.string.stat_active_incidents),
+                    modifier = Modifier.weight(1f)
+                )
+                StatItem(
+                    value = averageRepairDays?.let { stringResource(R.string.stat_days_value, it) }
+                        ?: stringResource(R.string.stat_no_value),
+                    label = stringResource(R.string.stat_average_repair_time),
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

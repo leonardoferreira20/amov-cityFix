@@ -28,9 +28,11 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] Conflito 11 de [CityFix_Decisoes.md](CityFix_Decisoes.md) fechado a 12/11/2026, a favor do enunciado: o nome não se altera e não há morada (o `address` saiu do `User`).
 - [x] Ecrã de edição no estilo do `EditScreen` (`ProfileScreen`, `ProfileUiState`, `ProfileViewModel`), reaproveitando a validação do telefone do L3.
 - [x] Campos bloqueados conforme o enunciado: nome e NIF para os dois perfis; georreferenciação também para o munícipe. O e-mail também fica só de leitura.
+- [x] Separar os dados só de leitura da edição do telefone, foto e deteção de impactos. Permitir remover a foto no formulário e gravar a alteração.
 - [x] Deteção de Impactos editável no perfil do munícipe.
 - [x] Foto de perfil (L8), com o mesmo avatar e os mesmos botões do registo (`UserPhotoField`).
 - [x] Botão de conta na barra de topo, só para o munícipe e o operador (`canEditProfile`).
+- [x] Botão «Terminar sessão» no topo do início para ambos os perfis autenticados e também no perfil.
 - **Feito quando:** os campos bloqueados não se editam e as alterações ficam gravadas. Verificado no emulador a 12/11/2026.
 
 ### L5 — Validação de munícipes

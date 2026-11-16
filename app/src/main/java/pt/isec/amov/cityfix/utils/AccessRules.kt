@@ -1,5 +1,6 @@
 package pt.isec.amov.cityfix.utils
 
+import pt.isec.amov.cityfix.data.model.AccountStatus
 import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.IncidentStatus
@@ -41,7 +42,8 @@ fun canSeeExactLocation(user: User?, incident: Incident): Boolean =
 fun canSeeHistory(user: User?, incident: Incident): Boolean =
     isOperator(user) || isAuthor(user, incident)
 
-fun canCreateIncident(user: User?): Boolean = isCitizen(user)
+fun canCreateIncident(user: User?): Boolean =
+    user?.role == UserRole.CITIZEN && user.status == AccountStatus.ACTIVE
 
 fun canChangeStatus(user: User?): Boolean = isOperator(user)
 

@@ -186,13 +186,19 @@ class MainActivity : ComponentActivity() {
                 var expandedIncidentIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
                 val areAllIncidentsExpanded = incidents.isNotEmpty() &&
                         incidents.all { it.id in expandedIncidentIds }
+                val signOut: () -> Unit = {
+                    expandedIncidentIds = emptyList()
+                    incidentsViewModel.setCurrentUser(null)
+                    sessionViewModel.signOut()
+                    navController.popBackStack(DashboardRoute, inclusive = false)
+                }
 
                 Scaffold(
                     topBar = {
                         MainTopAppBar(
                             titleRes = screenTitle(navBackStackEntry),
                             canNavigateBack = navBackStackEntry != null && !isDashboard,
-                            isDashboard = isDashboard,
+                            showExpandCards = isDashboard && access == AnonymousAccess.ALLOWED && incidents.isNotEmpty(),
                             areAllCardsExpanded = areAllIncidentsExpanded,
                             showMap = isDashboard && access == AnonymousAccess.ALLOWED,
                             showCategories = isDashboard && canManageCategories(currentUser),
@@ -228,6 +234,7 @@ class MainActivity : ComponentActivity() {
                                 currentUser = currentUser,
                                 incidents = incidents,
                                 onLoginClick = { navController.navigate(LoginRoute) },
+                                onSignOut = signOut,
                                 anonymousAccess = access,
                                 onRequestLocationPermission = requestLocationPermission,
                                 expandedIncidentIds = expandedIncidentIds,
@@ -250,6 +257,7 @@ class MainActivity : ComponentActivity() {
                             )
                             val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
                             val onSignedIn: (User) -> Unit = { user ->
+                                incidentsViewModel.setCurrentUser(user)
                                 sessionViewModel.onSignedIn(user)
                                 navController.popBackStack(DashboardRoute, inclusive = false)
                             }
@@ -270,7 +278,7 @@ class MainActivity : ComponentActivity() {
                         composable<IncidentsMapRoute> {
                             IncidentsMapScreen(
                                 incidents = incidents,
-                                exact = incidents.all { canSeeExactLocation(currentUser, it) },
+                                exact = incidents.isNotEmpty() && incidents.all { canSeeExactLocation(currentUser, it) },
                                 onOpenIncident = { id -> navController.navigate(IncidentDetailRoute(id)) }
                             )
                         }
@@ -285,13 +293,9 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                             val reportState by reportViewModel.reportState.collectAsStateWithLifecycle()
-                            LaunchedEffect(deviceLocation) {
-                                reportViewModel.onDeviceLocationChanged(deviceLocation)
-                            }
                             ReportIncidentScreen(
                                 state = reportState,
-                                hasLocationPermission = hasLocationPermission,
-                                onRequestLocationPermission = requestLocationPermission,
+                                onLocationSelected = reportViewModel::onLocationSelected,
                                 onCategorySelected = reportViewModel::onCategorySelected,
                                 onSituationSelected = reportViewModel::onSituationSelected,
                                 onDescriptionChange = reportViewModel::onDescriptionChanged,
@@ -438,10 +442,7 @@ class MainActivity : ComponentActivity() {
                                 onTotpCodeChange = profileViewModel::onTotpCodeChanged,
                                 onConfirmSecondFactor = profileViewModel::confirmSecondFactorEnrollment,
                                 onCancelSecondFactor = profileViewModel::cancelSecondFactorEnrollment,
-                                onSignOut = {
-                                    sessionViewModel.signOut()
-                                    navController.popBackStack(DashboardRoute, inclusive = false)
-                                }
+                                onSignOut = signOut
                             )
                         }
                     }
@@ -527,7 +528,7 @@ fun PreviewMainScreen() {
             expandedIncidentIds = listOf("1"),
             onToggleIncident = {},
             onOpenIncident = {},
-            showCreateIncident = true,
+            showCreateIncident = false,
             onCreateIncident = {}
         )
     }

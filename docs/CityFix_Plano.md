@@ -24,9 +24,9 @@ As regras de negócio, com o estado e o sítio no código, estão em [CityFix_Re
 
 | Ecrã | Anónimo | Munícipe | Operador | Dono |
 |---|---|---|---|---|
-| Início (dashboard + lista) | 3 números, lista pública, botão de registo na barra de topo | + botão "Nova ocorrência", filtro "As minhas", botão de perfil na barra de topo | todas as ocorrências, botões de Categorias, Validação e Perfil na barra de topo | João |
+| Início (dashboard + lista) | 3 números, gráficos da lista pública por estado e categoria, botão «Login» na barra de topo | + botão «Nova ocorrência», filtro «As minhas» para lista e gráficos, perfil e «Terminar sessão» | todas as ocorrências, botões de Categorias, Validação, Perfil e «Terminar sessão» | João |
 | Detalhe da ocorrência | sem dados do autor, mapa com zoom afastado | se for o autor: mensagens e reabrir | coordenadas, contactos, histórico, ações de estado | João (ecrã) + Leonardo (`LifecycleActions`) |
-| Criar ocorrência | — | ✓ | — | João |
+| Criar ocorrência | — | conta ativa, ponto obrigatório no mapa | — | João |
 | Registo | — | NIF, georreferenciação, deteção de impactos; fica pendente | e-mail da autarquia; fica ativo | Leonardo |
 | Perfil | — | altera foto, telefone e deteção de impactos; nome, e-mail, NIF e georreferenciação bloqueados | altera foto e telefone; nome, e-mail e NIF bloqueados | Leonardo |
 | Login / MFA / recuperação | — | ✓ | ✓ | Leonardo |
@@ -61,7 +61,7 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3, e 
 | J2 | Lista com expansão individual e global, botão de detalhe e filtro por perfil | João | ✅ |
 | J3 | Botão "Nova ocorrência" | João | ✅ |
 | J4 | Detalhe: estrutura, parte pública, parte do autor, mapa | João | ✅ |
-| J5 | Criar ocorrência, com localização por GPS | João | ✅ (vídeo: 🔒) |
+| J5 | Criar ocorrência, com seleção obrigatória do ponto no mapa | João | ✅ (vídeo: 🔒) |
 | J6 | Agrupamento a 10 m | João | ✅ |
 | J7 | Pedidos de informação e mensagens | João | ✅ |
 | J8 | Reabertura | João | ✅ |

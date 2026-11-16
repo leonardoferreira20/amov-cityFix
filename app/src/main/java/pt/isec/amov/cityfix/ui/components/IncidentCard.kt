@@ -8,15 +8,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.Incident
@@ -36,34 +42,39 @@ fun IncidentCard(
                 onClickLabel = stringResource(
                     if (isExpanded) R.string.incident_collapse else R.string.incident_expand
                 ),
+                role = Role.Button,
                 onClick = onToggleExpanded
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IncidentPhoto(
                 path = incident.firstPhotoPath(),
                 contentDescription = stringResource(R.string.incident_photo_description),
                 modifier = Modifier.size(56.dp)
             )
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = incident.categoryName, style = MaterialTheme.typography.titleMedium)
                 Text(
                     text = stringResource(incident.situation.labelRes()),
                     style = MaterialTheme.typography.bodyMedium
                 )
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Text(
+                        text = stringResource(incident.status.labelRes()),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
                 AnimatedVisibility(visible = isExpanded) {
                     Column(modifier = Modifier.padding(top = 8.dp)) {
-                        Text(
-                            text = stringResource(
-                                R.string.incident_status,
-                                stringResource(incident.status.labelRes())
-                            ),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
                         Text(text = incident.description, style = MaterialTheme.typography.bodyMedium)
                         TextButton(onClick = onOpenDetails, modifier = Modifier.align(Alignment.End)) {
                             Text(stringResource(R.string.incident_open))
@@ -71,6 +82,10 @@ fun IncidentCard(
                     }
                 }
             }
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null
+            )
         }
     }
 }

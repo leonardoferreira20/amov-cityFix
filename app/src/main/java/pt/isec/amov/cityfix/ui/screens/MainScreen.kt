@@ -1,21 +1,17 @@
 package pt.isec.amov.cityfix.ui.screens
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -26,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,8 +32,6 @@ import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.Dashboard
-import pt.isec.amov.cityfix.ui.components.DashboardStatsCard
-import pt.isec.amov.cityfix.ui.components.IncidentFilter
 import pt.isec.amov.cityfix.utils.AnonymousAccess
 import pt.isec.amov.cityfix.utils.canCreateIncident
 import pt.isec.amov.cityfix.viewmodel.IncidentsViewModel
@@ -49,6 +42,7 @@ fun MainScreen(
     currentUser: User?,
     incidents: List<Incident>,
     onLoginClick: () -> Unit,
+    onSignOut: () -> Unit,
     anonymousAccess: AnonymousAccess,
     onRequestLocationPermission: () -> Unit,
     expandedIncidentIds: List<String>,
@@ -76,7 +70,8 @@ fun MainScreen(
         onToggleIncident = onToggleIncident,
         onOpenIncident = onOpenIncident,
         showCreateIncident = canCreateIncident(currentUser),
-        onCreateIncident = onCreateIncident
+        onCreateIncident = onCreateIncident,
+        onSignOut = if (currentUser != null) onSignOut else null
     )
 }
 
@@ -94,80 +89,40 @@ fun MainScreenContent(
     onToggleIncident: (String) -> Unit,
     onOpenIncident: (String) -> Unit,
     showCreateIncident: Boolean,
-    onCreateIncident: () -> Unit
+    onCreateIncident: () -> Unit,
+    onSignOut: (() -> Unit)? = null
 ) {
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val isAllowed = anonymousAccess == AnonymousAccess.ALLOWED
-
-    val headerContent: @Composable (Modifier) -> Unit = { headerModifier ->
-        Column(modifier = headerModifier) {
-            if (currentRole == UserRole.CITIZEN) {
-                IncidentFilter(onlyMine = onlyMine, onOnlyMineChange = onOnlyMineChange)
-            }
-            if (isAllowed) {
-                DashboardStatsCard(
-                    stats = stats,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    Scaffold(
+        floatingActionButton = {
+            if (showCreateIncident) {
+                ExtendedFloatingActionButton(
+                    onClick = onCreateIncident,
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text(stringResource(R.string.report_title)) }
                 )
             }
         }
-    }
-
-    val bodyContent: @Composable (Modifier) -> Unit = { bodyModifier ->
-        if (isAllowed) {
+    ) { innerPadding ->
+        if (anonymousAccess == AnonymousAccess.ALLOWED) {
             Dashboard(
+                stats = stats,
                 incidents = incidents,
+                showOwnershipFilter = currentRole == UserRole.CITIZEN,
+                onlyMine = onlyMine,
+                onOnlyMineChange = onOnlyMineChange,
                 expandedIncidentIds = expandedIncidentIds,
                 onToggleIncident = onToggleIncident,
                 onOpenIncident = onOpenIncident,
-                modifier = bodyModifier
+                onSignOut = onSignOut,
+                modifier = Modifier.padding(innerPadding)
             )
         } else {
             AnonymousRestriction(
                 access = anonymousAccess,
                 onRequestLocationPermission = onRequestLocationPermission,
                 onLoginClick = onLoginClick,
-                modifier = bodyModifier
+                modifier = Modifier.padding(innerPadding)
             )
-        }
-    }
-
-    Scaffold(
-        floatingActionButton = {
-            if (showCreateIncident) {
-                FloatingActionButton(onClick = onCreateIncident) {
-                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.report_title))
-                }
-            }
-        }
-    ) { innerPadding ->
-        if (isLandscape) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                headerContent(
-                    Modifier
-                        .weight(2f)
-                        .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
-                )
-                bodyContent(
-                    Modifier
-                        .weight(3f)
-                        .fillMaxHeight()
-                )
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                headerContent(Modifier.fillMaxWidth())
-                bodyContent(Modifier.weight(1f))
-            }
         }
     }
 }
@@ -182,7 +137,8 @@ private fun AnonymousRestriction(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(32.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
