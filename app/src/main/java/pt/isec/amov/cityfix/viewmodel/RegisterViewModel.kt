@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.data.model.AccountStatus
+import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.utils.FileUtils
@@ -50,6 +51,10 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
         _registerState.update { it.copy(impactDetectionEnabled = enabled) }
     }
 
+    fun onLocationSelected(location: GeoLocation) {
+        _registerState.update { it.copy(location = location, locationError = null) }
+    }
+
     fun onPictureChanged(newPath: String?) {
         val oldPath = _registerState.value.picturePath
         if (oldPath != null && oldPath != newPath) FileUtils.deleteFromPath(oldPath)
@@ -67,7 +72,8 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
                 nameError = Validators.nameError(it.name),
                 emailError = Validators.emailError(it.email, it.role),
                 phoneError = Validators.phoneError(it.phone),
-                nifError = Validators.nifError(it.nif)
+                nifError = Validators.nifError(it.nif),
+                locationError = if (it.role == UserRole.CITIZEN && it.location == null) R.string.error_location_required else null
             )
         }
         val current = _registerState.value
@@ -94,6 +100,7 @@ class RegisterViewModel(private val repository: UserRepository) : ViewModel() {
                     status = status,
                     createdAt = System.currentTimeMillis(),
                     picturePath = current.picturePath,
+                    location = if (current.role == UserRole.CITIZEN) current.location else null,
                     impactDetectionEnabled = current.impactDetectionEnabled
                 )
             )

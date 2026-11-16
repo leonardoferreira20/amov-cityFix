@@ -32,7 +32,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - O botão "Nova ocorrência" é um botão flutuante (+) no início, só para o munícipe, como o + das categorias.
   - No formulário, a categoria e a situação escolhem-se em listas dropdown, para ocupar menos espaço; a visibilidade fica com `RadioButton`.
   - A base de multimédia (`FileUtils`, `FileProvider`, Coil 3 das aulas e o componente `IncidentPhoto`) foi feita pelo João com a J5; o Leonardo reaproveita-a na L4, na L7 e na L8.
-  - Até haver GPS (aula #4), a localização de uma ocorrência nova é a georreferenciação do registo do autor; se não existir, é o centro do município (`CITY_CENTER`).
+  - A localização de uma ocorrência nova vem do GPS no momento em que se junta a foto (decisão 12, implementada a 16/11). Sem localização não se grava.
   - Coordenadas provisórias do centro do município, a Praça da República (3): 40.2085, -8.4196.
 - Reabertura (decidido a 11/11/2026):
   - O autor reabre no detalhe, com um botão "Reabrir" e o prazo por baixo. A justificação escreve-se num `AlertDialog`.
@@ -40,6 +40,21 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - A justificação fica guardada como nota da mudança de estado (`StatusChange.note`).
   - A reabertura exige também uma foto, da galeria ou da câmara. Junta-se às fotos que a ocorrência já tem, como `MediaAttachment` com o propósito `REOPEN`.
   - O detalhe mostra todas as fotos numa fila com scroll horizontal; a primeira continua a ser o thumbnail da lista.
+
+### Aula #4 e Firebase (decidido a 16/11/2026)
+- Mapas com o Google Maps Compose, como na ficha P10. A chave fica em `MAPS_API_KEY` no `local.properties`, fora do Git, e chega ao manifesto por `manifestPlaceholders`.
+- O detalhe público mostra o mapa com zoom de cidade e o pino, sem coordenadas e sem gestos de zoom ou deslocação, para não se perceber o local exato. O autor e o operador veem o pino com zoom próximo e as coordenadas (17).
+- A georreferenciação do registo do munícipe escolhe-se no mapa (toque) ou com a localização atual; guardam-se só as coordenadas, sem morada; é obrigatória para o munícipe (8). Proposta do assistente, a validar pelos dois.
+- O anónimo fora dos 10 km, sem permissão de localização ou ainda sem posição não vê o dashboard nem a lista. Até haver login (L1), vê uma mensagem e o seletor de perfil (5).
+- O alerta de proximidade do operador (20 m) vale só para ocorrências ativas que ainda não estão Em resolução: Aberto e Pedido de informações (29).
+- O segundo fator do MFA é TOTP, com uma app autenticadora (10). Exige ativar o "Firebase Authentication with Identity Platform" e o TOTP na consola.
+- O projeto Firebase passa para o plano Blaze, porque desde fevereiro de 2026 o Cloud Storage não existe no plano Spark. A quota gratuita mantém-se.
+- Firebase, WorkManager e sensores seguem as fichas das aulas seguintes, que os alunos vão fornecer. A app Contactos das aulas (`Contacts_#3`) só tem matéria até à P10.
+- Mapa com todas as ocorrências para todos os perfis com acesso, com os pinos das ocorrências que cada um vê na lista. Quem não vê a localização exata de todas fica com o mapa afastado e sem gestos.
+- O operador vê no detalhe a distância até à ocorrência e um botão «Navegar» que abre o trajeto no Google Maps.
+- Alerta de proximidade: o serviço em primeiro plano corre com a sessão de operador e grava o alerta na ocorrência; o autor vê-o no detalhe. A notificação no telemóvel do autor entra com o Firebase.
+- A localização em 2.º plano é pedida ao operador (serviço de proximidade) e ao munícipe com a deteção de impactos ativa, com uma explicação antes. As notificações pedem-se ao arrancar, com a localização.
+- Agrupamento (B), assumido a 16/11, a confirmar: só contam as principais não encerradas; se a principal estiver encerrada, uma nova ocorrência no mesmo local passa a ser uma nova principal.
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
@@ -99,19 +114,15 @@ O conflito 11 (nome editável e morada) ficou fechado a 12/11/2026, a favor do e
 
 ### Da análise inicial
 - (7) O mesmo NIF ou e-mail pode existir como munícipe e como operador?
-- (8) A georreferenciação do registo vem do GPS ou é escolhida no mapa? É uma morada ou só coordenadas?
-- (10) Que segundo fator se usa no MFA?
 - (13) O limite de 1 foto e 1 vídeo é definitivo?
-- (17) O que mostra o mapa do detalhe público: um ponto aproximado, uma zona ou só o município?
 - (28) Quem executa o aviso das 24 h antes do encerramento: o dispositivo ou o backend? O encerramento ficou decidido: é feito no dispositivo (11/11/2026).
-- (29) A geofence funciona para ocorrências ativas (secção I do enunciado) ou só em Em Resolução (secção II)?
 - (30) Qualquer operador ativa a geofence, ou só um operador atribuído? Há atribuição de operador a ocorrências?
 - (31) Na Deteção de Impactos, que categoria corresponde a "pavimento" e que limiar de aceleração se usa?
 - (32) As notificações ficam guardadas na app ou são só avisos do sistema?
 
 ### Novas, resultantes das decisões
 - **A.** Um vídeo pode substituir a foto, ou a foto é sempre obrigatória e o vídeo opcional?
-- **B.** Se a ocorrência principal for encerrada e houver ligadas ainda ativas, uma nova ocorrência no mesmo local liga-se a quê? À ligada ativa mais antiga, ou passa a ser uma nova principal?
+- **B.** Se a ocorrência principal for encerrada e houver ligadas ainda ativas, uma nova ocorrência no mesmo local liga-se a quê? Assumido a 16/11 que passa a ser uma nova principal (secção 1); falta confirmar.
 
 ## 4. Modelo de dados
 

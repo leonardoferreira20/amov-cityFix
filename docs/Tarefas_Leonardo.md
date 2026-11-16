@@ -20,7 +20,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] Gravar o utilizador através do repositório.
 - **Feito quando:** os dois perfis registam-se com dados válidos e os erros aparecem campo a campo.
 - 📝 **Anotado (🔒 Firebase):** criação da conta no Firebase Authentication.
-- 📝 **Anotado (#4):** georreferenciação do munícipe (ponto 8 por confirmar).
+- [x] Georreferenciação do munícipe (aula #4, 16/11): `MapLocationPicker` (toque no mapa, como o da P10) ou «Usar a minha localização atual»; obrigatória para o munícipe; fica em `User.location`.
 - [x] Foto opcional no registo (L8): avatar circular (`UserAvatar`) com as iniciais do nome e os botões Galeria / Câmara no topo do formulário; fica em `User.picturePath`.
 - 📝 **Anotado (🔒 Firebase):** password, que entra com a criação da conta (L1).
 
@@ -63,13 +63,13 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 
 | Tarefa | O que é | Aula |
 |---|---|---|
-| L1 | Login com e-mail e password; aviso de conta pendente (decisão 6) | Firebase |
+| L1 | Login com e-mail e password; aviso de conta pendente (decisão 6). Método ativo na consola e SDK configurado no Gradle | Firebase |
 | L2 | MFA e recuperação de password por e-mail (ponto 10 por confirmar) | Firebase |
 | L8 | Multimédia: a base já existe (feita pelo João com a J5: `utils/FileUtils`, `FileProvider`, Coil 3 e os componentes `IncidentPhoto` e `PhotoPicker`; basta pôr o `PhotoPicker` no ecrã e guardar o caminho que ele devolve). Já é usada na foto opcional do registo (L3, com o `UserAvatar`), na foto de perfil (L4) e na prova de resolução (L7); o vídeo está por definir (ponto 13 por confirmar) | #3 |
 | L9 | Compressão, thumbnail e envio com WorkManager só com rede | por definir |
-| L10 | Geofence de 20 m e alerta aos autores (pontos 29 e 30 por confirmar) | por definir |
+| L10 | Falta só notificar o autor no telemóvel dele (Firebase). Já feito a 16/11: `ProximityService` em primeiro plano para o operador, alerta gravado na ocorrência (`ProximityAlert`) para Aberto e Pedido de informações a menos de 20 m, secção no detalhe e pedido da localização em 2.º plano | Firebase |
 | L11 | Notificações (estado, mensagens, proximidade, 24 h antes do fecho) e encerramento aos 5 dias (pontos 28 e 32 por confirmar) | Firebase / por definir |
-| F1 | Layouts adaptativos em landscape nos meus ecrãs | #4 |
+| F1 | Layouts adaptativos em landscape nos meus ecrãs (o registo, o perfil, as categorias e a validação fazem scroll; o padrão da P10 já está no início, no detalhe e na nova ocorrência) | #4 (dada) |
 
 ## Sempre, em todos os meus ecrãs
 
@@ -80,4 +80,4 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 
 ## Pontos por confirmar que são meus
 
-7, 8, 10, 13, 28 (falta só o aviso das 24 h), 29, 30 e 32 — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3. O conflito 11 ficou fechado a 12/11/2026.
+7, 13, 28 (falta só o aviso das 24 h), 30 e 32. O 8, o 10 e o 29 ficaram fechados a 16/11 — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3. O conflito 11 ficou fechado a 12/11/2026.

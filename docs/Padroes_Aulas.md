@@ -1,7 +1,7 @@
 # Padrões dados nas aulas
 
 Resumo do que foi ensinado nas aulas práticas, para o CityFix seguir os mesmos padrões.
-Fonte principal: o projeto ContactsApp (versão de 6/11) e a ficha [AMov.P07.pdf](AMov.P07.pdf). Também o PaintPrototype e a ficha AMov.P01 (introdução ao Kotlin). O código das aulas não está neste repositório.
+Fonte principal: o projeto ContactsApp (versão de 6/11 e `Contacts_#3`, com GPS e mapas) e as fichas AMov.P07 a AMov.P10 ([AMov.P07.pdf](AMov.P07.pdf); as P08, P09 e P10 estão com os alunos). Também o PaintPrototype e a ficha AMov.P01 (introdução ao Kotlin). O código das aulas não está neste repositório.
 
 Se uma solução precisar de algo que não está aqui, avisar antes de o propor.
 
@@ -12,10 +12,15 @@ Se uma solução precisar de algo que não está aqui, avisar antes de o propor.
 | #1 | Modelo de domínio, MVVM com `StateFlow`, navegação type-safe | Dada |
 | #2 | Formulários com `UiState` e validação, `DatePicker`, repositório com JSON | Dada |
 | #3 | Multimédia: Photo Picker, câmara com `FileProvider` e `TakePicture`, imagens com Coil 3 | Dada |
-| #4 | GPS com `FusedLocationProvider`, permissões em runtime, Maps Compose e OSM, layouts adaptativos | Por dar |
+| #4 | GPS com `FusedLocationProvider`, permissões em runtime, Maps Compose e OSM, serviço em primeiro plano com proximidade, layouts adaptativos (ficha P10) | Dada; aplicada a 16/11 |
 | — | Firebase, WorkManager, sensores, geofencing | Ainda sem data |
 
 Também foram dados, em projetos com Views: recursos por língua (`values-pt`), `layout-land`, menus e notificações (`NotificationChannel`, `NotificationCompat`, permissão `POST_NOTIFICATIONS`).
+
+## Configuração do Firebase
+
+- Configuração inicial baseada na [documentação do Firebase para Android](https://firebase.google.com/docs/android/setup). O plugin Google Services gera os recursos da aplicação a partir de `app/google-services.json`. O catálogo do Gradle define a versão do Firebase BoM, que gere a versão do SDK de Authentication.
+- O BoM 34.19.0 é usado para manter a compatibilidade com o Kotlin 2.2.10 do projeto. Para compilar noutra cópia do projeto, descarregar o `google-services.json` da aplicação Android `pt.isec.amov.cityfix` nas definições do projeto `cityfix-3dbb1` e colocá-lo na pasta `app/`.
 
 ## Pacotes
 
@@ -102,11 +107,27 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - O formulário é uma `Column` com `verticalScroll` e `imePadding()`.
 - Datas com `DatePickerDialog` e `rememberDatePickerState`. A visibilidade do diálogo fica num `remember { mutableStateOf(false) }` local.
 
+## Localização e mapas (aula #4, ficha P10)
+
+- Dependências `maps-compose` 6.1.0 e `play-services-location` 21.3.0, no catálogo do Gradle.
+- Manifesto com `ACCESS_FINE_LOCATION` e `ACCESS_COARSE_LOCATION`, e a chave em `<meta-data android:name="com.google.android.geo.API_KEY">`.
+- `utils/LocationUtils` (um `object`): `hasLocationPermission` com `ContextCompat.checkSelfPermission`; `locationUpdates` com `callbackFlow`, `LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalo)`, `lastLocation` e `requestLocationUpdates`, e `removeLocationUpdates` no `awaitClose`; distâncias com `Location.distanceBetween`.
+- A posição do dispositivo chega ao composable com `produceState` (como o `ContactDistanceSection`).
+- Permissões pedidas na `MainActivity` com `rememberLauncherForActivityResult(RequestMultiplePermissions())`, lançado num `LaunchedEffect(Unit)`.
+- Mapa: `GoogleMap` com `rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(...) }` e `Marker(state = remember(pin) { MarkerState(pin) })`.
+- Escolha de um ponto: `MapLocationPicker` com `onMapClick`.
+- Landscape: `LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE`; o conteúdo vai para lambdas `@Composable (Modifier) -> Unit` que se põem numa `Row` com `weight(1f)` em landscape e numa `Column` em portrait.
+- Serviço em primeiro plano `ProximityService` (`foregroundServiceType="location"`, permissões `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_LOCATION` e `POST_NOTIFICATIONS`): canal de notificações, `startForeground`, `LocationCallback` com `requestLocationUpdates`, um `CoroutineScope(Dispatchers.IO + SupervisorJob())` e um conjunto de ids já avisados para não repetir; `removeLocationUpdates` e `cancel` no `onDestroy`. Arrancado na `MainActivity` com `startForegroundService` depois da permissão.
+- Mapa com todos os contactos (`ContactsMapScreen`): câmara ajustada a todos os pinos com `LatLngBounds` e `CameraUpdateFactory.newLatLngBounds`.
+- Distância e navegação (`ContactDistanceSection`): `AssistChip` com a distância e botão que abre o trajeto com um `Intent` `geo:` (com o endereço web do Google Maps como alternativa).
+- Também dados mas não usados: geocoder (`LocationUtils.reverseGeocode`), pinos com avatar (`MapUtils`) e osmdroid.
+
 ## Dependências usadas nas aulas
 
 - `kotlinx-serialization-json` 1.11.0 (repositório em JSON).
 - `coil-compose` e `coil-network-okhttp` 3.0.4 (imagens).
 - `navigation-compose` 2.8.5 e `material-icons-extended`.
+- `maps-compose` 6.1.0 e `play-services-location` 21.3.0 (aula #4).
 
 ## Previews
 
@@ -135,3 +156,15 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - O registo e o perfil partilham os campos do formulário (`FormTextField`, `UserPhotoField` e `ImpactDetectionSwitch`, em `ui/components/UserFormFields.kt`), em vez de cada ecrã ter a sua cópia.
 - A troca de foto no perfil segue o `initialPicturePath` do `EditContactViewModel` das aulas: a foto anterior só é apagada ao gravar. O CityFix acrescenta duas coisas: uma foto escolhida e logo trocada por outra é apagada na troca, e uma foto nova que não chegou a ser gravada é apagada em `onCleared()`.
 - No `EditContactViewModel` das aulas, nada impede um segundo toque no botão de gravar enquanto a gravação decorre. No CityFix isso viu-se no emulador: dois toques seguidos no ✓ das categorias gravavam a categoria duas vezes e faziam voltar dois ecrãs atrás. Por isso, o `EditCategoryViewModel` e o `ProfileViewModel` ignoram os toques seguintes enquanto o `isSaving` está a `true`. Também não o voltam a pôr a `false` depois de gravar, porque o ecrã fecha a seguir: assim, um toque durante a animação de saída não grava outra vez nem faz voltar atrás duas vezes.
+- Nas aulas, a chave do Google Maps está escrita no `AndroidManifest.xml`. No CityFix fica em `MAPS_API_KEY` no `local.properties` (que não vai para o Git, porque o repositório está no GitHub) e chega ao manifesto com `manifestPlaceholders` no `app/build.gradle.kts`. Não foi dado nas aulas.
+- O `LocationUtils` do CityFix emite `GeoLocation` (a classe do modelo) em vez de `android.location.Location`, para o ViewModel não depender de classes do Android. Não tem geocoder, porque só se guardam coordenadas.
+- O mapa do detalhe público desliga os gestos de zoom e deslocação com `MapUiSettings`, que não foi dado nas aulas: sem isso, o zoom afastado não esconderia o local exato.
+- Os mapas mostram uma caixa cinzenta nos previews (`LocalInspectionMode`, não dado nas aulas), porque o `GoogleMap` não desenha no preview do Android Studio.
+- Nas aulas, a câmara com `TakePicture` não pede a permissão `CAMERA`. O enunciado exige pedir a permissão da câmara em runtime, por isso o CityFix declara-a no manifesto e o botão Câmara pede-a com `RequestPermission()` antes de abrir a câmara. Com a permissão declarada, o Android recusa o `TakePicture` sem ela.
+- O `ReportIncidentViewModel` recebe a posição do dispositivo por um evento (`onDeviceLocationChanged`), chamado num `LaunchedEffect` da `MainActivity`; não tem `Context`.
+- As datas formatam-se em `utils/formatDateTime` e não dentro dos composables, porque o lint recusa `Locale.getDefault()` em composables (devia usar o `Locale` da configuração).
+- Ao gravar, os ViewModels copiam a lista (`IncidentsList(repository.loadIncidents().rawList())`) antes de a alterar. Se a gravação falhar (`IOException`), a cache do repositório fica como estava e o ecrã mostra um erro. Nas aulas a lista em cache é alterada diretamente.
+- O `ProximityService` do CityFix usa `ServiceCompat.startForeground(..., FOREGROUND_SERVICE_TYPE_LOCATION)` em vez de `startForeground(id, notificação)`, para indicar o tipo do serviço a partir do Android 10; recebe o id do operador por um extra do `Intent` (`onStartCommand`). Em vez de mostrar uma notificação a cada ocorrência próxima, como o Contactos, grava o alerta na ocorrência, porque quem tem de ser avisado é o autor, noutro telemóvel.
+- O serviço é arrancado e parado num `LaunchedEffect(currentUser?.id, hasLocationPermission)`, para correr só com a sessão de operador. Nas aulas arranca uma vez, no resultado do pedido de permissões.
+- A localização em 2.º plano (`ACCESS_BACKGROUND_LOCATION`) não foi dada nas aulas. O Android obriga a pedi-la depois da de 1.º plano e abre as definições, por isso o CityFix mostra antes um `AlertDialog` a explicar e só a pede ao operador e ao munícipe com a deteção de impactos.
+- O pedido inicial de permissões é lançado se faltar a localização ou as notificações (nas aulas é lançado sempre).

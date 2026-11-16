@@ -1,21 +1,30 @@
 package pt.isec.amov.cityfix
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,13 +41,18 @@ import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.Visibility
+import androidx.core.content.ContextCompat
+import pt.isec.amov.cityfix.services.ProximityService
+import pt.isec.amov.cityfix.ui.components.BackgroundLocationDialog
 import pt.isec.amov.cityfix.ui.components.LifecycleActions
 import pt.isec.amov.cityfix.ui.components.MainTopAppBar
+import pt.isec.amov.cityfix.ui.components.rememberDeviceLocation
 import pt.isec.amov.cityfix.ui.navigation.CategoryListRoute
 import pt.isec.amov.cityfix.ui.navigation.CitizenValidationRoute
 import pt.isec.amov.cityfix.ui.navigation.DashboardRoute
 import pt.isec.amov.cityfix.ui.navigation.EditCategoryRoute
 import pt.isec.amov.cityfix.ui.navigation.IncidentDetailRoute
+import pt.isec.amov.cityfix.ui.navigation.IncidentsMapRoute
 import pt.isec.amov.cityfix.ui.navigation.ProfileRoute
 import pt.isec.amov.cityfix.ui.navigation.RegisterRoute
 import pt.isec.amov.cityfix.ui.navigation.ReportIncidentRoute
@@ -46,13 +60,21 @@ import pt.isec.amov.cityfix.ui.screens.CategoryListScreen
 import pt.isec.amov.cityfix.ui.screens.CitizenValidationScreen
 import pt.isec.amov.cityfix.ui.screens.EditCategoryScreen
 import pt.isec.amov.cityfix.ui.screens.IncidentDetailScreen
+import pt.isec.amov.cityfix.ui.screens.IncidentsMapScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreen
 import pt.isec.amov.cityfix.ui.screens.MainScreenContent
 import pt.isec.amov.cityfix.ui.screens.ProfileScreen
 import pt.isec.amov.cityfix.ui.screens.RegisterScreen
 import pt.isec.amov.cityfix.ui.screens.ReportIncidentScreen
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
+import pt.isec.amov.cityfix.utils.AnonymousAccess
+import pt.isec.amov.cityfix.utils.LocationUtils
+import pt.isec.amov.cityfix.utils.anonymousAccess
 import pt.isec.amov.cityfix.utils.canEditProfile
+import pt.isec.amov.cityfix.utils.canSeeExactLocation
+import pt.isec.amov.cityfix.utils.isOperator
+import pt.isec.amov.cityfix.utils.needsBackgroundLocation
+import pt.isec.amov.cityfix.utils.runsProximityService
 import pt.isec.amov.cityfix.utils.canManageCategories
 import pt.isec.amov.cityfix.utils.canValidateCitizens
 import pt.isec.amov.cityfix.viewmodel.CategoriesViewModel
@@ -93,6 +115,66 @@ class MainActivity : ComponentActivity() {
                 val currentUser by sessionViewModel.currentUser.collectAsStateWithLifecycle()
                 val incidents by incidentsViewModel.incidentsList.collectAsStateWithLifecycle()
 
+                val context = LocalContext.current
+                var hasLocationPermission by remember {
+                    mutableStateOf(LocationUtils.hasLocationPermission(context))
+                }
+                val locationPermissionRequest = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestMultiplePermissions()
+                ) {
+                    hasLocationPermission = LocationUtils.hasLocationPermission(context)
+                }
+                val requestLocationPermission = {
+                    val permissions = mutableListOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                    locationPermissionRequest.launch(permissions.toTypedArray())
+                }
+                LaunchedEffect(Unit) {
+                    val hasNotificationPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+                        PackageManager.PERMISSION_GRANTED
+                    if (!hasLocationPermission || !hasNotificationPermission) requestLocationPermission()
+                }
+                val deviceLocation by rememberDeviceLocation(hasLocationPermission)
+                val access = anonymousAccess(currentUser, hasLocationPermission, deviceLocation)
+
+                LaunchedEffect(currentUser?.id, hasLocationPermission) {
+                    val user = currentUser
+                    if (user != null && runsProximityService(user) && hasLocationPermission) {
+                        ContextCompat.startForegroundService(context, ProximityService.intent(context, user.id))
+                    } else {
+                        context.stopService(Intent(context, ProximityService::class.java))
+                    }
+                }
+
+                var hasBackgroundLocation by remember {
+                    mutableStateOf(LocationUtils.hasBackgroundLocationPermission(context))
+                }
+                var backgroundLocationAsked by rememberSaveable { mutableStateOf(false) }
+                val backgroundLocationRequest = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) {
+                    hasBackgroundLocation = LocationUtils.hasBackgroundLocationPermission(context)
+                }
+                if (needsBackgroundLocation(currentUser) && hasLocationPermission &&
+                    !hasBackgroundLocation && !backgroundLocationAsked &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                ) {
+                    BackgroundLocationDialog(
+                        isOperator = isOperator(currentUser),
+                        onAllow = {
+                            backgroundLocationAsked = true
+                            backgroundLocationRequest.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                        },
+                        onDismiss = { backgroundLocationAsked = true }
+                    )
+                }
+
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val isDashboard = navBackStackEntry?.destination?.hasRoute<DashboardRoute>() == true
@@ -107,6 +189,7 @@ class MainActivity : ComponentActivity() {
                             canNavigateBack = navBackStackEntry != null && !isDashboard,
                             isDashboard = isDashboard,
                             areAllCardsExpanded = areAllIncidentsExpanded,
+                            showMap = isDashboard && access == AnonymousAccess.ALLOWED,
                             showCategories = isDashboard && canManageCategories(currentUser),
                             showValidation = isDashboard && canValidateCitizens(currentUser),
                             showRegister = isDashboard && currentUser == null,
@@ -119,6 +202,7 @@ class MainActivity : ComponentActivity() {
                                     incidents.map { it.id }
                                 }
                             },
+                            onMapClick = { navController.navigate(IncidentsMapRoute) },
                             onCategoriesClick = { navController.navigate(CategoryListRoute) },
                             onValidationClick = { navController.navigate(CitizenValidationRoute) },
                             onRegisterClick = { navController.navigate(RegisterRoute) },
@@ -138,6 +222,8 @@ class MainActivity : ComponentActivity() {
                                 viewModel = incidentsViewModel,
                                 sessionViewModel = sessionViewModel,
                                 incidents = incidents,
+                                anonymousAccess = access,
+                                onRequestLocationPermission = requestLocationPermission,
                                 expandedIncidentIds = expandedIncidentIds,
                                 onToggleIncident = { id ->
                                     expandedIncidentIds = if (id in expandedIncidentIds) {
@@ -151,6 +237,14 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
+                        composable<IncidentsMapRoute> {
+                            IncidentsMapScreen(
+                                incidents = incidents,
+                                exact = incidents.all { canSeeExactLocation(currentUser, it) },
+                                onOpenIncident = { id -> navController.navigate(IncidentDetailRoute(id)) }
+                            )
+                        }
+
                         composable<ReportIncidentRoute> { backStack ->
                             val reportViewModel: ReportIncidentViewModel = viewModel(
                                 viewModelStoreOwner = backStack,
@@ -161,8 +255,13 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                             val reportState by reportViewModel.reportState.collectAsStateWithLifecycle()
+                            LaunchedEffect(deviceLocation) {
+                                reportViewModel.onDeviceLocationChanged(deviceLocation)
+                            }
                             ReportIncidentScreen(
                                 state = reportState,
+                                hasLocationPermission = hasLocationPermission,
+                                onRequestLocationPermission = requestLocationPermission,
                                 onCategorySelected = reportViewModel::onCategorySelected,
                                 onSituationSelected = reportViewModel::onSituationSelected,
                                 onDescriptionChange = reportViewModel::onDescriptionChanged,
@@ -191,6 +290,7 @@ class MainActivity : ComponentActivity() {
                             val detailState by detailViewModel.detailState.collectAsStateWithLifecycle()
                             IncidentDetailScreen(
                                 state = detailState,
+                                deviceLocation = deviceLocation,
                                 onReopen = { justification, photoPath ->
                                     detailViewModel.reopen(justification, photoPath) {
                                         incidentsViewModel.refreshIncidents()
@@ -277,6 +377,8 @@ class MainActivity : ComponentActivity() {
                                 onRoleChange = registerViewModel::onRoleChanged,
                                 onImpactDetectionChange = registerViewModel::onImpactDetectionChanged,
                                 onPictureChange = registerViewModel::onPictureChanged,
+                                deviceLocation = deviceLocation,
+                                onLocationSelected = registerViewModel::onLocationSelected,
                                 onRegisterClick = registerViewModel::register,
                                 onDone = { navController.popBackStack() }
                             )
@@ -333,6 +435,7 @@ private fun screenTitle(entry: NavBackStackEntry?): Int {
         destination?.hasRoute<RegisterRoute>() == true -> R.string.register_title
         destination?.hasRoute<CitizenValidationRoute>() == true -> R.string.validation_title
         destination?.hasRoute<ProfileRoute>() == true -> R.string.profile_title
+        destination?.hasRoute<IncidentsMapRoute>() == true -> R.string.map_title
         else -> R.string.app_name
     }
 }
@@ -386,6 +489,8 @@ fun PreviewMainScreen() {
                 )
             ),
             currentRole = null,
+            anonymousAccess = AnonymousAccess.ALLOWED,
+            onRequestLocationPermission = {},
             onProfileSelected = {},
             onlyMine = false,
             onOnlyMineChange = {},

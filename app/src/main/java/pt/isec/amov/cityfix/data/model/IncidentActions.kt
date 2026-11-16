@@ -101,3 +101,6 @@ fun Incident.withInformationReply(request: InfoRequest, reply: Message): Inciden
         )
     )
 }
+
+fun Incident.withProximityAlert(operatorId: String, now: Long): Incident =
+    copy(proximityAlerts = proximityAlerts + ProximityAlert(operatorId = operatorId, timestamp = now))

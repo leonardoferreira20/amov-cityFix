@@ -2,6 +2,7 @@ package pt.isec.amov.cityfix.viewmodel
 
 import androidx.annotation.StringRes
 import pt.isec.amov.cityfix.data.model.AccountStatus
+import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.UserRole
 
 data class RegisterUiState(
@@ -12,14 +13,17 @@ data class RegisterUiState(
     val role: UserRole = UserRole.CITIZEN,
     val impactDetectionEnabled: Boolean = false,
     val picturePath: String? = null,
+    val location: GeoLocation? = null,
     @StringRes val nameError: Int? = null,
     @StringRes val emailError: Int? = null,
     @StringRes val phoneError: Int? = null,
     @StringRes val nifError: Int? = null,
+    @StringRes val locationError: Int? = null,
     val isSaving: Boolean = false,
     val registeredStatus: AccountStatus? = null
 ) {
     val isValid: Boolean
         get() = nameError == null && emailError == null && phoneError == null && nifError == null &&
-            name.isNotBlank() && email.isNotBlank() && phone.isNotBlank() && nif.isNotBlank()
+            name.isNotBlank() && email.isNotBlank() && phone.isNotBlank() && nif.isNotBlank() &&
+            (role == UserRole.OPERATOR || location != null)
 }

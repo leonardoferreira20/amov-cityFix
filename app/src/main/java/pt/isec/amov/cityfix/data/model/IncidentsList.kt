@@ -1,5 +1,8 @@
 package pt.isec.amov.cityfix.data.model
 
+import pt.isec.amov.cityfix.utils.GROUP_RADIUS_METERS
+import pt.isec.amov.cityfix.utils.LocationUtils
+
 class IncidentsList(initialIncidents: List<Incident> = emptyList()) {
     private val _incidents = initialIncidents.toMutableList()
 
@@ -19,6 +22,21 @@ class IncidentsList(initialIncidents: List<Incident> = emptyList()) {
             totalIncidents = _incidents.size,
             activePercentage = if (_incidents.isEmpty()) 0.0 else activeCount * 100.0 / _incidents.size
         )
+    }
+
+    fun findGroupPrimary(categoryId: String, location: GeoLocation): Incident? =
+        _incidents
+            .filter {
+                it.primaryIncidentId == null &&
+                    it.categoryId == categoryId &&
+                    it.status != IncidentStatus.CLOSED &&
+                    LocationUtils.distanceMeters(it.location, location) <= GROUP_RADIUS_METERS
+            }
+            .minByOrNull { it.createdAt }
+
+    fun groupSize(incident: Incident): Int {
+        val primaryId = incident.primaryIncidentId ?: incident.id
+        return 1 + _incidents.count { it.primaryIncidentId == primaryId }
     }
 
     fun upsert(incident: Incident) {

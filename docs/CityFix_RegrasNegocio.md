@@ -19,7 +19,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-01 | O anónimo vê na lista só as ocorrências públicas e não encerradas. | ✅ | `AccessRules.canViewIncident` | I.1.B, D16 |
 | RN-02 | O munícipe vê as mesmas que o anónimo e também todas as suas, incluindo privadas e encerradas. | ✅ | `AccessRules.canViewIncident` | I.2.E |
 | RN-03 | O operador vê todas as ocorrências. | ✅ | `AccessRules.canViewIncident` | I.3.E |
-| RN-04 | No detalhe, quem não é autor nem operador vê categoria, situação, estado, data, descrição e fotos; não vê o autor nem as coordenadas. | ✅ | `IncidentDetailViewModel.refresh` | I.1.C |
+| RN-04 | No detalhe, quem não é autor nem operador vê categoria, situação, estado, data, descrição, fotos e um mapa com zoom de cidade, sem gestos; não vê o autor nem as coordenadas. | ✅ | `IncidentDetailViewModel.refresh`, `IncidentMap` (`exact = false`) | I.1.C, D17 (16/11) |
 | RN-05 | As coordenadas exatas e o histórico de estados aparecem ao operador e ao autor. | ✅ | `AccessRules.canSeeExactLocation`, `canSeeHistory` | D (11/11) |
 | RN-06 | Os dados do autor (nome, e-mail, telefone) aparecem só ao operador. | ✅ | `AccessRules.canSeeAuthorData` | I.3.E |
 | RN-07 | Uma ocorrência que o perfil não pode ver aparece como "não encontrada". | ✅ | `IncidentDetailViewModel.refresh` | RN-01 a RN-03 |
@@ -27,7 +27,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-09 | Só o operador gere categorias e valida munícipes. | ✅ | `AccessRules.canManageCategories`, `canValidateCitizens` (botões da barra de topo) | I.3.D, I.3.E |
 | RN-10 | O botão de registo aparece só a quem não tem sessão. | ✅ | `MainActivity` (`showRegister`) | I.2.A, I.3.A |
 | RN-11 | As ações de gestão do ciclo de vida destinam-se ao operador. As mudanças na resposta a um pedido e na reabertura seguem RN-57 e RN-60. | ✅ | `AccessRules.canChangeStatus`, `canStartWork`, `canResolve`; `LifecycleActions` | I.3.E, II.2, II.4 |
-| RN-12 | Um anónimo a mais de 10 km da Praça da República vê apenas o ecrã de login. | 📝 | J9 (aula #4); centro em `CityConstants.CITY_CENTER` | I.1, D3, D5 |
+| RN-12 | Um anónimo a mais de 10 km da Praça da República, sem permissão de localização ou ainda sem posição não vê o dashboard nem a lista. Até haver login, vê uma mensagem e o seletor de perfil. | ✅ | `AccessRules.anonymousAccess`, `MainScreen` (`AnonymousRestriction`), `CityConstants` | I.1, D3, D5 |
 | RN-13 | Um munícipe pendente não inicia sessão e vê um aviso. | 📝 | L1; a sessão falsa já só escolhe contas ativas (`SessionViewModel`) | I.2.A, D6 |
 | RN-14 | Só o autor e o operador consultam os pedidos e as respostas no detalhe da ocorrência. | ✅ | `AccessRules.canSeeInformationRequests`, `IncidentDetailScreen` | I.2.E, I.3.E, D (11/11) |
 | RN-15 | Só quem tem sessão tem perfil: o botão de conta aparece ao munícipe e ao operador, nunca ao anónimo. | ✅ | `AccessRules.canEditProfile` (botão da barra de topo) | I.2.C, I.3.C |
@@ -60,14 +60,14 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 
 | ID | Regra | Estado | Onde | Origem |
 |---|---|---|---|---|
-| RN-40 | Categoria, situação, descrição e foto são obrigatórias. | ✅ | `ReportIncidentViewModel.saveIncident` | I.2.E, D12 |
+| RN-40 | Categoria, situação, descrição, foto e localização são obrigatórias. | ✅ | `ReportIncidentViewModel.saveIncident` | I.2.E, D12 |
 | RN-41 | A visibilidade é pública por omissão e pode ser privada. | ✅ | `ReportIncidentUiState` | I.2.E |
 | RN-42 | Uma ocorrência nova começa em Aberto. | ✅ | `Incident.status` (valor por omissão) | II.1 |
 | RN-43 | A foto da criação vem da galeria ou da câmara e é guardada com o propósito `REPORT`. | ✅ | `PhotoPicker`, `ReportIncidentViewModel` | I.2.E, D13 |
-| RN-44 | Provisório: a localização é a georreferenciação do autor ou, se não existir, o centro do município. | ✅ | `ReportIncidentViewModel`, `CityConstants.CITY_CENTER` | D (11/11) |
-| RN-45 | A localização é obtida por GPS quando se tira a foto. Substitui a RN-44. | 📝 | J5 (aula #4) | D12 |
+| ~~RN-44~~ | ~~Provisório: a localização é a georreferenciação do autor ou, se não existir, o centro do município.~~ Substituída pela RN-45 a 16/11. | — | — | D (11/11) |
+| RN-45 | A localização é obtida por GPS quando se junta a foto (ou na primeira posição que chegar depois). Substitui a RN-44. | ✅ | `ReportIncidentViewModel.onPhotoChanged`, `onDeviceLocationChanged`; `LocationUtils` | D12 |
 | RN-46 | Um vídeo pode acompanhar ou substituir a foto. | ❓ | J5 | D13, ponto A |
-| RN-47 | Uma ocorrência nova a menos de 10 m de uma principal não encerrada da mesma categoria liga-se a ela; a primeira é a principal; as encerradas não contam. | 📝 ❓ | J6 (aula #4) | I.2, D18–D22, ponto B |
+| RN-47 | Uma ocorrência nova a menos de 10 m de uma principal não encerrada da mesma categoria liga-se a ela; a primeira é a principal; as encerradas não contam. O detalhe mostra quantas participações tem o grupo. | ✅ ❓ | `IncidentsList.findGroupPrimary`, `groupSize` | I.2, D18–D22, ponto B (assumido) |
 
 ## 5. Ciclo de vida
 
@@ -110,6 +110,20 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 
 | ID | Regra | Estado | Onde | Origem |
 |---|---|---|---|---|
-| RN-80 | Quando um operador está a menos de 20 m de uma ocorrência ativa, os autores são avisados. | 📝 ❓ | L10; pontos 29, 30 | I.3, II.3 |
+| RN-80 | Quando um operador está a menos de 20 m de uma ocorrência ativa que ainda não está Em resolução (Aberto ou Pedido de informações), os autores são avisados. | ✅ deteção e registo; 📝 notificação ao autor (Firebase) | `ProximityService`, `AccessRules.isProximityAlertTarget`, `Incident.withProximityAlert`; ponto 30 | I.3, II.3, D29 (16/11) |
 | RN-81 | Há notificações para mudança de estado, mensagens, proximidade e aviso de 24 h. | 📝 ❓ | L11; ponto 32 | III |
 | RN-82 | Com a deteção de impactos ativa, uma aceleração vertical brusca sugere abrir uma ocorrência de pavimento. | 📝 ❓ | J10; ponto 31 | I.2.F |
+
+## 9. Localização, mapas e permissões
+
+| ID | Regra | Estado | Onde | Origem |
+|---|---|---|---|---|
+| RN-90 | A permissão de localização é pedida em runtime ao abrir a app; sem ela, a nova ocorrência e o acesso anónimo mostram um botão para a pedir. | ✅ | `MainActivity` (`RequestMultiplePermissions`), `ReportIncidentScreen`, `MainScreen` | V |
+| RN-91 | A permissão da câmara é pedida antes de abrir a câmara; se for recusada, aparece um aviso. | ✅ | `PhotoSourceButtons` | V |
+| RN-92 | O munícipe indica a georreferenciação no registo, no mapa ou com a localização atual; é obrigatória. Guardam-se só as coordenadas. | ✅ | `RegisterScreen` (`MapLocationPicker`), `RegisterViewModel` | I.2.A, D8 (16/11) |
+| RN-93 | O autor e o operador veem no detalhe o mapa com o pino exato e as coordenadas. | ✅ | `IncidentMap` (`exact = true`) | I.3.E, D17 (16/11) |
+| RN-94 | Todos os perfis com acesso têm um mapa com as ocorrências que veem na lista. Se o perfil não vê a localização exata de todas, o mapa fica com zoom de cidade e sem gestos. | ✅ | `IncidentsMapScreen`, `MainActivity` (`canSeeExactLocation`) | D (16/11) |
+| RN-95 | O operador vê no detalhe a distância até à ocorrência e pode abrir o trajeto no Google Maps. | ✅ | `AccessRules.canNavigateToIncident`, `IncidentDirections` | I.3, D (16/11) |
+| RN-96 | O serviço de proximidade só corre com a sessão de operador e com permissão de localização. | ✅ | `AccessRules.runsProximityService`, `MainActivity` | I.3, D (16/11) |
+| RN-97 | O autor e o operador veem no detalhe quando a equipa camarária esteve a menos de 20 m. | ✅ | `AccessRules.canSeeProximityAlerts`, `IncidentDetailScreen` | I.3, D (16/11) |
+| RN-98 | As notificações pedem-se ao arrancar; a localização em 2.º plano pede-se ao operador e ao munícipe com deteção de impactos, depois de uma explicação. | ✅ | `MainActivity`, `BackgroundLocationDialog`, `AccessRules.needsBackgroundLocation` | V |

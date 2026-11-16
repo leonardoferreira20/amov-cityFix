@@ -63,7 +63,11 @@ class ProfileViewModel(
 
         viewModelScope.launch {
             val usersList = repository.loadUsers()
-            val user = usersList.findById(userId) ?: return@launch
+            val user = usersList.findById(userId)
+            if (user == null) {
+                _profileState.update { it.copy(isSaving = false) }
+                return@launch
+            }
             usersList.upsert(
                 user.copy(
                     phone = current.phone.trim(),

@@ -28,7 +28,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.draw.clip
 import pt.isec.amov.cityfix.data.model.AccountStatus
+import pt.isec.amov.cityfix.data.model.GeoLocation
+import pt.isec.amov.cityfix.ui.components.MapLocationPicker
+import pt.isec.amov.cityfix.utils.CITY_CENTER
+import pt.isec.amov.cityfix.utils.toDisplayText
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.FormTextField
 import pt.isec.amov.cityfix.ui.components.ImpactDetectionSwitch
@@ -46,6 +54,8 @@ fun RegisterScreen(
     onRoleChange: (UserRole) -> Unit,
     onImpactDetectionChange: (Boolean) -> Unit,
     onPictureChange: (String?) -> Unit,
+    deviceLocation: GeoLocation?,
+    onLocationSelected: (GeoLocation) -> Unit,
     onRegisterClick: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier
@@ -106,6 +116,36 @@ fun RegisterScreen(
             }
 
             if (state.role == UserRole.CITIZEN) {
+                Text(stringResource(R.string.field_location), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.register_location_hint), style = MaterialTheme.typography.bodyMedium)
+                MapLocationPicker(
+                    selected = state.location,
+                    initialCenter = deviceLocation ?: CITY_CENTER,
+                    contentDescription = stringResource(R.string.map_picker_description),
+                    onLocationSelected = onLocationSelected,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                )
+                OutlinedButton(
+                    onClick = { deviceLocation?.let(onLocationSelected) },
+                    enabled = deviceLocation != null
+                ) {
+                    Text(stringResource(R.string.register_use_current_location))
+                }
+                Text(
+                    text = state.location?.toDisplayText() ?: stringResource(R.string.field_location_not_set),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                state.locationError?.let {
+                    Text(
+                        text = stringResource(it),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 ImpactDetectionSwitch(
                     checked = state.impactDetectionEnabled,
                     onCheckedChange = onImpactDetectionChange
@@ -174,6 +214,8 @@ private fun RegisterScreenPreview() {
             onRoleChange = {},
             onImpactDetectionChange = {},
             onPictureChange = {},
+            deviceLocation = null,
+            onLocationSelected = {},
             onRegisterClick = {},
             onDone = {}
         )

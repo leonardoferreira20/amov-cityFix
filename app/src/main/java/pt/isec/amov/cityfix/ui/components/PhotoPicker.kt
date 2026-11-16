@@ -1,6 +1,10 @@
 package pt.isec.amov.cityfix.ui.components
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.material3.MaterialTheme
+import androidx.core.content.ContextCompat
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +67,19 @@ fun PhotoSourceButtons(
         if (success) onPhotoChange(cameraFilePath) else FileUtils.deleteFromPath(cameraFilePath)
     }
 
+    val launchCamera = {
+        val (file, uri) = FileUtils.createTempImageFile(context)
+        cameraFilePath = file.absolutePath
+        cameraLauncher.launch(uri)
+    }
+    var cameraDenied by rememberSaveable { mutableStateOf(false) }
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        cameraDenied = !granted
+        if (granted) launchCamera()
+    }
+
     val buttons: @Composable () -> Unit = {
         Button(onClick = {
             photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -70,12 +87,24 @@ fun PhotoSourceButtons(
             Text(stringResource(R.string.photo_gallery))
         }
         OutlinedButton(onClick = {
-            val (file, uri) = FileUtils.createTempImageFile(context)
-            cameraFilePath = file.absolutePath
-            cameraLauncher.launch(uri)
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                launchCamera()
+            } else {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
         }) {
             Text(stringResource(R.string.photo_camera))
         }
+    }
+
+    if (cameraDenied) {
+        Text(
+            text = stringResource(R.string.camera_permission_denied),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 
     if (vertical) {

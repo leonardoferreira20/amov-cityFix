@@ -1,5 +1,6 @@
 package pt.isec.amov.cityfix.utils
 
+import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.data.model.InfoRequest
@@ -16,6 +17,16 @@ fun isOperator(user: User?): Boolean = user?.role == UserRole.OPERATOR
 fun isCitizen(user: User?): Boolean = user?.role == UserRole.CITIZEN
 
 fun isAuthor(user: User?, incident: Incident): Boolean = user != null && user.id == incident.authorId
+
+enum class AnonymousAccess { ALLOWED, LOCATING, NO_PERMISSION, OUT_OF_AREA }
+
+fun anonymousAccess(user: User?, hasLocationPermission: Boolean, location: GeoLocation?): AnonymousAccess = when {
+    user != null -> AnonymousAccess.ALLOWED
+    !hasLocationPermission -> AnonymousAccess.NO_PERMISSION
+    location == null -> AnonymousAccess.LOCATING
+    LocationUtils.distanceMeters(CITY_CENTER, location) <= ANONYMOUS_RADIUS_METERS -> AnonymousAccess.ALLOWED
+    else -> AnonymousAccess.OUT_OF_AREA
+}
 
 fun canViewIncident(user: User?, incident: Incident): Boolean {
     if (isOperator(user) || isAuthor(user, incident)) return true
@@ -45,6 +56,19 @@ fun canManageCategories(user: User?): Boolean = isOperator(user)
 fun canValidateCitizens(user: User?): Boolean = isOperator(user)
 
 fun canEditProfile(user: User?): Boolean = user != null
+
+fun canNavigateToIncident(user: User?): Boolean = isOperator(user)
+
+fun isProximityAlertTarget(incident: Incident): Boolean =
+    incident.status == IncidentStatus.OPEN || incident.status == IncidentStatus.INFO_REQUESTED
+
+fun canSeeProximityAlerts(user: User?, incident: Incident): Boolean =
+    isOperator(user) || isAuthor(user, incident)
+
+fun runsProximityService(user: User?): Boolean = isOperator(user)
+
+fun needsBackgroundLocation(user: User?): Boolean =
+    isOperator(user) || (isCitizen(user) && user?.impactDetectionEnabled == true)
 
 fun canSeeInformationRequests(user: User?, incident: Incident): Boolean =
     isOperator(user) || isAuthor(user, incident)

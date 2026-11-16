@@ -1,5 +1,14 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import pt.isec.amov.cityfix.data.model.GeoLocation
+import pt.isec.amov.cityfix.ui.components.IncidentMap
+import pt.isec.amov.cityfix.utils.toDisplayText
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,6 +60,8 @@ import pt.isec.amov.cityfix.viewmodel.ReportIncidentUiState
 @Composable
 fun ReportIncidentScreen(
     state: ReportIncidentUiState,
+    hasLocationPermission: Boolean,
+    onRequestLocationPermission: () -> Unit,
     onCategorySelected: (String) -> Unit,
     onSituationSelected: (Situation) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -59,26 +70,23 @@ fun ReportIncidentScreen(
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        modifier = modifier.imePadding(),
-        floatingActionButton = {
-            FloatingActionButton(onClick = onSaveClick) {
-                Icon(Icons.Default.Check, contentDescription = stringResource(R.string.report_submit))
-            }
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val mediaContent: @Composable (Modifier) -> Unit = { mediaModifier ->
+        Column(modifier = mediaModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SectionTitle(R.string.report_photo)
             PhotoPicker(photoPath = state.photoPath, onPhotoChange = onPhotoChange)
             ErrorText(state.photoError)
+            ReportLocation(
+                state = state,
+                hasLocationPermission = hasLocationPermission,
+                onRequestLocationPermission = onRequestLocationPermission
+            )
+        }
+    }
 
+    val formContent: @Composable (Modifier) -> Unit = { formModifier ->
+        Column(modifier = formModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             DropdownField(
                 label = R.string.report_category,
                 options = state.categories,
@@ -117,10 +125,91 @@ fun ReportIncidentScreen(
                 label = { stringResource(it.labelRes()) },
                 onSelect = onVisibilityChange
             )
+            ErrorText(state.saveError)
 
             Spacer(modifier = Modifier.height(72.dp))
         }
     }
+
+    Scaffold(
+        modifier = modifier.imePadding(),
+        floatingActionButton = {
+            FloatingActionButton(onClick = onSaveClick) {
+                Icon(Icons.Default.Check, contentDescription = stringResource(R.string.report_submit))
+            }
+        }
+    ) { innerPadding ->
+        if (isLandscape) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                mediaContent(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                )
+                formContent(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                mediaContent(Modifier.fillMaxWidth())
+                formContent(Modifier.fillMaxWidth())
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReportLocation(
+    state: ReportIncidentUiState,
+    hasLocationPermission: Boolean,
+    onRequestLocationPermission: () -> Unit
+) {
+    SectionTitle(R.string.detail_location_title)
+    val location = state.location
+    when {
+        !hasLocationPermission -> {
+            Text(stringResource(R.string.location_permission_needed), style = MaterialTheme.typography.bodyMedium)
+            OutlinedButton(onClick = onRequestLocationPermission) {
+                Text(stringResource(R.string.location_permission_allow))
+            }
+        }
+        location != null -> {
+            IncidentMap(
+                location = location,
+                exact = true,
+                contentDescription = stringResource(R.string.map_incident_description),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            Text(location.toDisplayText(), style = MaterialTheme.typography.bodyMedium)
+        }
+        state.photoPath != null -> Text(
+            stringResource(R.string.location_waiting),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        else -> Text(stringResource(R.string.report_location_hint), style = MaterialTheme.typography.bodyMedium)
+    }
+    ErrorText(state.locationError)
 }
 
 @Composable
@@ -216,8 +305,11 @@ private fun ReportIncidentScreenPreview() {
                 ),
                 categoryId = "cat-roads",
                 situation = Situation.DAMAGE,
-                photoError = R.string.error_photo_required
+                photoError = R.string.error_photo_required,
+                location = GeoLocation(40.2086, -8.4207)
             ),
+            hasLocationPermission = true,
+            onRequestLocationPermission = {},
             onCategorySelected = {},
             onSituationSelected = {},
             onDescriptionChange = {},

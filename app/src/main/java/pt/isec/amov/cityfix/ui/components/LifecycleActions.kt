@@ -24,9 +24,7 @@ import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.data.model.IncidentStatus
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.utils.FileUtils
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import pt.isec.amov.cityfix.utils.formatDateTime
 
 @Composable
 fun LifecycleActions(
@@ -72,7 +70,7 @@ private fun lifecycleHint(status: IncidentStatus, closesAt: Long?): String? = wh
     status == IncidentStatus.INFO_REQUESTED -> stringResource(R.string.lifecycle_waiting_reply)
     status == IncidentStatus.RESOLVED && closesAt != null -> stringResource(
         R.string.lifecycle_closes_on,
-        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(closesAt))
+        formatDateTime(closesAt)
     )
     status == IncidentStatus.CLOSED -> stringResource(R.string.lifecycle_closed)
     else -> null

@@ -24,5 +24,6 @@ data class Incident(
     val closedAt: Long? = null,
     val reopenCount: Int = 0,
     val infoRequests: List<InfoRequest> = emptyList(),
-    val messages: List<Message> = emptyList()
+    val messages: List<Message> = emptyList(),
+    val proximityAlerts: List<ProximityAlert> = emptyList()
 )

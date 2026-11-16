@@ -21,6 +21,8 @@ import pt.isec.amov.cityfix.data.model.withInformationReply
 import pt.isec.amov.cityfix.data.model.withInformationRequest
 import pt.isec.amov.cityfix.data.model.workStarted
 import pt.isec.amov.cityfix.utils.canChangeStatus
+import pt.isec.amov.cityfix.utils.canNavigateToIncident
+import pt.isec.amov.cityfix.utils.canSeeProximityAlerts
 import pt.isec.amov.cityfix.utils.canReopen
 import pt.isec.amov.cityfix.utils.canResolve
 import pt.isec.amov.cityfix.utils.canStartWork
@@ -75,9 +77,15 @@ class IncidentDetailViewModel(
             emptyList()
         }
 
+        val groupSize = incident?.let { incidentRepository.loadIncidents().groupSize(it) } ?: 1
+
         _detailState.update { state ->
             state.copy(
                 isLoading = false,
+                groupSize = groupSize,
+                showDirections = canNavigateToIncident(currentUser),
+                showProximityAlerts = incident != null && canSeeProximityAlerts(currentUser, incident) &&
+                    incident.proximityAlerts.isNotEmpty(),
                 incident = incident,
                 author = author,
                 showLocation = incident != null && canSeeExactLocation(currentUser, incident),
@@ -162,48 +170,40 @@ class IncidentDetailViewModel(
         }
     }
 
-    fun startWork(onSuccess: () -> Unit) {
-        val user = currentUser ?: return
-        viewModelScope.launch {
-            val incidents = incidentRepository.loadIncidents()
-            val incident = incidents.findById(incidentId) ?: return@launch
-            if (!canStartWork(user, incident)) return@launch
-            incidents.upsert(incident.workStarted(user.id, System.currentTimeMillis()))
-            incidentRepository.saveIncidents(incidents)
-            refresh()
-            onSuccess()
-        }
+    fun startWork(onSuccess: () -> Unit) = saveStatusChange(onSuccess) { incident, user ->
+        if (canStartWork(user, incident)) incident.workStarted(user.id, System.currentTimeMillis()) else null
     }
 
     fun resolve(photoPath: String?, note: String, onSuccess: () -> Unit) {
-        val user = currentUser ?: return
         if (photoPath == null) return
-        viewModelScope.launch {
-            val incidents = incidentRepository.loadIncidents()
-            val incident = incidents.findById(incidentId) ?: return@launch
-            if (!canResolve(user, incident)) return@launch
-            incidents.upsert(
-                incident.resolved(user.id, photoPath, note.trim().ifBlank { null }, System.currentTimeMillis())
-            )
-            incidentRepository.saveIncidents(incidents)
-            refresh()
-            onSuccess()
+        saveStatusChange(onSuccess) { incident, user ->
+            if (!canResolve(user, incident)) return@saveStatusChange null
+            incident.resolved(user.id, photoPath, note.trim().ifBlank { null }, System.currentTimeMillis())
         }
     }
 
     fun reopen(justification: String, photoPath: String?, onSuccess: () -> Unit) {
-        val user = currentUser ?: return
         if (justification.isBlank() || photoPath == null) return
+        saveStatusChange(onSuccess) { incident, user ->
+            if (!canReopen(user, incident)) return@saveStatusChange null
+            incident.reopened(user.id, justification.trim(), photoPath, System.currentTimeMillis())
+        }
+    }
+
+    private fun saveStatusChange(onSuccess: () -> Unit, change: (Incident, User) -> Incident?) {
+        val user = currentUser ?: return
         viewModelScope.launch {
-            val incidents = incidentRepository.loadIncidents()
-            val incident = incidents.findById(incidentId) ?: return@launch
-            if (!canReopen(user, incident)) return@launch
-            incidents.upsert(
-                incident.reopened(user.id, justification.trim(), photoPath, System.currentTimeMillis())
-            )
-            incidentRepository.saveIncidents(incidents)
-            refresh()
-            onSuccess()
+            try {
+                val incidents = IncidentsList(incidentRepository.loadIncidents().rawList())
+                val updated = incidents.findById(incidentId)?.let { change(it, user) } ?: return@launch
+                incidents.upsert(updated)
+                incidentRepository.saveIncidents(incidents)
+                _detailState.update { it.copy(actionError = null) }
+                showIncident(updated)
+                onSuccess()
+            } catch (_: IOException) {
+                _detailState.update { it.copy(actionError = R.string.error_save_failed) }
+            }
         }
     }
 }

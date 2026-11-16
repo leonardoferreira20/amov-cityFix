@@ -55,7 +55,9 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - [x] Pedidos e respostas no detalhe, visíveis ao autor e ao operador (J7).
 - [x] Foto da ocorrência no topo do detalhe.
 - **Feito quando:** os três perfis veem o mesmo ecrã com conteúdos diferentes. Verificado no emulador a 11/11 para o anónimo, o autor e o operador.
-- 📝 **Anotado (#4):** mapa com zoom afastado para o anónimo e coordenadas exatas para o operador.
+- [x] Mapa (aula #4, 16/11): `IncidentMap` com o pino exato e zoom próximo para o autor e o operador; zoom de cidade, sem coordenadas e sem gestos para os restantes (decisão 17).
+- [x] Landscape: dados à esquerda, fotos e mapa à direita (padrão da P10).
+- [x] Indicação de ocorrência de grupo (J6).
 
 ### J5 — Criar ocorrência
 - [x] Ecrã com `ReportIncidentUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid` (`ReportIncidentScreen`, `ReportIncidentViewModel` + `Factory`).
@@ -65,8 +67,9 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 - [x] Foto obrigatória, da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), como no Contacts das aulas.
 - [x] Base de multimédia feita aqui: `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, Coil 3 e `IncidentPhoto`.
 - **Feito:** testado no emulador a 11/11 com uma foto da câmara; a ocorrência nova aparece na lista com thumbnail e o dashboard passa a 5 ocorrências e 80% ativas.
-- 📝 **Provisório:** a localização é a do registo do autor ou o centro do município, até haver GPS.
-- 📝 **Anotado (#4):** localização obtida quando se tira a foto (decisão 12).
+- [x] Localização por GPS quando se junta a foto (decisão 12, aula #4, 16/11), com mapa e coordenadas no formulário; obrigatória para gravar.
+- [x] A foto de uma ocorrência abandonada é apagada (`onCleared`) e um erro de gravação aparece no formulário.
+- [x] Landscape: foto e localização à esquerda, formulário à direita.
 - 📝 **Por definir:** vídeo (ponto A por confirmar).
 
 ### J7 — Pedidos de informação e mensagens
@@ -90,10 +93,25 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 
 | Tarefa | O que é | Aula |
 |---|---|---|
-| J6 | Agrupamento: nova ocorrência liga-se à principal da mesma categoria a menos de 10 m (decisões 18 a 22; ponto B por confirmar) | #4 |
-| J9 | Restrição dos 10 km à volta da Praça da República para anónimos (decisões 3 e 5) | #4 |
 | J10 | Deteção de impactos no eixo vertical com o acelerómetro (ponto 31 por confirmar) | por definir |
-| F1 | Layouts adaptativos em landscape nos meus ecrãs | #4 |
+
+### J6 — Agrupamento a 10 m (16/11)
+- [x] `IncidentsList.findGroupPrimary`: principal mais antiga, não encerrada, da mesma categoria, a menos de 10 m (`GROUP_RADIUS_METERS`); a nova guarda o `primaryIncidentId`.
+- [x] Detalhe com o número de participações do grupo (`groupSize`).
+- Testado: nova ocorrência a 2 m da "Vias Públicas" ficou ligada a ela.
+- ⚠️ Ponto B assumido (confirmar): se a principal estiver encerrada, a nova passa a ser uma nova principal.
+
+### J9 — Restrição dos 10 km (16/11)
+- [x] `AccessRules.anonymousAccess` com `ANONYMOUS_RADIUS_METERS` à volta de `CITY_CENTER`.
+- [x] Fora do raio, sem permissão ou a localizar: mensagem em vez do dashboard e da lista; o seletor de perfil continua (faz de login até à L1).
+- Testado com `adb emu geo fix`: Coimbra mostra a lista; Lisboa bloqueia.
+
+### Mapa de ocorrências e navegação (16/11, da app Contactos)
+- [x] `IncidentsMapScreen` para todos os perfis com acesso: pinos das ocorrências visíveis, balão que abre o detalhe; câmara ajustada aos pinos só quando o perfil vê todas as localizações exatas.
+- [x] `IncidentDirections` no detalhe, só para o operador: distância e botão «Navegar».
+
+### F1 — Landscape (16/11)
+- [x] Início, detalhe e nova ocorrência com layout próprio em landscape (P10).
 
 ## Sempre, em todos os meus ecrãs
 

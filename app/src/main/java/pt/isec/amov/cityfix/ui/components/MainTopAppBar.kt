@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.HowToReg
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,12 +37,14 @@ fun MainTopAppBar(
     canNavigateBack: Boolean,
     isDashboard: Boolean,
     areAllCardsExpanded: Boolean,
+    showMap: Boolean,
     showCategories: Boolean,
     showValidation: Boolean,
     showRegister: Boolean,
     showProfile: Boolean,
     onNavigateBack: () -> Unit,
     onToggleAllCards: () -> Unit,
+    onMapClick: () -> Unit,
     onCategoriesClick: () -> Unit,
     onValidationClick: () -> Unit,
     onRegisterClick: () -> Unit,
@@ -87,6 +90,11 @@ fun MainTopAppBar(
                             )
                             .padding(6.dp)
                     )
+                }
+            }
+            if (showMap) {
+                IconButton(onClick = onMapClick) {
+                    Icon(Icons.Default.Map, contentDescription = stringResource(R.string.map_title))
                 }
             }
             if (showCategories) {

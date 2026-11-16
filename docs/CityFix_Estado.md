@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 12/11/2026, sobre o commit `67596c1` mais a L7, a L4 e as fotos do registo e do perfil (L8) do Leonardo. Faltam 10 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 16/11/2026, sobre o commit `ac017cc` mais a aula #4 (ficha P10: GPS, mapas, permissões e layouts adaptativos) e as correções da análise de 16/11. Faltam 6 dias para a entrega (22/11/2026, 23:59).
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md), as regras de negócio em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -9,9 +9,9 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Parte | Feito | Falta |
 |---|---|---|
 | Fase 0 | Concluída (0.1 a 0.7) | — |
-| João | J1, J2, J3, J7 local, J8; J5 sem vídeo nem GPS; J4 sem mapa; base de multimédia | J6, J9, J10 anotadas |
-| Leonardo | L3 (com foto), L4 (com foto), L5, L6 (já restritas ao operador), L7 | L1, L2, L8 (vídeo), L9 a L11 |
-| Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica | Firebase, WorkManager, permissões, mapas, notificações, landscape e acessibilidade em todos os ecrãs |
+| João | J1 a J9, com GPS, mapa, agrupamento a 10 m e restrição dos 10 km; base de multimédia | J5 vídeo, J10, notificações da J7 |
+| Leonardo | L3 (com foto e georreferenciação no mapa), L4 (com foto), L5, L6 (já restritas ao operador), L7 | L1, L2, L8 (vídeo), L9 a L11 |
+| Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica; permissões de localização e câmara em runtime; mapas; landscape no início, no detalhe e na nova ocorrência | Firebase, WorkManager, localização em 2.º plano, notificações, revisão final de landscape e acessibilidade |
 | Entrega | — | Limpeza, relatório, ZIP |
 
 ## 2. O que está implementado
@@ -85,7 +85,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - `ReportIncidentScreen`, `ReportIncidentUiState` e `ReportIncidentViewModel` + `Factory`, no padrão do `EditScreen` / `EditContactUiState` das aulas.
   - Categoria (só as ativas) e situação em listas dropdown, descrição, visibilidade com `RadioButton` e foto obrigatória, com erros campo a campo.
   - Foto da galeria (Photo Picker) ou da câmara (`TakePicture` com `FileProvider`), guardada em `filesDir/images/` e registada como `MediaAttachment` (`IMAGE`, `REPORT`).
-  - Localização provisória: a do registo do autor ou o centro do município (`utils/CityConstants.kt`).
+  - Localização por GPS no momento em que se junta a foto (decisão 12), com mapa e coordenadas no formulário (aula #4, 16/11).
   - Ao gravar, a lista e o dashboard atualizam-se.
   - Testado no emulador com uma foto da câmara.
 - **Base de multimédia:** `utils/FileUtils`, `FileProvider` no manifesto, `res/xml/file_paths.xml`, dependência `coil-compose` 3.0.4 (a das aulas) e os componentes `IncidentPhoto` (mostra uma foto) e `PhotoPicker` (pré-visualização e botões Galeria / Câmara, usado na criação e na reabertura). Serve também para a L3, a L4 e a L7 do Leonardo.
@@ -95,7 +95,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - `Incident.reopened()` (em `data/model/IncidentActions.kt`): passa a Aberto, apaga o `resolvedAt`, incrementa o `reopenCount`, junta a foto (`MediaPurpose.REOPEN`) e acrescenta um `StatusChange` com a justificação como nota.
   - O histórico mostra a nota de cada mudança e o detalhe mostra todas as fotos numa fila horizontal. A lista e o dashboard atualizam-se.
   - Testado no emulador com a "Água" e, com foto da câmara, com a "Iluminação" do `citizen-1`.
-- **J4 Detalhe (falta o mapa):**
+- **J4 Detalhe:**
   - Foto da ocorrência no topo.
   - `IncidentDetailScreen` (stateless, como o `ShowScreen`), `IncidentDetailUiState` e `IncidentDetailViewModel` + `Factory`, criado por destino com o id da ocorrência e o utilizador da sessão.
   - Todos veem a categoria, a situação, o estado, a data e a descrição. O autor e o operador veem também as coordenadas e o histórico; só o operador vê o nome, o e-mail e o telefone do autor.
@@ -112,11 +112,37 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - **Barra de topo:** títulos em seminegrito. O botão de expansão realça o ícone quando todos os cartões da lista estão expandidos e indica a ação disponível na descrição de acessibilidade em EN/PT.
 - Testado no emulador com os dados de exemplo: 11,5 dias, 6 ocorrências e 67% ativas; o munícipe `citizen-1` tem 4 ocorrências suas em "As minhas", e o operador vê as 6.
 
-### 2.4 Provisório (sai antes da entrega)
+### 2.4 Aula #4 e correções (16/11/2026)
+- **Base de localização** (ficha P10): `maps-compose` 6.1.0 e `play-services-location` 21.3.0; `utils/LocationUtils` (`hasLocationPermission`, `locationUpdates` com o `FusedLocationProviderClient`, `distanceMeters` com `Location.distanceBetween`); `rememberDeviceLocation` (`produceState`, como o `ContactDistanceSection` das aulas).
+- **Permissões em runtime:** a `MainActivity` pede a localização ao arrancar (`RequestMultiplePermissions`, como na P10). O botão Câmara pede a permissão `CAMERA` antes de abrir a câmara e mostra um aviso se for recusada.
+- **Chave do Google Maps:** lida de `MAPS_API_KEY` no `local.properties` (fora do Git) e passada ao manifesto com `manifestPlaceholders`. Quem compila noutra máquina tem de acrescentar essa linha.
+- **J5 GPS:** a localização é a do dispositivo quando se junta a foto; se ainda não houver posição, fica a primeira que chegar. Sem localização não se grava (`error_location_required`). Sem permissão, o formulário mostra o botão «Permitir localização».
+- **J6 Agrupamento:** ao gravar, `IncidentsList.findGroupPrimary` procura a principal mais antiga, não encerrada, da mesma categoria, a menos de 10 m; a nova fica com o `primaryIncidentId` dela. O detalhe mostra «Ocorrência de grupo: N participações neste local».
+- **J4 Mapa:** `IncidentMap` em todos os detalhes. O autor e o operador veem o pino com zoom 17 e as coordenadas; os restantes veem o pino com zoom 11 (cidade), sem coordenadas e sem gestos de zoom ou deslocação (decisão 17).
+- **J9 Restrição dos 10 km:** `AccessRules.anonymousAccess` devolve `ALLOWED`, `LOCATING`, `NO_PERMISSION` ou `OUT_OF_AREA`. Fora do raio, sem permissão ou enquanto localiza, o anónimo não vê o dashboard nem a lista; vê uma mensagem e o seletor de perfil (que faz de login até à L1).
+- **L3 Georreferenciação:** o munícipe escolhe a localização num `MapLocationPicker` (como o da P10, sem geocoder) ou com «Usar a minha localização atual». É obrigatória para o munícipe e fica em `User.location`.
+- **Landscape** (padrão da P10, `LocalConfiguration` + `Row` com `weight`): início (seletor, filtro e números à esquerda; lista à direita), detalhe (dados à esquerda; fotos e mapa à direita) e nova ocorrência (foto e localização à esquerda; formulário à direita).
+- **Correções da análise de 16/11:**
+  - dados de exemplo repostos: o "Semáforo" (Iluminação) está Resolvido há 1 dia e serve para testar a reabertura; o "Saneamento" está Encerrado, com a última mudança feita por `system`;
+  - lint sem erros: datas formatadas fora dos composables (`utils/formatDateTime`) e `app_name` com `translatable="false"`;
+  - a foto de uma nova ocorrência abandonada é apagada (`ReportIncidentViewModel.onCleared`);
+  - erros de gravação tratados na criação, no início dos trabalhos, na resolução e na reabertura (`error_save_failed`), sem deixar a cache alterada;
+  - o perfil volta a permitir gravar se o utilizador não for encontrado (`isSaving`);
+  - os enums passaram de `data/model/enums/` para `data/model/`, a pasta do seu pacote;
+  - o `gradlew` ficou com permissão de execução no Git.
+- **Resto da app Contactos (`Contacts_#3`), 16/11, segunda parte:**
+  - **Mapa de ocorrências** (`IncidentsMapScreen`, como o `ContactsMapScreen`): botão de mapa na barra de topo para todos os perfis com acesso. Mostra as ocorrências que o perfil vê na lista; tocar no balão do pino abre o detalhe. Se o perfil vê a localização exata de todas, a câmara ajusta-se aos pinos (`LatLngBounds`); senão, fica com zoom de cidade e sem gestos.
+  - **Distância e «Navegar»** para o operador no detalhe (`IncidentDirections`, como o `ContactDistanceSection`): distância em km até à ocorrência e botão que abre o trajeto no Google Maps (`LocationUtils.openDirections`).
+  - **Serviço de proximidade** (`services/ProximityService`, como o da P10): serviço em primeiro plano do tipo `location`, arrancado pela `MainActivity` enquanto a sessão é de operador e parado nos outros perfis. A cada posição, procura ocorrências em Aberto ou Pedido de informações a menos de 20 m e grava um `ProximityAlert` na ocorrência. O autor e o operador veem os alertas no detalhe («Equipa camarária na zona»). A notificação ao autor entra com o Firebase.
+  - **Permissões:** as notificações (`POST_NOTIFICATIONS`, Android 13+) são pedidas com a localização ao arrancar, como na P10. A localização em 2.º plano é pedida ao operador e ao munícipe com a deteção de impactos ativa, com um diálogo a explicar antes (`BackgroundLocationDialog`); o Android abre as definições para escolher «Permitir sempre».
+  - Testado no emulador: mapa do anónimo afastado e mapa do operador ajustado aos 7 pinos; pedido de notificações; diálogo e definições da localização em 2.º plano; serviço em primeiro plano ativo como operador e parado como munícipe; alerta gravado nas duas ocorrências em Aberto a 1 m e não na que está Em resolução; distância, «Navegar» e secção do alerta no detalhe do operador.
+- Testado no emulador a 16/11/2026: pedido de localização ao arrancar; anónimo em Coimbra com lista e em Lisboa bloqueado; mapa exato do autor e mapa afastado do anónimo; detalhe e início em landscape; pedido da permissão da câmara; nova ocorrência com foto da câmara a 2 m da "Vias Públicas", ligada a ela como grupo de 2; mapa do registo com o pino no toque.
+
+### 2.5 Provisório (sai antes da entrega)
 - `SessionSelector`: sai quando houver login (L1). O `SessionViewModel` fica; muda só a forma de preencher o `currentUser`.
 - Repositórios em JSON: são trocados pelo Firestore quando o Firebase entrar.
 
-### 2.5 Documentação
+### 2.6 Documentação
 - `Padroes_Aulas.md`: ContactsApp de 6/11 (multimédia de fotos) e diferenças em relação às aulas.
 - `CityFix_Decisoes.md`: nomes do modelo, um repositório por entidade, validações do registo, formato das coordenadas, sessão falsa, navegação por perfil, decisão 16 fechada e conflito 11 fechado (perfil, 12/11).
 - `CityFix_Plano.md`: multimédia de fotos marcada como dada, vídeo por definir e estado da Fase 0.
@@ -127,10 +153,10 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [x] **0.6** Contratos fechados: `InformationRequests` (J7) e `LifecycleActions` (L7).
 
 ### 3.2 João
-- [ ] J4 Mapa (aula #4).
-- [ ] J5 Localização por GPS quando se tira a foto (aula #4) e vídeo (por definir).
-- [ ] J6 Agrupamento a 10 m (aula #4).
-- [ ] J9 Restrição dos 10 km para anónimos (aula #4).
+- [x] J4 Mapa (16/11).
+- [x] J5 Localização por GPS quando se junta a foto (16/11). Falta o vídeo (por definir).
+- [x] J6 Agrupamento a 10 m (16/11).
+- [x] J9 Restrição dos 10 km para anónimos (16/11). Quando houver login (L1), o anónimo bloqueado passa a ver o ecrã de login.
 - [ ] J10 Deteção de impactos (sensores, ainda sem aula).
 
 ### 3.3 Leonardo
@@ -140,12 +166,14 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [ ] L1 Login e aviso de conta pendente (Firebase). Substitui o `SessionSelector`.
 - [ ] L2 MFA e recuperação de password (Firebase).
 - [ ] L9 Compressão, thumbnail e envio com WorkManager.
-- [ ] L10 Geofence de 20 m.
+- [ ] L10 Alerta de 20 m: a deteção e o registo do alerta estão feitos (serviço de proximidade, 16/11); falta notificar o autor no telemóvel dele (Firebase).
 - [ ] L11 Notificações e aviso das 24 h. O encerramento aos 5 dias já é feito no dispositivo (L7).
 - Pendente nas tarefas já feitas:
-  - [ ] L3: password e criação da conta (L1) e georreferenciação (aula #4, ponto 8).
+  - [ ] L3: password e criação da conta (L1). A georreferenciação no mapa ficou feita a 16/11.
 
 ### 3.4 Requisitos gerais do enunciado
+
+- O projeto `cityfix-3dbb1` foi criado no plano Spark e tem o método de e-mail e password ativo. O Gradle usa o plugin Google Services para ler `app/google-services.json` da aplicação `pt.isec.amov.cityfix` e inclui o SDK de Firebase Authentication. A versão debug compilou e o Firebase inicializou ao abrir a app no emulador. Falta ligar o login e o registo ao serviço (L1).
 
 | Requisito | Estado |
 |---|---|
@@ -155,9 +183,9 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Firebase Storage e WorkManager, com envio só quando há rede | Por fazer (L9) |
 | Imagens comprimidas e com thumbnail | Por fazer (L9) |
 | Cloud Messaging e notificações | Por fazer (L11) |
-| Permissões em runtime: localização (1.º e 2.º plano), câmara, notificações | Por fazer (aula #4, L8, L10, L11) |
+| Permissões em runtime: localização (1.º e 2.º plano), câmara, notificações | Feitas a 16/11: localização e notificações ao arrancar, câmara antes de a abrir, 2.º plano para o operador e para a deteção de impactos |
 | Inglês por omissão e português | Feito em todos os ecrãs |
-| Portrait e landscape | Por verificar em todos os ecrãs (layouts adaptativos: aula #4) |
+| Portrait e landscape | Layouts adaptativos no início, no detalhe e na nova ocorrência (16/11); os outros ecrãs fazem scroll. Falta a revisão final |
 | Barras de topo, ícones e botões flutuantes dinâmicos | `MainTopAppBar` com título e ações por ecrã e perfil; botões flutuantes nos ecrãs do Leonardo |
 | Acessibilidade | Descrições nos botões da barra de topo e nos ecrãs do Leonardo; falta rever o resto |
 
@@ -170,14 +198,14 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 ### 3.6 Problemas conhecidos e limpeza
 - [x] `MainScreen`: blocos de cor e textos de teste retirados (11/11).
 - [x] Dados do preview da `MainActivity` trocados por ocorrências de exemplo realistas (11/11).
-- [ ] Os enums estão na pasta `data/model/enums/` mas declaram o package `data.model`.
-- [ ] O `gradlew` está no Git sem permissão de execução (`100644`); corrige-se com `git update-index --chmod=+x gradlew`.
+- [x] Os enums passaram para `data/model/`, a pasta do seu package (16/11).
+- [x] O `gradlew` ficou com permissão de execução no Git (16/11).
 - [ ] Quando entrar o Firestore, as classes do modelo precisam de valores por omissão em todos os campos, porque o `toObject()` exige um construtor sem argumentos.
 - A câmara usa o contrato `TakePicture`, que não exige a permissão `CAMERA` enquanto a app não a declarar no manifesto. O pedido de permissões em runtime que o enunciado exige fica para a aula #4.
 - Os testes no emulador alteram os dados guardados em JSON. Os dados de exemplo só são lidos quando o ficheiro ainda não existe; para os repor: `adb shell pm clear pt.isec.amov.cityfix`.
 - Dados de exemplo para testar a reabertura (J8), todos do `citizen-1`: "Iluminação" resolvida há 1 dia (mostra o botão "Reabrir") e "Saneamento" encerrada (não o mostra), ambas com histórico de estados. A "Água" também está resolvida, há 2 dias.
-- [ ] Dados de exemplo trocados no commit `67596c1`: a "Iluminação" (semáforo) está Encerrada sem `closedAt` e com o histórico a terminar em Resolvido, e o "Saneamento" está Resolvido com `closedAt` e o histórico a terminar em Encerrado. Com o encerramento automático, o "Saneamento" passa a Encerrado ao arrancar, mas fica com a mudança Resolvido → Encerrado repetida no histórico, e a "Iluminação" deixa de servir para testar a reabertura. Confirmar com o João e repor os estados.
-- [ ] O detalhe da ocorrência (J4) escreve as coordenadas com `stringResource(R.string.detail_location, ...)`, que formata os números na língua do dispositivo. Pelo código, em português devem sair com vírgula decimal (`40,20860, -8,42070`), ao contrário da decisão de usar sempre ponto decimal (não verificado no emulador). Pode passar a usar a `GeoLocation.toDisplayText()` da L4. Confirmar com o João.
+- [x] (Corrigido a 16/11.) Dados de exemplo trocados no commit `67596c1`: a "Iluminação" (semáforo) está Encerrada sem `closedAt` e com o histórico a terminar em Resolvido, e o "Saneamento" está Resolvido com `closedAt` e o histórico a terminar em Encerrado. Com o encerramento automático, o "Saneamento" passa a Encerrado ao arrancar, mas fica com a mudança Resolvido → Encerrado repetida no histórico, e a "Iluminação" deixa de servir para testar a reabertura. Confirmar com o João e repor os estados.
+- [x] (Corrigido a 16/11: passou a usar `toDisplayText()`.) O detalhe da ocorrência (J4) escrevia as coordenadas com `stringResource(R.string.detail_location, ...)`, que formata os números na língua do dispositivo. Pelo código, em português devem sair com vírgula decimal (`40,20860, -8,42070`), ao contrário da decisão de usar sempre ponto decimal (não verificado no emulador). Pode passar a usar a `GeoLocation.toDisplayText()` da L4. Confirmar com o João.
 - Os campos de texto seguem o padrão das aulas (`StateFlow`). Com escrita muito rápida num emulador lento perderam-se letras; a escrever normalmente funcionou.
 - O stash `stash@{0}` (alterações antigas do João, de 11/11) já não é preciso: o `Rules.kt` deu origem ao `AccessRules.kt` e o `IncidentChart` foi recuperado.
 

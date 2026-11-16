@@ -25,3 +25,6 @@ data object CitizenValidationRoute
 
 @Serializable
 data object ProfileRoute
+
+@Serializable
+data object IncidentsMapRoute

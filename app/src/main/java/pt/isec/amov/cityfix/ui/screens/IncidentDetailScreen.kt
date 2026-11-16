@@ -1,6 +1,15 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import pt.isec.amov.cityfix.ui.components.IncidentDirections
+import pt.isec.amov.cityfix.ui.components.IncidentMap
+import pt.isec.amov.cityfix.utils.toDisplayText
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,11 +53,9 @@ import pt.isec.amov.cityfix.ui.components.PhotoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
 import pt.isec.amov.cityfix.ui.components.photoPaths
 import pt.isec.amov.cityfix.utils.FileUtils
+import pt.isec.amov.cityfix.utils.formatDateTime
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.viewmodel.IncidentDetailUiState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun IncidentDetailScreen(
@@ -57,7 +64,8 @@ fun IncidentDetailScreen(
     onReopen: (String, String) -> Unit = { _, _ -> },
     onRequestInformation: (String, (Int?) -> Unit) -> Unit = { _, _ -> },
     onReplyToInformationRequest: (String, String, (Int?) -> Unit) -> Unit = { _, _, _ -> },
-    operatorActions: @Composable () -> Unit = {}
+    operatorActions: @Composable () -> Unit = {},
+    deviceLocation: GeoLocation? = null
 ) {
     if (state.isLoading) return
     val incident = state.incident
@@ -67,7 +75,6 @@ fun IncidentDetailScreen(
         }
         return
     }
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     var showReopenDialog by rememberSaveable { mutableStateOf(false) }
     var showInformationDialog by rememberSaveable { mutableStateOf(false) }
     var replyRequestId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -98,14 +105,10 @@ fun IncidentDetailScreen(
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        val photos = incident.photoPaths()
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val photos = incident.photoPaths()
+
+    val photosContent: @Composable () -> Unit = {
         if (photos.isNotEmpty()) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(photos) { path ->
@@ -119,105 +122,192 @@ fun IncidentDetailScreen(
                 }
             }
         }
-        Text(text = incident.categoryName, style = MaterialTheme.typography.headlineSmall)
-        Text(
-            text = stringResource(incident.situation.labelRes()),
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            text = stringResource(R.string.incident_status, stringResource(incident.status.labelRes())),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Text(
-            text = stringResource(R.string.detail_created, dateFormat.format(Date(incident.createdAt))),
-            style = MaterialTheme.typography.bodyMedium
-        )
+    }
 
-        val reopenDeadline = state.reopenDeadline
-        if (state.canReopen && reopenDeadline != null) {
-            Button(onClick = { showReopenDialog = true }) {
-                Text(stringResource(R.string.reopen_button))
-            }
+    val mapContent: @Composable (Modifier) -> Unit = { mapModifier ->
+        IncidentMap(
+            location = incident.location,
+            exact = state.showLocation,
+            contentDescription = stringResource(
+                if (state.showLocation) R.string.map_incident_description else R.string.map_area_description
+            ),
+            modifier = mapModifier.clip(RoundedCornerShape(12.dp))
+        )
+    }
+
+    val detailsContent: @Composable (Modifier, Boolean) -> Unit = { detailsModifier, showMapInline ->
+        Column(modifier = detailsModifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(text = incident.categoryName, style = MaterialTheme.typography.headlineSmall)
             Text(
-                text = stringResource(R.string.reopen_deadline, dateFormat.format(Date(reopenDeadline))),
-                style = MaterialTheme.typography.bodySmall
+                text = stringResource(incident.situation.labelRes()),
+                style = MaterialTheme.typography.titleMedium
             )
-        }
-
-        DetailSection(title = stringResource(R.string.detail_description)) {
-            Text(text = incident.description, style = MaterialTheme.typography.bodyLarge)
-        }
-
-        if (state.showLocation) {
-            DetailSection(title = stringResource(R.string.detail_location_title)) {
+            Text(
+                text = stringResource(R.string.incident_status, stringResource(incident.status.labelRes())),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = stringResource(R.string.detail_created, formatDateTime(incident.createdAt)),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            if (state.groupSize > 1) {
                 Text(
-                    text = stringResource(
-                        R.string.detail_location,
-                        incident.location.latitude,
-                        incident.location.longitude
-                    ),
-                    style = MaterialTheme.typography.bodyLarge
+                    text = stringResource(R.string.detail_group, state.groupSize),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
-        }
-
-        state.author?.let { author ->
-            DetailSection(title = stringResource(R.string.detail_author)) {
-                Text(text = author.name, style = MaterialTheme.typography.bodyLarge)
-                Text(text = author.email, style = MaterialTheme.typography.bodyMedium)
-                Text(text = author.phone, style = MaterialTheme.typography.bodyMedium)
+            state.actionError?.let { error ->
+                Text(
+                    text = stringResource(error),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
-        }
 
-        if (state.showHistory) {
-            DetailSection(title = stringResource(R.string.detail_history)) {
-                if (incident.history.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.detail_history_empty),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+            val reopenDeadline = state.reopenDeadline
+            if (state.canReopen && reopenDeadline != null) {
+                Button(onClick = { showReopenDialog = true }) {
+                    Text(stringResource(R.string.reopen_button))
                 }
-                incident.history.forEach { change ->
-                    Text(
-                        text = stringResource(
-                            R.string.detail_history_entry,
-                            dateFormat.format(Date(change.timestamp)),
-                            stringResource(change.fromStatus.labelRes()),
-                            stringResource(change.toStatus.labelRes())
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    change.note?.let { note ->
-                        Text(
-                            text = stringResource(R.string.detail_history_note, note),
-                            style = MaterialTheme.typography.bodySmall
+                Text(
+                    text = stringResource(R.string.reopen_deadline, formatDateTime(reopenDeadline)),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            DetailSection(title = stringResource(R.string.detail_description)) {
+                Text(text = incident.description, style = MaterialTheme.typography.bodyLarge)
+            }
+
+            if (state.showLocation || state.showDirections || showMapInline) {
+                DetailSection(title = stringResource(R.string.detail_location_title)) {
+                    if (state.showLocation) {
+                        Text(text = incident.location.toDisplayText(), style = MaterialTheme.typography.bodyLarge)
+                    }
+                    if (state.showDirections) {
+                        IncidentDirections(location = incident.location, deviceLocation = deviceLocation)
+                    }
+                    if (showMapInline) {
+                        mapContent(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
                         )
                     }
                 }
             }
-        }
 
-        if (state.showOperatorActions) {
-            DetailSection(title = stringResource(R.string.lifecycle_title)) {
-                operatorActions()
+            if (state.showProximityAlerts) {
+                DetailSection(title = stringResource(R.string.proximity_title)) {
+                    incident.proximityAlerts.asReversed().forEach { alert ->
+                        Text(
+                            text = stringResource(R.string.proximity_entry, formatDateTime(alert.timestamp)),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+
+            state.author?.let { author ->
+                DetailSection(title = stringResource(R.string.detail_author)) {
+                    Text(text = author.name, style = MaterialTheme.typography.bodyLarge)
+                    Text(text = author.email, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = author.phone, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+
+            if (state.showHistory) {
+                DetailSection(title = stringResource(R.string.detail_history)) {
+                    if (incident.history.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.detail_history_empty),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    incident.history.forEach { change ->
+                        Text(
+                            text = stringResource(
+                                R.string.detail_history_entry,
+                                formatDateTime(change.timestamp),
+                                stringResource(change.fromStatus.labelRes()),
+                                stringResource(change.toStatus.labelRes())
+                            ),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        change.note?.let { note ->
+                            Text(
+                                text = stringResource(R.string.detail_history_note, note),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (state.showOperatorActions) {
+                DetailSection(title = stringResource(R.string.lifecycle_title)) {
+                    operatorActions()
+                }
+            }
+
+            if (state.showInformationRequests) {
+                DetailSection(title = stringResource(R.string.information_requests_title)) {
+                    InformationRequests(
+                        requests = state.informationRequests,
+                        canRequest = state.canRequestInformation,
+                        onRequest = {
+                            replyRequestId = null
+                            showInformationDialog = true
+                        },
+                        onReply = { requestId ->
+                            replyRequestId = requestId
+                            showInformationDialog = true
+                        }
+                    )
+                }
             }
         }
+    }
 
-        if (state.showInformationRequests) {
-            DetailSection(title = stringResource(R.string.information_requests_title)) {
-                InformationRequests(
-                    requests = state.informationRequests,
-                    canRequest = state.canRequestInformation,
-                    onRequest = {
-                        replyRequestId = null
-                        showInformationDialog = true
-                    },
-                    onReply = { requestId ->
-                        replyRequestId = requestId
-                        showInformationDialog = true
-                    }
+    if (isLandscape) {
+        Row(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            detailsContent(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                false
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                photosContent()
+                mapContent(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
                 )
             }
+        }
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            photosContent()
+            detailsContent(Modifier.fillMaxWidth(), true)
         }
     }
 }
