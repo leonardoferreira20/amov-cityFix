@@ -13,6 +13,25 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 
 Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 
+## Pedidos do Leonardo (17/11/2026)
+
+O Leonardo enviou a L9 (fotos no Storage), a L11 (notificações com Cloud Functions) e o F1 (landscape nos ecrãs dele) no commit `5fa83d7`. Para funcionarem, faltam estes passos na consola do Firebase, que são do João, por ser o dono do projeto:
+
+- [ ] Passar o projeto `cityfix-3dbb1` para o plano Blaze (decisão já registada). Pode criar-se um alerta de orçamento na Google Cloud.
+- [ ] Ativar o Storage (Storage → Começar).
+- [ ] Dar ao Leonardo acesso de Editor ao projeto (Definições do projeto → Utilizadores e permissões), para ele publicar as funções e as regras com o Firebase CLI.
+- [ ] Confirmar a localização da base de dados do Firestore. As funções estão em `europe-west1`; se o Firestore estiver nos EUA (`nam5`), o `REGION` de `functions/index.js` passa a `us-central1`.
+- [ ] Depois de o Leonardo publicar, testarem os dois em dispositivos separados: a foto de uma ocorrência nova vista noutro telemóvel e as notificações de mudança de estado, pedidos, respostas e proximidade.
+
+Mudanças no código partilhado que convém conhecer:
+- O `IncidentRepository` recebe um `MediaUploadScheduler`: o `saveIncident` agenda o envio das fotos que ainda não foram enviadas, e o `markMediaUploaded` guarda os endereços no fim.
+- A `Incident` tem o campo `closingWarningSentAt`, escrito pelo servidor quando envia o aviso das 24 h.
+- Em `IncidentPhoto.kt`, o `firstPhotoPath()` passou a `firstThumbnailPath()`, e o `photoPaths()` dá preferência ao endereço do Storage.
+- O detalhe mostra «Há fotos que ainda não foram enviadas» enquanto o envio não acaba.
+- O `SessionViewModel` e a sua `Factory` recebem o `DeviceTokenRepository`, que guarda o token do Cloud Messaging ao iniciar sessão e o apaga ao terminar.
+- A `MainActivity` abre o detalhe da ocorrência quando se toca numa notificação (extra `incidentId`).
+- O `firestore.rules` tem a coleção `deviceTokens`; na raiz há também `storage.rules`, `firebase.json` e `.firebaserc`.
+
 ## Tarefas
 
 ### J1 — Início: 3 números do dashboard
