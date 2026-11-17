@@ -9,10 +9,11 @@ import kotlinx.coroutines.tasks.await
 import pt.isec.amov.cityfix.data.model.Incident
 import pt.isec.amov.cityfix.data.model.IncidentsList
 import pt.isec.amov.cityfix.data.model.closed
+import pt.isec.amov.cityfix.data.model.withUploadedMedia
 import pt.isec.amov.cityfix.utils.isClosingDue
 import pt.isec.amov.cityfix.utils.reopenDeadline
 
-class IncidentRepository {
+class IncidentRepository(private val uploadScheduler: MediaUploadScheduler) {
     private val collection = Firebase.firestore.collection("incidents")
 
     suspend fun loadIncidents(): IncidentsList {
@@ -37,6 +38,15 @@ class IncidentRepository {
 
     fun saveIncident(incident: Incident) {
         collection.document(incident.id).set(incident)
+        uploadScheduler.schedulePendingUploads(incident)
+    }
+
+    suspend fun markMediaUploaded(incidentId: String, mediaId: String, remoteUrl: String, thumbnailUrl: String) {
+        val document = collection.document(incidentId)
+        Firebase.firestore.runTransaction { transaction ->
+            val incident = checkNotNull(transaction.get(document).toObject(Incident::class.java))
+            transaction.set(document, incident.withUploadedMedia(mediaId, remoteUrl, thumbnailUrl))
+        }.await()
     }
 
     private fun closeDueIncidents(list: IncidentsList) {

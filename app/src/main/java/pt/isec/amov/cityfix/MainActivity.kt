@@ -71,6 +71,7 @@ import pt.isec.amov.cityfix.ui.screens.RegisterScreen
 import pt.isec.amov.cityfix.ui.screens.ReportIncidentScreen
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.utils.AnonymousAccess
+import pt.isec.amov.cityfix.utils.IncidentNotifications
 import pt.isec.amov.cityfix.utils.LocationUtils
 import pt.isec.amov.cityfix.utils.anonymousAccess
 import pt.isec.amov.cityfix.utils.canEditProfile
@@ -107,6 +108,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
+        val openedIncidentId = intent.getStringExtra(IncidentNotifications.EXTRA_INCIDENT_ID)
 
         setContent {
             CityFixTheme {
@@ -114,7 +116,14 @@ class MainActivity : ComponentActivity() {
                 val incidentsViewModel: IncidentsViewModel =
                     viewModel(factory = IncidentsViewModelFactory(app.incidentRepository))
                 val sessionViewModel: SessionViewModel =
-                    viewModel(factory = SessionViewModelFactory(app.authRepository, app.userRepository, app.categoryRepository))
+                    viewModel(
+                        factory = SessionViewModelFactory(
+                            app.authRepository,
+                            app.userRepository,
+                            app.categoryRepository,
+                            app.deviceTokenRepository
+                        )
+                    )
                 val categoriesViewModel: CategoriesViewModel =
                     viewModel(factory = CategoriesViewModelFactory(app.categoryRepository))
                 val currentUser by sessionViewModel.currentUser.collectAsStateWithLifecycle()
@@ -181,6 +190,14 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val navController = rememberNavController()
+                var notificationIncidentId by rememberSaveable { mutableStateOf(openedIncidentId) }
+                LaunchedEffect(notificationIncidentId, currentUser) {
+                    val incidentId = notificationIncidentId
+                    if (incidentId != null && currentUser != null) {
+                        navController.navigate(IncidentDetailRoute(incidentId))
+                        notificationIncidentId = null
+                    }
+                }
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val isDashboard = navBackStackEntry?.destination?.hasRoute<DashboardRoute>() == true
                 var expandedIncidentIds by rememberSaveable { mutableStateOf(emptyList<String>()) }

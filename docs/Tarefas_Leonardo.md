@@ -73,15 +73,39 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] Login, conta pendente e recuperação testados com o Firebase a 16/11.
 - [ ] Testar a verificação em dois passos com uma conta real e o TOTP ativo no projeto (Cloud Shell).
 
+### L9 — Fotos no Storage (17/11, documentação oficial)
+- [x] Compressão (1280 px, JPEG a 80%) e thumbnail (320 px, JPEG a 70%) antes do envio, com a rotação EXIF (`ImageCompressor`).
+- [x] Envio com WorkManager só com rede: um trabalho por foto, até 5 novas tentativas (`MediaUploadScheduler`, `MediaUploadWorker`).
+- [x] No fim do envio, a ocorrência guarda os endereços da foto e do thumbnail, numa transação (`IncidentRepository.markMediaUploaded`).
+- [x] As listas mostram o thumbnail e o detalhe a foto do Storage; enquanto não chega, aparece a foto local e o aviso «Há fotos que ainda não foram enviadas».
+- [x] Regras do Storage em `storage.rules`.
+- [ ] Ativar o Storage no projeto (plano Blaze) e publicar o `storage.rules` (João, dono do projeto).
+- [ ] Testar entre dois dispositivos: o munícipe cria a ocorrência com foto e o operador vê-a.
+- **Feito quando:** a foto tirada num telemóvel aparece noutro.
+
+### F1 — Landscape e acessibilidade nos meus ecrãs (17/11)
+- [x] Registo e perfil com duas colunas em landscape, no padrão do João (P10); uma coluna em portrait.
+- [x] Categorias e validação numa grelha adaptável: uma coluna em portrait, duas em landscape.
+- [x] O login e a edição de categoria ficam numa coluna (o login já tem largura máxima).
+- [x] Títulos de secção como cabeçalhos, dados da conta lidos como um só elemento e erros anunciados ao aparecer.
+- [ ] Testar em landscape o perfil, as categorias e a validação com sessão iniciada.
+
+### L11 — Notificações (17/11, documentação oficial)
+- [x] Cloud Functions com o Cloud Messaging (decidido a 17/11); só avisos do sistema, e tocar abre o detalhe (ponto 32).
+- [x] Token do Cloud Messaging em `deviceTokens/<uid>` ao iniciar sessão, tópico `operators` para os operadores e token apagado ao terminar sessão (`DeviceTokenRepository`).
+- [x] `CityFixMessagingService` e `IncidentNotifications`: canal próprio e textos do `strings.xml` em inglês e português.
+- [x] `notifyIncidentChanges`: mudança de estado, pedidos de informação, respostas e proximidade (L10). Quem fez a alteração não é avisado.
+- [x] `closeResolvedIncidents`, de hora a hora: aviso das 24 h e encerramento aos 5 dias no servidor (ponto 28).
+- [ ] Publicar as funções e as regras: plano Blaze, Node.js 22, Firebase CLI e acesso ao projeto do João.
+- [ ] Testar em dois dispositivos: o operador muda o estado e o autor recebe a notificação; o autor responde e o operador que perguntou recebe-a.
+- **Feito quando:** cada um dos quatro tipos de notificação do enunciado chega ao telemóvel certo com a app fechada.
+
 ## Anotado — tarefas a criar depois da aula
 
 | Tarefa | O que é | Aula |
 |---|---|---|
 | L8 | Multimédia: a base já existe (feita pelo João com a J5: `utils/FileUtils`, `FileProvider`, Coil 3 e os componentes `IncidentPhoto` e `PhotoPicker`; basta pôr o `PhotoPicker` no ecrã e guardar o caminho que ele devolve). Já é usada na foto opcional do registo (L3, com o `UserAvatar`), na foto de perfil (L4) e na prova de resolução (L7); o vídeo está por definir (ponto 13 por confirmar) | #3 |
-| L9 | Compressão, thumbnail e envio com WorkManager só com rede | por definir |
-| L10 | Falta só notificar o autor no telemóvel dele (Firebase). Já feito a 16/11: `ProximityService` em primeiro plano para o operador, alerta gravado na ocorrência (`ProximityAlert`) para Aberto e Pedido de informações a menos de 20 m, secção no detalhe e pedido da localização em 2.º plano | Firebase |
-| L11 | Notificações (estado, mensagens, proximidade, 24 h antes do fecho) e encerramento aos 5 dias (pontos 28 e 32 por confirmar) | Firebase / por definir |
-| F1 | Layouts adaptativos em landscape nos meus ecrãs (o registo, o perfil, as categorias e a validação fazem scroll; o padrão da P10 já está no início, no detalhe e na nova ocorrência) | #4 (dada) |
+| L10 | A notificação ao autor foi feita com a L11 (17/11); falta publicar as funções. Já feito a 16/11: `ProximityService` em primeiro plano para o operador, alerta gravado na ocorrência (`ProximityAlert`) para Aberto e Pedido de informações a menos de 20 m, secção no detalhe e pedido da localização em 2.º plano | Firebase |
 
 ## Sempre, em todos os meus ecrãs
 
@@ -92,4 +116,4 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 
 ## Pontos por confirmar que são meus
 
-7, 13, 28 (falta só o aviso das 24 h), 30 e 32. O 8, o 10 e o 29 ficaram fechados a 16/11 — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3. O conflito 11 ficou fechado a 12/11/2026.
+13 e 30 — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3. O 7, o 8, o 10 e o 29 ficaram fechados a 16/11, o 28 e o 32 a 17/11 (L11) e o conflito 11 a 12/11/2026.

@@ -104,3 +104,13 @@ fun Incident.withInformationReply(request: InfoRequest, reply: Message): Inciden
 
 fun Incident.withProximityAlert(operatorId: String, now: Long): Incident =
     copy(proximityAlerts = proximityAlerts + ProximityAlert(operatorId = operatorId, timestamp = now))
+
+fun Incident.withUploadedMedia(mediaId: String, remoteUrl: String, thumbnailUrl: String): Incident = copy(
+    media = media.map {
+        if (it.id == mediaId) {
+            it.copy(remoteUrl = remoteUrl, thumbnailUrl = thumbnailUrl, uploadStatus = UploadStatus.UPLOADED)
+        } else {
+            it
+        }
+    }
+)

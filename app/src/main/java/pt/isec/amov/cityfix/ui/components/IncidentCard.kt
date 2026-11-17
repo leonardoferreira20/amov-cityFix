@@ -52,7 +52,7 @@ fun IncidentCard(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IncidentPhoto(
-                path = incident.firstPhotoPath(),
+                path = incident.firstThumbnailPath(),
                 contentDescription = stringResource(R.string.incident_photo_description),
                 modifier = Modifier.size(56.dp)
             )

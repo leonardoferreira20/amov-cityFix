@@ -146,7 +146,7 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - O código de galeria e câmara do `EditScreen` das aulas foi reunido num componente `PhotoPicker`, para não se repetir na criação, na reabertura e nos ecrãs do Leonardo. Dentro de um `AlertDialog` funciona igual, porque o diálogo herda o registo de resultados da Activity.
 - Na criação de ocorrências, o caminho do ficheiro temporário da câmara fica num `rememberSaveable` (uma `String`) em vez de `remember`. Nas aulas, se o telemóvel rodasse com a câmara aberta, a Activity era recriada e a foto perdia-se; o enunciado exige landscape.
 - Se o utilizador cancelar a câmara, o ficheiro temporário é apagado (`FileUtils.deleteFromPath`), para não ficarem ficheiros vazios em `filesDir/images/`.
-- Só se usa `coil-compose`. As aulas incluem também `coil-network-okhttp`, que só é preciso para imagens da internet; as fotos do CityFix são ficheiros locais.
+- Usa-se também o `coil-network-okhttp`, como nas aulas, porque as fotos enviadas para o Storage (L9) são mostradas a partir da internet.
 - A visibilidade usa o mesmo padrão de `RadioButton` com `selectable` e `selectableGroup` do registo do Leonardo, numa função genérica `RadioOptions<T>`.
 - A categoria e a situação usam uma lista dropdown do Material 3 (`ExposedDropdownMenuBox`, com `OutlinedTextField` só de leitura e `DropdownMenuItem`), numa função genérica `DropdownField<T>`. Não foi dada nas aulas. Escolheu-se para o formulário caber no ecrã. Precisa de `@OptIn(ExperimentalMaterial3Api::class)`, como a `TopAppBar` das aulas.
 - O `UserAvatar` segue o `ContactAvatar` das aulas: um círculo com `AsyncImage` e as iniciais do nome quando não há foto. Sem nome, mostra o ícone de pessoa em vez de "?", para não haver texto fixo. A descrição de acessibilidade fica num só nó com `clearAndSetSemantics`, que não foi dado nas aulas: assim o leitor de ecrã lê "Fotografia de perfil" em vez das iniciais soltas.
@@ -169,6 +169,9 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - O serviço é arrancado e parado num `LaunchedEffect(currentUser?.id, hasLocationPermission)`, para correr só com a sessão de operador. Nas aulas arranca uma vez, no resultado do pedido de permissões.
 - A localização em 2.º plano (`ACCESS_BACKGROUND_LOCATION`) não foi dada nas aulas. O Android obriga a pedi-la depois da de 1.º plano e abre as definições, por isso o CityFix mostra antes um `AlertDialog` a explicar e só a pede ao operador e ao munícipe com a deteção de impactos.
 - O pedido inicial de permissões é lançado se faltar a localização ou as notificações (nas aulas é lançado sempre).
+- As listas de categorias e de munícipes pendentes usam `LazyVerticalGrid` com `GridCells.Adaptive(320.dp)`: o número de colunas depende da largura disponível, por isso fica uma coluna em portrait e duas em landscape sem verificar a orientação. Não foi dado nas aulas.
+- Acessibilidade sem ficha das aulas: os títulos de secção têm `semantics { heading() }`, para o leitor de ecrã poder saltar entre secções; os dados da conta usam `semantics(mergeDescendants = true)`, para o rótulo e o valor serem lidos juntos; e os erros do registo e do login têm `liveRegion`, para serem anunciados quando aparecem.
+- Os previews em landscape usam `device = "spec:width=411dp,height=891dp,orientation=landscape"`, para o `LocalConfiguration` dar a orientação certa.
 
 ## Firebase (sem ficha das aulas, segundo a documentação oficial)
 
@@ -180,3 +183,10 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - A lista do início usa `addSnapshotListener` dentro de um `callbackFlow`, como o `locationUpdates` da P10.
 - MFA com `TotpMultiFactorGenerator`: no perfil, `multiFactor.session` → `generateSecret` → `getAssertionForEnrollment` → `enroll`; no login, `FirebaseAuthMultiFactorException` → `resolver` → `getAssertionForSignIn` → `resolveSignIn`.
 - Os erros do Firebase convertem-se em ids de `strings.xml` numa função (`utils/authErrorMessage`), como os erros de validação.
+- Storage (L9, 17/11): `Firebase.storage.reference.child("incidents/<id>/<foto>.jpg")`, `putFile(...).await()` e `downloadUrl.await()`; o tipo `image/jpeg` vai no `storageMetadata`. As regras estão em `storage.rules`.
+- WorkManager (L9, 17/11): um `CoroutineWorker` (`MediaUploadWorker`) por foto, agendado com `enqueueUniqueWork(..., ExistingWorkPolicy.KEEP, ...)` e a restrição `NetworkType.CONNECTED`, para só correr com rede. Num erro devolve `Result.retry()`, até 5 vezes. O worker obtém o repositório pela `CityFixApp`, porque o WorkManager cria os workers sem `Factory`.
+- A compressão usa o `BitmapFactory` com `inSampleSize`, uma `Matrix` para reduzir e rodar segundo o EXIF (`android.media.ExifInterface`) e `Bitmap.compress(JPEG, ...)`.
+- No fim do envio, a ocorrência é atualizada com `runTransaction`, para não apagar alterações feitas entretanto noutro telemóvel.
+- Cloud Messaging (L11, 17/11): o token (`Firebase.messaging.token`) fica em `deviceTokens/<uid>`, os operadores subscrevem o tópico `operators` e o token é apagado ao terminar sessão (`deleteToken`). O `CityFixMessagingService`, um `FirebaseMessagingService` declarado no manifesto, recebe mensagens só com dados e cria a notificação com os textos do `strings.xml`, para ficar em inglês ou português conforme o telemóvel. O `NotificationChannel` e o `NotificationCompat` foram dados nas aulas, em projetos com Views.
+- Cloud Functions (L11, 17/11): JavaScript em `functions/index.js`, com as funções de 2.ª geração `onDocumentUpdated` e `onSchedule` e o `firebase-admin` para ler o Firestore e enviar as mensagens. Publicam-se com o Firebase CLI (`firebase deploy --only functions`), que precisa de Node.js 22 e do plano Blaze.
+- Tocar numa notificação abre a `MainActivity` com o id da ocorrência num extra do `Intent`; a `MainActivity` navega para o detalhe quando a sessão já está carregada.

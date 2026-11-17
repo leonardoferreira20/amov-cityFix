@@ -67,6 +67,22 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - Encerramento automático: ao carregar as ocorrências, as resolvidas há mais de 5 dias passam a Encerradas (`IncidentRepository.loadIncidents`).
   - Regras em `AccessRules` (`canStartWork`, `canResolve`, `isClosingDue`) e transições em `IncidentActions` (`workStarted`, `resolved`, `closed`).
   - Testado no emulador como operador: Aberto → Em resolução → Resolvido com foto da galeria e nota, histórico e data de encerramento; e o "Saneamento" dos dados de exemplo, resolvido há 22 dias, encerrado ao arrancar.
+- **L11 Notificações (17/11, documentação oficial):** Cloud Functions com o Cloud Messaging; só avisos do sistema (ponto 32).
+  - App: ao iniciar sessão, o token do Cloud Messaging fica em `deviceTokens/<uid>` (`DeviceTokenRepository`) e os operadores subscrevem o tópico `operators`; ao terminar sessão, o token é apagado (`deleteToken`). O `CityFixMessagingService` recebe mensagens só com dados e mostra a notificação com os textos do `strings.xml` (`IncidentNotifications`), no canal «Atualizações das ocorrências». Tocar na notificação abre o detalhe da ocorrência.
+  - Servidor (`functions/index.js`): `notifyIncidentChanges` corre quando uma ocorrência muda e avisa o autor das mudanças de estado feitas por outra pessoa, dos pedidos de informação e das respostas do operador e dos alertas de proximidade; avisa o operador que fez o pedido quando o autor responde; e avisa todos os operadores (tópico) quando o autor faz um pedido. `closeResolvedIncidents` corre de hora a hora: avisa o autor 24 h antes do fim do prazo (marca `closingWarningSentAt`) e encerra as ocorrências resolvidas há mais de 5 dias, mesmo sem ninguém abrir a app.
+  - `firebase.json` e `.firebaserc` permitem publicar as funções e as regras com o Firebase CLI. As regras do Firestore ganharam a coleção `deviceTokens`, em que cada utilizador só mexe no seu token.
+  - Compilado e com a sintaxe das funções verificada. Falta publicar (plano Blaze, Node.js 22, Firebase CLI e acesso ao projeto) e testar em dois dispositivos. A região das funções (`europe-west1`) tem de coincidir com a localização do Firestore.
+- **F1 Landscape e acessibilidade nos ecrãs do Leonardo (17/11):**
+  - Registo e perfil com duas colunas em landscape, no padrão do João (`Row` com duas colunas, cada uma com o seu scroll); em portrait continuam numa coluna. No registo: à esquerda a foto, os dados e a palavra-passe, à direita o perfil, o mapa, a deteção de impactos e «Registar». No perfil: à esquerda «Editar perfil», à direita «Dados da conta», a verificação em dois passos e «Terminar sessão».
+  - Categorias e validação de munícipes numa grelha que se adapta à largura (`GridCells.Adaptive(320.dp)`): uma coluna em portrait, duas em landscape.
+  - Acessibilidade: títulos de secção marcados como cabeçalhos (`heading()`), rótulo e valor dos dados da conta lidos juntos (`mergeDescendants`) e erros do registo e do login anunciados quando aparecem (`liveRegion`).
+  - Previews em landscape no registo e no perfil.
+- **L9 Fotos no Storage (17/11, documentação oficial):** só as fotos das ocorrências (criação, reabertura e prova de resolução).
+  - Ao gravar uma ocorrência, o `IncidentRepository` pede ao `MediaUploadScheduler` um trabalho do WorkManager por cada foto por enviar que exista neste telemóvel. O trabalho só corre com rede (`NetworkType.CONNECTED`) e tenta de novo até 5 vezes.
+  - O `MediaUploadWorker` comprime a foto (1280 px, JPEG a 80%) e cria o thumbnail (320 px, JPEG a 70%) com o `ImageCompressor`, que também acerta a rotação EXIF. Depois envia os dois para `incidents/<id>/` no Storage e guarda os endereços na ocorrência, numa transação do Firestore (`markMediaUploaded`).
+  - As listas mostram o thumbnail e o detalhe a foto do Storage. Enquanto o envio não acaba, aparece a foto local e o aviso «Há fotos que ainda não foram enviadas».
+  - Regras do Storage em `storage.rules`: só utilizadores autenticados leem e escrevem; só JPEG até 5 MB. O anónimo vê as fotos pelo endereço de download.
+  - Compilado. Falta ativar o Storage no projeto (plano Blaze), publicar as regras e testar o envio entre dois dispositivos.
 - **Restrição ao operador (L5 e L6):** os botões de acesso só aparecem na barra de topo quando o perfil é Operador (`canManageCategories`, `canValidateCitizens`).
 - Todas as tarefas do Leonardo foram testadas no emulador, têm os textos em inglês e português e descrições de acessibilidade nos botões e interruptores.
 
@@ -182,9 +198,9 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - [x] L7 `LifecycleActions` (11/11). Falta o vídeo comprovativo (pontos 13 e A) e a notificação ao autor (L11).
 - [x] L1 Login e aviso de conta pendente (16/11).
 - [x] L2 MFA com TOTP e recuperação de password (16/11).
-- [ ] L9 Compressão, thumbnail e envio com WorkManager.
-- [ ] L10 Alerta de 20 m: a deteção e o registo do alerta estão feitos (serviço de proximidade, 16/11); falta notificar o autor no telemóvel dele (Firebase).
-- [ ] L11 Notificações e aviso das 24 h. O encerramento aos 5 dias já é feito no dispositivo (L7).
+- [ ] L9 Compressão, thumbnail e envio para o Storage com WorkManager: implementada a 17/11. Falta ativar o Storage no projeto (plano Blaze), publicar o `storage.rules` e testar o envio entre dois dispositivos.
+- [ ] L10 Alerta de 20 m: a deteção e o registo do alerta estão feitos (serviço de proximidade, 16/11). A notificação ao autor foi feita com a L11 (17/11); falta publicar as funções.
+- [ ] L11 Notificações: implementada a 17/11 (app e Cloud Functions). Falta publicar as funções e as regras do Firestore (plano Blaze, Node.js 22, Firebase CLI e acesso ao projeto) e testar em dois dispositivos.
 - Pendente nas tarefas já feitas:
   - [x] L3: password e criação da conta no Authentication (16/11).
 
@@ -197,19 +213,19 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Kotlin, Jetpack Compose, MVVM com ecrãs stateful e stateless | Seguido no código novo |
 | Firebase Authentication (e-mail/password, MFA, recuperação por e-mail) | Feito a 16/11; falta testar com as regras publicadas e o TOTP ativo no projeto |
 | Cloud Firestore com cache offline | Feito a 16/11 (cache persistente, gravações offline, lista em tempo real) |
-| Firebase Storage e WorkManager, com envio só quando há rede | Por fazer (L9) |
-| Imagens comprimidas e com thumbnail | Por fazer (L9) |
-| Cloud Messaging e notificações | Por fazer (L11) |
+| Firebase Storage e WorkManager, com envio só quando há rede | Implementado a 17/11 (L9); falta ativar o Storage (Blaze) e testar |
+| Imagens comprimidas e com thumbnail | Implementado a 17/11 (L9): 1280 px a 80% e thumbnail de 320 px a 70%, antes do envio |
+| Cloud Messaging e notificações | Implementado a 17/11 (L11): Cloud Functions enviam mensagens do Cloud Messaging e a app mostra-as; falta publicar as funções e testar |
 | Permissões em runtime: localização (1.º e 2.º plano), câmara, notificações | Feitas a 16/11: localização e notificações ao arrancar, câmara antes de a abrir, 2.º plano para o operador e para a deteção de impactos |
 | Inglês por omissão e português | Feito em todos os ecrãs |
-| Portrait e landscape | Layouts adaptativos no início, no detalhe e na nova ocorrência (16/11); os outros ecrãs fazem scroll. Falta a revisão final |
+| Portrait e landscape | Layouts adaptativos no início, no detalhe e na nova ocorrência (16/11). Nos ecrãs do Leonardo (17/11): duas colunas no registo e no perfil e grelha nas categorias e na validação; o login e a edição de categoria ficam numa coluna. Falta a revisão final |
 | Barras de topo, ícones e botões flutuantes dinâmicos | `MainTopAppBar` com título e ações por ecrã e perfil; botões flutuantes nos ecrãs do Leonardo |
-| Acessibilidade | Descrições nos botões da barra de topo e nos ecrãs do Leonardo; falta rever o resto |
+| Acessibilidade | Descrições nos botões da barra de topo e nos ecrãs do Leonardo. Nos ecrãs do Leonardo (17/11): títulos de secção marcados como cabeçalhos, rótulo e valor dos dados da conta lidos juntos e erros anunciados quando aparecem. Falta rever o resto |
 
 ### 3.5 Decisões por fechar
 O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 - Conflitos com o enunciado: 15 (o tempo médio inclui os 5 dias até ao encerramento). O 11 (fechado a 12/11, a favor do enunciado) e o 16 ficaram fechados.
-- Por confirmar, do Leonardo: 7 (falta só a unicidade do e-mail, que o Firebase resolve), 8, 10, 13, 28 (falta só o aviso das 24 h), 29, 30 e 32.
+- Por confirmar, do Leonardo: 13 e 30. Ficaram fechados o 7 (o Firebase não aceita e-mails repetidos e o NIF é único por perfil), o 8, o 10 e o 29 (16/11) e o 28 e o 32 (17/11, com a L11).
 - Por confirmar, do João: 17, 31, A e B.
 
 ### 3.6 Problemas conhecidos e limpeza

@@ -68,6 +68,7 @@
     <string name="photo_gallery">Gallery</string>
     <string name="photo_camera">Camera</string>
     <string name="incident_photo_description">Photo of the incident</string>
+    <string name="detail_photos_pending">Some photos haven\'t been uploaded yet.</string>
     <string name="visibility_public">Public</string>
     <string name="visibility_private">Private</string>
     <string name="error_photo_required">A photo is required.</string>
@@ -171,6 +172,18 @@
     <string name="proximity_service_title">CityFix proximity alerts</string>
     <string name="proximity_service_text">Checking for open incidents within 20 m.</string>
     <string name="proximity_channel_name">Proximity alerts</string>
+    <string name="notification_channel_name">Incident updates</string>
+    <string name="notification_channel_description">Status changes, messages, nearby teams and closing warnings for your incidents.</string>
+    <string name="notification_status_title">Incident status updated</string>
+    <string name="notification_status_text">The %1$s incident is now %2$s.</string>
+    <string name="notification_request_title">Information request</string>
+    <string name="notification_request_text">There is a new information request about the %1$s incident.</string>
+    <string name="notification_message_title">New reply</string>
+    <string name="notification_message_text">There is a new reply about the %1$s incident.</string>
+    <string name="notification_proximity_title">Municipal team nearby</string>
+    <string name="notification_proximity_text">A municipal team is less than 20 m from the %1$s incident.</string>
+    <string name="notification_closing_title">Incident closing soon</string>
+    <string name="notification_closing_text">The %1$s incident will be closed in 24 hours. Until then, you can still reopen it.</string>
     <string name="background_location_title">Location in the background</string>
     <string name="background_location_operator">To alert the authors when you are within 20 m of an incident, CityFix needs your location even when the app is closed. On the next screen choose \"Allow all the time\".</string>
     <string name="background_location_impacts">Impact detection works while you travel, even with the app closed, so CityFix needs your location in the background. On the next screen choose \"Allow all the time\".</string>

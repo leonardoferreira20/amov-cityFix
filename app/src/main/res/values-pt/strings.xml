@@ -65,6 +65,7 @@
     <string name="photo_gallery">Galeria</string>
     <string name="photo_camera">Câmara</string>
     <string name="incident_photo_description">Fotografia da ocorrência</string>
+    <string name="detail_photos_pending">Há fotos que ainda não foram enviadas.</string>
     <string name="visibility_public">Pública</string>
     <string name="visibility_private">Privada</string>
     <string name="error_photo_required">A fotografia é obrigatória.</string>
@@ -168,6 +169,18 @@
     <string name="proximity_service_title">Alertas de proximidade do CityFix</string>
     <string name="proximity_service_text">A verificar ocorrências abertas a menos de 20 m.</string>
     <string name="proximity_channel_name">Alertas de proximidade</string>
+    <string name="notification_channel_name">Atualizações das ocorrências</string>
+    <string name="notification_channel_description">Mudanças de estado, mensagens, equipas por perto e avisos de encerramento das suas ocorrências.</string>
+    <string name="notification_status_title">Estado da ocorrência atualizado</string>
+    <string name="notification_status_text">A ocorrência de %1$s passou a %2$s.</string>
+    <string name="notification_request_title">Pedido de informação</string>
+    <string name="notification_request_text">Há um novo pedido de informação na ocorrência de %1$s.</string>
+    <string name="notification_message_title">Nova resposta</string>
+    <string name="notification_message_text">Há uma nova resposta na ocorrência de %1$s.</string>
+    <string name="notification_proximity_title">Equipa municipal por perto</string>
+    <string name="notification_proximity_text">Uma equipa municipal está a menos de 20 m da ocorrência de %1$s.</string>
+    <string name="notification_closing_title">A ocorrência vai ser encerrada</string>
+    <string name="notification_closing_text">A ocorrência de %1$s é encerrada daqui a 24 horas. Até lá, ainda a pode reabrir.</string>
     <string name="background_location_title">Localização em segundo plano</string>
     <string name="background_location_operator">Para avisar os autores quando está a menos de 20 m de uma ocorrência, o CityFix precisa da localização mesmo com a app fechada. No ecrã seguinte escolha \"Permitir sempre\".</string>
     <string name="background_location_impacts">A deteção de impactos funciona durante as deslocações, mesmo com a app fechada, por isso o CityFix precisa da localização em segundo plano. No ecrã seguinte escolha \"Permitir sempre\".</string>

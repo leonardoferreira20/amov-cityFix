@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import pt.isec.amov.cityfix.data.AuthRepository
 import pt.isec.amov.cityfix.data.CategoryRepository
+import pt.isec.amov.cityfix.data.DeviceTokenRepository
 import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.data.model.AccountStatus
 import pt.isec.amov.cityfix.data.model.User
@@ -16,7 +17,8 @@ import pt.isec.amov.cityfix.utils.isOperator
 class SessionViewModel(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val deviceTokenRepository: DeviceTokenRepository
 ) : ViewModel() {
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
@@ -28,6 +30,7 @@ class SessionViewModel(
     fun onSignedIn(user: User) {
         _currentUser.value = user
         if (isOperator(user)) viewModelScope.launch { categoryRepository.seedIfEmpty(user.id) }
+        viewModelScope.launch { deviceTokenRepository.register(user) }
     }
 
     fun refreshCurrentUser() {
@@ -36,6 +39,7 @@ class SessionViewModel(
     }
 
     fun signOut() {
+        deviceTokenRepository.unregister()
         authRepository.signOut()
         _currentUser.value = null
     }

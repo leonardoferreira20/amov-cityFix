@@ -19,12 +19,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import pt.isec.amov.cityfix.data.model.Incident
+import pt.isec.amov.cityfix.data.model.MediaAttachment
 import pt.isec.amov.cityfix.data.model.MediaType
+import pt.isec.amov.cityfix.data.model.UploadStatus
 
-fun Incident.photoPaths(): List<String> =
-    media.filter { it.type == MediaType.IMAGE }.mapNotNull { it.localUri }
+private fun Incident.images(): List<MediaAttachment> = media.filter { it.type == MediaType.IMAGE }
 
-fun Incident.firstPhotoPath(): String? = photoPaths().firstOrNull()
+fun Incident.photoPaths(): List<String> = images().mapNotNull { it.remoteUrl ?: it.localUri }
+
+fun Incident.firstThumbnailPath(): String? = images().firstOrNull()?.let { it.thumbnailUrl ?: it.localUri }
+
+fun Incident.hasPendingUploads(): Boolean = media.any { it.uploadStatus == UploadStatus.PENDING }
 
 @Composable
 fun IncidentPhoto(

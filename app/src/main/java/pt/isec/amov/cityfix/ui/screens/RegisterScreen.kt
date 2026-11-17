@@ -1,20 +1,25 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -22,26 +27,29 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.ui.draw.clip
 import pt.isec.amov.cityfix.data.model.AccountStatus
 import pt.isec.amov.cityfix.data.model.GeoLocation
-import pt.isec.amov.cityfix.ui.components.MapLocationPicker
-import pt.isec.amov.cityfix.utils.CITY_CENTER
-import pt.isec.amov.cityfix.utils.toDisplayText
 import pt.isec.amov.cityfix.data.model.UserRole
 import pt.isec.amov.cityfix.ui.components.FormTextField
 import pt.isec.amov.cityfix.ui.components.ImpactDetectionSwitch
+import pt.isec.amov.cityfix.ui.components.MapLocationPicker
 import pt.isec.amov.cityfix.ui.components.UserPhotoField
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
+import pt.isec.amov.cityfix.utils.CITY_CENTER
+import pt.isec.amov.cityfix.utils.toDisplayText
 import pt.isec.amov.cityfix.viewmodel.RegisterUiState
 
 @Composable
@@ -62,15 +70,10 @@ fun RegisterScreen(
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(modifier = modifier.imePadding()) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val accountContent: @Composable (Modifier) -> Unit = { contentModifier ->
+        Column(modifier = contentModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             UserPhotoField(name = state.name, picturePath = state.picturePath, onPictureChange = onPictureChange)
 
             FormTextField(state.name, onNameChange, R.string.field_name, error = state.nameError)
@@ -111,8 +114,12 @@ fun RegisterScreen(
                 error = state.passwordConfirmationError,
                 isPassword = true
             )
+        }
+    }
 
-            Text(stringResource(R.string.register_profile_label), style = MaterialTheme.typography.titleSmall)
+    val profileContent: @Composable (Modifier) -> Unit = { contentModifier ->
+        Column(modifier = contentModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            SectionTitle(R.string.register_profile_label)
             Column(modifier = Modifier.selectableGroup()) {
                 UserRole.entries.forEach { role ->
                     Row(
@@ -133,7 +140,7 @@ fun RegisterScreen(
             }
 
             if (state.role == UserRole.CITIZEN) {
-                Text(stringResource(R.string.field_location), style = MaterialTheme.typography.titleSmall)
+                SectionTitle(R.string.field_location)
                 Text(stringResource(R.string.register_location_hint), style = MaterialTheme.typography.bodyMedium)
                 MapLocationPicker(
                     selected = state.location,
@@ -155,13 +162,7 @@ fun RegisterScreen(
                     text = state.location?.toDisplayText() ?: stringResource(R.string.field_location_not_set),
                     style = MaterialTheme.typography.bodyMedium
                 )
-                state.locationError?.let {
-                    Text(
-                        text = stringResource(it),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                ErrorText(state.locationError, MaterialTheme.typography.bodySmall)
 
                 ImpactDetectionSwitch(
                     checked = state.impactDetectionEnabled,
@@ -169,13 +170,7 @@ fun RegisterScreen(
                 )
             }
 
-            state.error?.let {
-                Text(
-                    text = stringResource(it),
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            ErrorText(state.error)
 
             Button(
                 onClick = onRegisterClick,
@@ -183,6 +178,43 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.register_submit))
+            }
+        }
+    }
+
+    Scaffold(modifier = modifier.imePadding()) { innerPadding ->
+        if (isLandscape) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                accountContent(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                )
+                profileContent(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState())
+                )
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                accountContent(Modifier.fillMaxWidth())
+                profileContent(Modifier.fillMaxWidth())
             }
         }
     }
@@ -208,6 +240,27 @@ fun RegisterScreen(
                     )
                 )
             }
+        )
+    }
+}
+
+@Composable
+private fun SectionTitle(@StringRes text: Int) {
+    Text(
+        text = stringResource(text),
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.semantics { heading() }
+    )
+}
+
+@Composable
+private fun ErrorText(@StringRes error: Int?, style: TextStyle = MaterialTheme.typography.bodyMedium) {
+    error?.let {
+        Text(
+            text = stringResource(it),
+            color = MaterialTheme.colorScheme.error,
+            style = style,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
         )
     }
 }
@@ -247,4 +300,10 @@ private fun RegisterScreenPreview() {
             onDone = {}
         )
     }
+}
+
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp,orientation=landscape")
+@Composable
+private fun RegisterScreenLandscapePreview() {
+    RegisterScreenPreview()
 }

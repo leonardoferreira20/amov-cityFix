@@ -51,6 +51,19 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O segundo fator do MFA é TOTP, com uma app autenticadora (10). Exige ativar o "Firebase Authentication with Identity Platform" e o TOTP na consola.
 - O projeto Firebase passa para o plano Blaze, porque desde fevereiro de 2026 o Cloud Storage não existe no plano Spark. A quota gratuita mantém-se.
 - Firebase, WorkManager e sensores seguem a documentação oficial, porque não há fichas das aulas sobre eles (decidido a 16/11).
+- Fotos no Storage (L9, 17/11):
+  - só vão para o Storage as fotos das ocorrências (criação, reabertura e prova de resolução); a foto de perfil fica no telemóvel;
+  - a compressão (1280 px, JPEG a 80%) e o thumbnail (320 px, JPEG a 70%) são feitos no worker, antes do envio; a foto original fica no telemóvel;
+  - cada foto é enviada por um trabalho do WorkManager que só corre com rede; no fim, a ocorrência guarda os endereços da foto e do thumbnail;
+  - as listas mostram o thumbnail e o detalhe a foto completa; enquanto o envio não acaba, aparece a foto local e um aviso;
+  - no Storage, as fotos ficam em `incidents/<id da ocorrência>/`.
+- Notificações (L11, 17/11):
+  - são enviadas por Cloud Functions com o Cloud Messaging, para chegarem com a app fechada e para o aviso das 24 h e o encerramento correrem sem ninguém abrir a app;
+  - as mensagens levam só dados (tipo, ocorrência, categoria, estado) e a app escreve o texto com o `strings.xml`, em inglês ou português;
+  - o token de cada utilizador fica em `deviceTokens/<uid>`; os operadores subscrevem o tópico `operators`; ao terminar sessão, o token é apagado;
+  - quem é avisado: o autor nas mudanças de estado, nos pedidos e respostas do operador e nos alertas de proximidade; o operador que fez o pedido quando o autor responde; todos os operadores quando o autor faz um pedido. Quem fez a alteração não é avisado;
+  - as funções correm em `europe-west1`, que tem de coincidir com a localização do Firestore, e usam Node.js 22.
+- Landscape nos ecrãs do Leonardo (F1, 17/11): o registo e o perfil passam a duas colunas, como a nova ocorrência do João; as categorias e a validação de munícipes usam uma grelha com uma coluna em portrait e duas em landscape; o login e a edição de categoria ficam numa coluna.
 - Firestore (16/11): coleções `users` (id = uid do Authentication), `categories` e `incidents`, com cache persistente. Só as categorias de exemplo são criadas, quando o primeiro operador entra e a coleção está vazia. As gravações não esperam pela resposta do servidor, para funcionarem offline.
 - Coroutines com `task.await()` da biblioteca `kotlinx-coroutines-play-services` (16/11).
 - Authentication (16/11): o registo cria a conta, verifica o NIF e grava o perfil; se o NIF já existir, a conta criada é apagada. Depois de registar, a sessão termina e o utilizador entra pelo login. O registo envia o e-mail de verificação.
@@ -119,12 +132,12 @@ O conflito 11 (nome editável e morada) ficou fechado a 12/11/2026, a favor do e
 ## 3. Por confirmar
 
 ### Da análise inicial
-- (7) O mesmo NIF pode existir como munícipe e como operador? O e-mail ficou resolvido: o Authentication não deixa repetir.
+- (7) Fechado: o NIF é único por perfil (validações do registo) e o Authentication não deixa repetir o e-mail.
 - (13) O limite de 1 foto e 1 vídeo é definitivo?
-- (28) Quem executa o aviso das 24 h antes do encerramento: o dispositivo ou o backend? O encerramento ficou decidido: é feito no dispositivo (11/11/2026).
+- (28) Fechado a 17/11 (L11): o aviso das 24 h e o encerramento aos 5 dias são feitos no servidor, de hora a hora (`closeResolvedIncidents`). A app continua a encerrar as que encontra fora de prazo ao carregar as ocorrências.
 - (30) Qualquer operador ativa a geofence, ou só um operador atribuído? Há atribuição de operador a ocorrências?
 - (31) Na Deteção de Impactos, que categoria corresponde a "pavimento" e que limiar de aceleração se usa?
-- (32) As notificações ficam guardadas na app ou são só avisos do sistema?
+- (32) Fechado a 17/11 (L11): são só avisos do sistema; tocar abre o detalhe da ocorrência, onde já estão o histórico e as mensagens.
 
 ### Novas, resultantes das decisões
 - **A.** Um vídeo pode substituir a foto, ou a foto é sempre obrigatória e o vídeo opcional?

@@ -51,6 +51,7 @@ import pt.isec.amov.cityfix.ui.components.IncidentPhoto
 import pt.isec.amov.cityfix.ui.components.InformationRequests
 import pt.isec.amov.cityfix.ui.components.PhotoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
+import pt.isec.amov.cityfix.ui.components.hasPendingUploads
 import pt.isec.amov.cityfix.ui.components.photoPaths
 import pt.isec.amov.cityfix.utils.FileUtils
 import pt.isec.amov.cityfix.utils.formatDateTime
@@ -110,14 +111,23 @@ fun IncidentDetailScreen(
 
     val photosContent: @Composable () -> Unit = {
         if (photos.isNotEmpty()) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(photos) { path ->
-                    IncidentPhoto(
-                        path = path,
-                        contentDescription = stringResource(R.string.incident_photo_description),
-                        modifier = Modifier
-                            .fillParentMaxWidth(if (photos.size == 1) 1f else 0.85f)
-                            .height(220.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(photos) { path ->
+                        IncidentPhoto(
+                            path = path,
+                            contentDescription = stringResource(R.string.incident_photo_description),
+                            modifier = Modifier
+                                .fillParentMaxWidth(if (photos.size == 1) 1f else 0.85f)
+                                .height(220.dp)
+                        )
+                    }
+                }
+                if (incident.hasPendingUploads()) {
+                    Text(
+                        text = stringResource(R.string.detail_photos_pending),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

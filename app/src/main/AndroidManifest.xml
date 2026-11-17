@@ -25,6 +25,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CityFix">
         <service
+            android:name=".services.CityFixMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
             android:name=".services.ProximityService"
             android:exported="false"
             android:foregroundServiceType="location" />

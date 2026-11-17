@@ -28,5 +28,9 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
       allow update: if signedIn();
     }
+
+    match /deviceTokens/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
   }
 }
