@@ -56,13 +56,15 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - a compressão (1280 px, JPEG a 80%) e o thumbnail (320 px, JPEG a 70%) são feitos no worker, antes do envio; a foto original fica no telemóvel;
   - cada foto é enviada por um trabalho do WorkManager que só corre com rede; no fim, a ocorrência guarda os endereços da foto e do thumbnail;
   - as listas mostram o thumbnail e o detalhe a foto completa; enquanto o envio não acaba, aparece a foto local e um aviso;
-  - no Storage, as fotos ficam em `incidents/<id da ocorrência>/`.
+  - no Storage, as fotos ficam em `incidents/<id da ocorrência>/`;
+  - o Storage fica em modo de teste, por indicação do professor (17/11), na região `us-central1`, que tem quota gratuita. O `storage.rules` fica no repositório como versão de produção e não é publicado (não está no `firebase.json`).
 - Notificações (L11, 17/11):
   - são enviadas por Cloud Functions com o Cloud Messaging, para chegarem com a app fechada e para o aviso das 24 h e o encerramento correrem sem ninguém abrir a app;
   - as mensagens levam só dados (tipo, ocorrência, categoria, estado) e a app escreve o texto com o `strings.xml`, em inglês ou português;
   - o token de cada utilizador fica em `deviceTokens/<uid>`; os operadores subscrevem o tópico `operators`; ao terminar sessão, o token é apagado;
   - quem é avisado: o autor nas mudanças de estado, nos pedidos e respostas do operador e nos alertas de proximidade; o operador que fez o pedido quando o autor responde; todos os operadores quando o autor faz um pedido. Quem fez a alteração não é avisado;
-  - as funções correm em `europe-west1`, que tem de coincidir com a localização do Firestore, e usam Node.js 22.
+  - as funções usam Node.js 22 e ficam em regiões diferentes (17/11): a `notifyIncidentChanges` corre em `europe-southwest1` (Madrid), porque um gatilho do Firestore tem de estar na região da base de dados; a `closeResolvedIncidents` corre em `europe-west1` (Bélgica), porque o Cloud Scheduler não existe em Madrid;
+  - as imagens das funções guardadas no Artifact Registry são apagadas ao fim de 1 dia, para não acumularem custos.
 - Landscape nos ecrãs do Leonardo (F1, 17/11): o registo e o perfil passam a duas colunas, como a nova ocorrência do João; as categorias e a validação de munícipes usam uma grelha com uma coluna em portrait e duas em landscape; o login e a edição de categoria ficam numa coluna.
 - Firestore (16/11): coleções `users` (id = uid do Authentication), `categories` e `incidents`, com cache persistente. Só as categorias de exemplo são criadas, quando o primeiro operador entra e a coleção está vazia. As gravações não esperam pela resposta do servidor, para funcionarem offline.
 - Coroutines com `task.await()` da biblioteca `kotlinx-coroutines-play-services` (16/11).

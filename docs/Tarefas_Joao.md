@@ -17,11 +17,11 @@ Descrição de cada uma em [CityFix_Plano.md](CityFix_Plano.md), secção 4.
 
 O Leonardo enviou a L9 (fotos no Storage), a L11 (notificações com Cloud Functions) e o F1 (landscape nos ecrãs dele) no commit `5fa83d7`. Para funcionarem, faltam estes passos na consola do Firebase, que são do João, por ser o dono do projeto:
 
-- [ ] Passar o projeto `cityfix-3dbb1` para o plano Blaze (decisão já registada). Pode criar-se um alerta de orçamento na Google Cloud.
-- [ ] Ativar o Storage (Storage → Começar).
-- [ ] Dar ao Leonardo acesso de Editor ao projeto (Definições do projeto → Utilizadores e permissões), para ele publicar as funções e as regras com o Firebase CLI.
-- [ ] Confirmar a localização da base de dados do Firestore. As funções estão em `europe-west1`; se o Firestore estiver nos EUA (`nam5`), o `REGION` de `functions/index.js` passa a `us-central1`.
-- [ ] Depois de o Leonardo publicar, testarem os dois em dispositivos separados: a foto de uma ocorrência nova vista noutro telemóvel e as notificações de mudança de estado, pedidos, respostas e proximidade.
+- [x] Passar o projeto `cityfix-3dbb1` para o plano Blaze (confirmado a 17/11). Pode criar-se um alerta de orçamento na Google Cloud.
+- [x] Ativar o Storage em modo de teste, por indicação do professor: feito pelo Leonardo a 17/11 (bucket `cityfix-3dbb1.firebasestorage.app`).
+- [x] Dar ao Leonardo acesso ao projeto: já tinha, e publicou as funções e as regras do Firestore com o Firebase CLI a 17/11.
+- [x] Confirmar a localização da base de dados do Firestore: está em `europe-southwest1` (Madrid). A `notifyIncidentChanges` ficou nessa região e a `closeResolvedIncidents` em `europe-west1`, porque o Cloud Scheduler não existe em Madrid (17/11).
+- [ ] As funções já estão publicadas (17/11) e a notificação de proximidade já foi testada entre dois emuladores. Falta testarem os dois em dispositivos separados: a foto de uma ocorrência nova vista noutro telemóvel e as notificações de mudança de estado, pedidos, respostas e proximidade.
 
 Mudanças no código partilhado que convém conhecer:
 - O `IncidentRepository` recebe um `MediaUploadScheduler`: o `saveIncident` agenda o envio das fotos que ainda não foram enviadas, e o `markMediaUploaded` guarda os endereços no fim.
@@ -30,7 +30,7 @@ Mudanças no código partilhado que convém conhecer:
 - O detalhe mostra «Há fotos que ainda não foram enviadas» enquanto o envio não acaba.
 - O `SessionViewModel` e a sua `Factory` recebem o `DeviceTokenRepository`, que guarda o token do Cloud Messaging ao iniciar sessão e o apaga ao terminar.
 - A `MainActivity` abre o detalhe da ocorrência quando se toca numa notificação (extra `incidentId`).
-- O `firestore.rules` tem a coleção `deviceTokens`; na raiz há também `storage.rules`, `firebase.json` e `.firebaserc`.
+- O `firestore.rules` tem a coleção `deviceTokens`; na raiz há também `storage.rules` (versão de produção, não publicada, porque o Storage está em modo de teste), `firebase.json` e `.firebaserc`.
 
 ## Tarefas
 

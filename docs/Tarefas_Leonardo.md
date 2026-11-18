@@ -78,9 +78,11 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] Envio com WorkManager só com rede: um trabalho por foto, até 5 novas tentativas (`MediaUploadScheduler`, `MediaUploadWorker`).
 - [x] No fim do envio, a ocorrência guarda os endereços da foto e do thumbnail, numa transação (`IncidentRepository.markMediaUploaded`).
 - [x] As listas mostram o thumbnail e o detalhe a foto do Storage; enquanto não chega, aparece a foto local e o aviso «Há fotos que ainda não foram enviadas».
-- [x] Regras do Storage em `storage.rules`.
-- [ ] Ativar o Storage no projeto (plano Blaze) e publicar o `storage.rules` (João, dono do projeto).
-- [ ] Testar entre dois dispositivos: o munícipe cria a ocorrência com foto e o operador vê-a.
+- [x] Regras de produção do Storage em `storage.rules`. O projeto usa o modo de teste, por indicação do professor (17/11), por isso estas regras não são publicadas.
+- [x] Projeto no plano Blaze (confirmado a 17/11).
+- [x] Storage ativado em modo de teste (17/11), no bucket `cityfix-3dbb1.firebasestorage.app`.
+- [x] Envio testado no emulador a 17/11: worker com sucesso, foto e thumbnail (320 px) no Storage, Firestore com `UPLOADED` e os endereços, thumbnail mostrado a partir do Storage.
+- [x] O operador vê a foto da ocorrência criada pelo munícipe (confirmado pelo Leonardo a 17/11, no emulador). A foto vem do endereço do Storage, por isso não depende do telemóvel onde foi tirada.
 - **Feito quando:** a foto tirada num telemóvel aparece noutro.
 
 ### F1 — Landscape e acessibilidade nos meus ecrãs (17/11)
@@ -96,8 +98,11 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 - [x] `CityFixMessagingService` e `IncidentNotifications`: canal próprio e textos do `strings.xml` em inglês e português.
 - [x] `notifyIncidentChanges`: mudança de estado, pedidos de informação, respostas e proximidade (L10). Quem fez a alteração não é avisado.
 - [x] `closeResolvedIncidents`, de hora a hora: aviso das 24 h e encerramento aos 5 dias no servidor (ponto 28).
-- [ ] Publicar as funções e as regras: plano Blaze, Node.js 22, Firebase CLI e acesso ao projeto do João.
-- [ ] Testar em dois dispositivos: o operador muda o estado e o autor recebe a notificação; o autor responde e o operador que perguntou recebe-a.
+- [x] Funções e regras do Firestore publicadas a 17/11 com o Firebase CLI: `notifyIncidentChanges` em `europe-southwest1`, a região do Firestore, e `closeResolvedIncidents` em `europe-west1`, porque o Cloud Scheduler não existe em Madrid.
+- [ ] Apagar na consola do Firebase (Functions) a `closeResolvedIncidents` de `europe-southwest1`, que sobrou da primeira tentativa e que o Firebase CLI não consegue apagar. A de `europe-west1` fica.
+- [x] Proximidade testada a 17/11 com dois emuladores: o operador ficou a menos de 20 m da «Iluminação» e o munícipe recebeu a notificação com a app em segundo plano.
+- [ ] Testar em dois dispositivos reais, com o João: o operador muda o estado e o autor recebe a notificação; o operador pede informação e o autor recebe-a; o autor responde e o operador que perguntou recebe-a; o autor faz um pedido e os operadores recebem-no; tocar na notificação abre o detalhe. A 17/11 a função correu na resposta e no pedido do operador, mas o segundo emulador foi abaixo por falta de memória e não os recebeu (o Mac não aguenta dois emuladores com o Android 17).
+- [ ] Confirmar nos registos das funções que a `closeResolvedIncidents` corre de hora a hora.
 - **Feito quando:** cada um dos quatro tipos de notificação do enunciado chega ao telemóvel certo com a app fechada.
 
 ## Anotado — tarefas a criar depois da aula
@@ -105,7 +110,7 @@ Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp
 | Tarefa | O que é | Aula |
 |---|---|---|
 | L8 | Multimédia: a base já existe (feita pelo João com a J5: `utils/FileUtils`, `FileProvider`, Coil 3 e os componentes `IncidentPhoto` e `PhotoPicker`; basta pôr o `PhotoPicker` no ecrã e guardar o caminho que ele devolve). Já é usada na foto opcional do registo (L3, com o `UserAvatar`), na foto de perfil (L4) e na prova de resolução (L7); o vídeo está por definir (ponto 13 por confirmar) | #3 |
-| L10 | A notificação ao autor foi feita com a L11 (17/11); falta publicar as funções. Já feito a 16/11: `ProximityService` em primeiro plano para o operador, alerta gravado na ocorrência (`ProximityAlert`) para Aberto e Pedido de informações a menos de 20 m, secção no detalhe e pedido da localização em 2.º plano | Firebase |
+| L10 | A notificação ao autor foi feita com a L11, publicada e testada entre dois emuladores a 17/11. Já feito a 16/11: `ProximityService` em primeiro plano para o operador, alerta gravado na ocorrência (`ProximityAlert`) para Aberto e Pedido de informações a menos de 20 m, secção no detalhe e pedido da localização em 2.º plano | Firebase |
 
 ## Sempre, em todos os meus ecrãs
 

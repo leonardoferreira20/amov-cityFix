@@ -76,8 +76,8 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3, e 
 | L7 | `LifecycleActions` | Leonardo | ✅ (vídeo da prova: 🔒) |
 | L8 | Multimédia: câmara, galeria, Coil (a base foi feita pelo João com a J5; a L3, a L4 e a L7 já a usam) | Leonardo | ✅ (vídeo: 🔒) |
 | L9 | Compressão, thumbnail, envio com WorkManager | Leonardo | 🔒 (feita a 17/11 com a documentação oficial) |
-| L10 | Alerta de proximidade de 20 m (serviço da P10 feito a 16/11; aviso ao autor pelo Firebase) | Leonardo | ✅ serviço; aviso feito com a L11 (17/11) |
-| L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 (feita a 17/11 com a documentação oficial; falta publicar as funções) |
+| L10 | Alerta de proximidade de 20 m (serviço da P10 feito a 16/11; aviso ao autor pelo Firebase) | Leonardo | ✅ serviço; aviso feito com a L11 e testado (17/11) |
+| L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 (feita e publicada a 17/11 com a documentação oficial; falta testar em dois dispositivos) |
 | F1 | Textos EN/PT, landscape e acessibilidade nos seus ecrãs, com a paleta partilhada do CityFix | Cada um | ✅ |
 | F2 | Integração, relatório técnico em PDF, ZIP | Os dois | — |
 
