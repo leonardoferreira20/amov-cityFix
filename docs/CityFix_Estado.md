@@ -195,6 +195,15 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - `AccessRules.isInsideCity` serve ao acesso anónimo e às ocorrências; o raio passou a `CITY_RADIUS_METERS`.
 - Testado no emulador a 20/11: diálogo do sistema para ligar a localização ao abrir a app com ela desligada e a permissão dada (2.4c); círculo no mapa, erro com um ponto fora, recusa ao submeter e erro a desaparecer com um ponto dentro.
 
+### 2.4e Texto maior (20/11/2026)
+- Botão na barra de topo, em todos os ecrãs e para todos os perfis: mostra **A+** com o texto maior ativo (fundo branco e letra azul-petróleo) e **A−** com o texto normal, como pedido pelo João.
+- Ativo, o `CityFixTheme` troca o `LocalDensity` por um com `fontScale` × 1,2. Como multiplica o tamanho de letra do Android, respeita-o; só o texto (`sp`) aumenta, os `dp` ficam iguais. Os diálogos também ficam com o texto maior.
+- A escolha fica no `SettingsViewModel` (ao nível da Activity, por isso sobrevive à navegação e à rotação) e no `SettingsRepository` (`SharedPreferences`, por isso sobrevive a fechar a app).
+- TalkBack: o botão é um `IconToggleButton` com a descrição «Texto maior» e o estado «Ativado»/«Desativado» (`stateDescription`); o texto «A+»/«A−» é retirado da leitura (`clearAndSetSemantics`).
+- O título da barra de topo passou a ter uma linha com reticências, para não empurrar os botões.
+- Testado no emulador a 20/11 com o Android a 1,3× e o texto maior (1,56× no total): início, estatísticas, cartões (recolhidos e expandidos), detalhe, diálogo de pedido de informação, perfil, login, registo e barra de topo do operador (6 ações) e do anónimo (com «Login»), em portrait; perfil e início em landscape; a escolha mantém-se ao rodar e ao reabrir a app. Não houve texto cortado nem sobreposições a corrigir.
+- Limitações: o mapa (Google Maps) e as notificações do sistema não são afetados; o anúncio do TalkBack foi confirmado pela árvore de acessibilidade, não com o TalkBack a falar.
+
 ### 2.5 Provisório (sai antes da entrega)
 - ~~`SessionSelector`~~: saiu a 16/11 com o login (L1).
 - ~~Repositórios em JSON~~: trocados pelo Firestore a 16/11.
@@ -247,7 +256,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Inglês por omissão e português | Feito em todos os ecrãs |
 | Portrait e landscape | Layouts adaptativos no início, no detalhe e na nova ocorrência (16/11). Nos ecrãs do Leonardo (17/11): duas colunas no registo e no perfil e grelha nas categorias e na validação; o login e a edição de categoria ficam numa coluna. Revisão final de todos os ecrãs a 20/11, com o detalhe em landscape corrigido |
 | Barras de topo, ícones e botões flutuantes dinâmicos | `MainTopAppBar` com título e ações por ecrã e perfil; botões flutuantes nos ecrãs do Leonardo |
-| Acessibilidade | Descrições nos botões da barra de topo e nos ecrãs do Leonardo. Nos ecrãs do Leonardo (17/11): títulos de secção marcados como cabeçalhos, rótulo e valor dos dados da conta lidos juntos e erros anunciados quando aparecem. A 20/11, os títulos de secção dos ecrãs do João também passaram a cabeçalhos; os ícones sem descrição são todos decorativos |
+| Acessibilidade | Botão de texto maior (A+/A−) na barra de topo (20/11). Descrições nos botões da barra de topo e nos ecrãs do Leonardo. Nos ecrãs do Leonardo (17/11): títulos de secção marcados como cabeçalhos, rótulo e valor dos dados da conta lidos juntos e erros anunciados quando aparecem. A 20/11, os títulos de secção dos ecrãs do João também passaram a cabeçalhos; os ícones sem descrição são todos decorativos |
 
 ### 3.5 Decisões por fechar
 O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.

@@ -129,6 +129,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-96 | O serviço de proximidade só corre com a sessão de operador e com permissão de localização. | ✅ | `AccessRules.runsProximityService`, `MainActivity` | I.3, D (16/11) |
 | RN-97 | O autor e o operador veem no detalhe quando a equipa camarária esteve a menos de 20 m. | ✅ | `AccessRules.canSeeProximityAlerts`, `IncidentDetailScreen` | I.3, D (16/11) |
 | RN-98 | As notificações pedem-se ao arrancar; a localização em 2.º plano pede-se ao operador e ao munícipe com deteção de impactos, depois de uma explicação. | ✅ | `MainActivity`, `BackgroundLocationDialog`, `AccessRules.needsBackgroundLocation` | V |
+| RN-99 | Todos os perfis podem ligar e desligar o texto maior na barra de topo (cerca de +20% sobre o tamanho de letra do Android). O botão mostra A+ ligado e A− desligado, e a escolha mantém-se ao navegar, rodar e reabrir a app. | ✅ | `MainTopAppBar` (`LargeTextToggle`), `CityFixTheme(largeText)`, `SettingsViewModel`, `SettingsRepository` | V (acessibilidade), D (20/11) |
 
 ## 10. Autenticação (Firebase)
 

@@ -253,4 +253,9 @@
     <string name="profile_sign_out">Sign out</string>
     <string name="anonymous_location_off">Anonymous access is only available within 10 km of the town centre, and your location is turned off. Turn it on, or sign in.</string>
     <string name="error_location_outside_city">Choose a point within 10 km of the town centre (Praça da República). This place is outside Coimbra.</string>
+    <string name="large_text_toggle">Larger text</string>
+    <string name="large_text_on">On</string>
+    <string name="large_text_off">Off</string>
+    <string name="large_text_label_on" translatable="false">A+</string>
+    <string name="large_text_label_off" translatable="false">A−</string>
 </resources>

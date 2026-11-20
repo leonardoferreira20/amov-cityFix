@@ -10,6 +10,7 @@ import pt.isec.amov.cityfix.data.CategoryRepository
 import pt.isec.amov.cityfix.data.DeviceTokenRepository
 import pt.isec.amov.cityfix.data.IncidentRepository
 import pt.isec.amov.cityfix.data.MediaUploadScheduler
+import pt.isec.amov.cityfix.data.SettingsRepository
 import pt.isec.amov.cityfix.data.UserRepository
 import pt.isec.amov.cityfix.utils.IncidentNotifications
 
@@ -19,6 +20,7 @@ class CityFixApp : Application() {
     val categoryRepository by lazy { CategoryRepository() }
     val userRepository by lazy { UserRepository() }
     val deviceTokenRepository by lazy { DeviceTokenRepository() }
+    val settingsRepository by lazy { SettingsRepository(this) }
 
     override fun onCreate() {
         super.onCreate()

@@ -105,6 +105,8 @@ import pt.isec.amov.cityfix.viewmodel.RegisterViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.ReportIncidentViewModel
 import pt.isec.amov.cityfix.viewmodel.ReportIncidentViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.SessionViewModel
+import pt.isec.amov.cityfix.viewmodel.SettingsViewModel
+import pt.isec.amov.cityfix.viewmodel.SettingsViewModelFactory
 import pt.isec.amov.cityfix.viewmodel.SessionViewModelFactory
 import java.util.concurrent.TimeUnit
 
@@ -122,8 +124,11 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            CityFixTheme {
-                val app = application as CityFixApp
+            val app = application as CityFixApp
+            val settingsViewModel: SettingsViewModel =
+                viewModel(factory = SettingsViewModelFactory(app.settingsRepository))
+            val isLargeText by settingsViewModel.isLargeText.collectAsStateWithLifecycle()
+            CityFixTheme(largeText = isLargeText) {
                 val incidentsViewModel: IncidentsViewModel =
                     viewModel(factory = IncidentsViewModelFactory(app.incidentRepository))
                 val sessionViewModel: SessionViewModel =
@@ -273,6 +278,8 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         MainTopAppBar(
+                            isLargeText = isLargeText,
+                            onToggleLargeText = settingsViewModel::toggleLargeText,
                             titleRes = screenTitle(navBackStackEntry),
                             canNavigateBack = navBackStackEntry != null && !isDashboard,
                             showExpandCards = isDashboard && access == AnonymousAccess.ALLOWED && incidents.isNotEmpty(),

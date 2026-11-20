@@ -250,4 +250,7 @@
     <string name="profile_sign_out">Terminar sessão</string>
     <string name="anonymous_location_off">O acesso anónimo só está disponível até 10 km do centro da cidade e a localização está desligada. Ligue-a ou inicie sessão.</string>
     <string name="error_location_outside_city">Escolha um ponto a menos de 10 km do centro da cidade (Praça da República). Este local fica fora de Coimbra.</string>
+    <string name="large_text_toggle">Texto maior</string>
+    <string name="large_text_on">Ativado</string>
+    <string name="large_text_off">Desativado</string>
 </resources>

@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,7 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pt.isec.amov.cityfix.R
 import pt.isec.amov.cityfix.ui.theme.CityFixPetrol
@@ -39,6 +46,8 @@ import pt.isec.amov.cityfix.ui.theme.CityFixPetrol
 @Composable
 fun MainTopAppBar(
     @StringRes titleRes: Int,
+    isLargeText: Boolean,
+    onToggleLargeText: () -> Unit,
     canNavigateBack: Boolean,
     showExpandCards: Boolean,
     areAllCardsExpanded: Boolean,
@@ -60,7 +69,9 @@ fun MainTopAppBar(
             Text(
                 text = stringResource(titleRes),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -80,6 +91,7 @@ fun MainTopAppBar(
             }
         },
         actions = {
+            LargeTextToggle(isLargeText = isLargeText, onToggle = onToggleLargeText)
             if (showExpandCards) {
                 IconButton(onClick = onToggleAllCards) {
                     Icon(
@@ -137,4 +149,34 @@ fun MainTopAppBar(
             }
         }
     )
+}
+
+@Composable
+private fun LargeTextToggle(
+    isLargeText: Boolean,
+    onToggle: () -> Unit
+) {
+    val description = stringResource(R.string.large_text_toggle)
+    val state = stringResource(if (isLargeText) R.string.large_text_on else R.string.large_text_off)
+    IconToggleButton(
+        checked = isLargeText,
+        onCheckedChange = { onToggle() },
+        colors = IconButtonDefaults.iconToggleButtonColors(
+            contentColor = Color.White,
+            checkedContainerColor = Color.White,
+            checkedContentColor = CityFixPetrol
+        ),
+        modifier = Modifier.semantics {
+            contentDescription = description
+            stateDescription = state
+        }
+    ) {
+        Text(
+            text = stringResource(if (isLargeText) R.string.large_text_label_on else R.string.large_text_label_off),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            modifier = Modifier.clearAndSetSemantics {}
+        )
+    }
 }
