@@ -1,5 +1,6 @@
 package pt.isec.amov.cityfix.ui.components
 
+import androidx.compose.ui.semantics.heading
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +46,7 @@ fun IncidentCharts(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(stringResource(R.string.dashboard_statistics), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.dashboard_statistics), style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
             Text(stringResource(R.string.dashboard_visible_stats), style = MaterialTheme.typography.bodyMedium)
             if (incidents.isEmpty()) {
                 Text(stringResource(R.string.chart_no_data), style = MaterialTheme.typography.bodyMedium)
@@ -61,7 +62,7 @@ fun IncidentCharts(
 @Composable
 private fun IncidentDistribution(title: String, counts: List<Pair<String, Int>>, total: Int) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
         counts.forEach { (label, count) ->
             ChartBar(label = label, count = count, fraction = count.toFloat() / total)
         }

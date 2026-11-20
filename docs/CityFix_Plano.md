@@ -61,20 +61,20 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3, e 
 | J2 | Lista com expansão individual e global, botão de detalhe e filtro por perfil | João | ✅ |
 | J3 | Botão "Nova ocorrência" | João | ✅ |
 | J4 | Detalhe: estrutura, parte pública, parte do autor, mapa | João | ✅ |
-| J5 | Criar ocorrência, com seleção obrigatória do ponto no mapa | João | ✅ (vídeo: 🔒) |
+| J5 | Criar ocorrência, com seleção obrigatória do ponto no mapa | João (vídeo: Leonardo, desde 20/11) | ✅ (vídeo feito a 20/11 com a documentação oficial) |
 | J6 | Agrupamento a 10 m | João | ✅ |
 | J7 | Pedidos de informação e mensagens | João | ✅ |
 | J8 | Reabertura | João | ✅ |
 | J9 | Restrição dos 10 km para anónimos | João | ✅ |
-| J10 | Deteção de impactos | João | 🔒 |
+| J10 | Deteção de impactos | Leonardo (era do João; passou a 20/11) | 🔒 (feita a 20/11 com a documentação oficial) |
 | L1 | Login + aviso de conta pendente | Leonardo | ✅ (documentação oficial) |
 | L2 | MFA + recuperação de password | Leonardo | ✅ (documentação oficial) |
 | L3 | Registo (munícipe e operador), com georreferenciação no mapa e conta no Authentication | Leonardo | ✅ |
 | L4 | Perfil | Leonardo | ✅ |
 | L5 | Validação de munícipes | Leonardo | ✅ |
 | L6 | Categorias | Leonardo | ✅ |
-| L7 | `LifecycleActions` | Leonardo | ✅ (vídeo da prova: 🔒) |
-| L8 | Multimédia: câmara, galeria, Coil (a base foi feita pelo João com a J5; a L3, a L4 e a L7 já a usam) | Leonardo | ✅ (vídeo: 🔒) |
+| L7 | `LifecycleActions` | Leonardo | ✅ (vídeo da prova feito a 20/11) |
+| L8 | Multimédia: câmara, galeria, Coil (a base foi feita pelo João com a J5; a L3, a L4 e a L7 já a usam) | Leonardo | ✅ (vídeo feito a 20/11) |
 | L9 | Compressão, thumbnail, envio com WorkManager | Leonardo | 🔒 (feita a 17/11 com a documentação oficial) |
 | L10 | Alerta de proximidade de 20 m (serviço da P10 feito a 16/11; aviso ao autor pelo Firebase) | Leonardo | ✅ serviço; aviso feito com a L11 e testado (17/11) |
 | L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 (feita e publicada a 17/11 com a documentação oficial; falta testar em dois dispositivos) |
@@ -89,8 +89,8 @@ Estas partes ficam anotadas. As tarefas são criadas depois da aula. A aula #4 (
 |---|---|---|
 | Firebase (Authentication e Firestore a 16/11, Storage e Cloud Messaging com Cloud Functions a 17/11, com a documentação oficial) | sem aula; documentação oficial | — |
 | WorkManager (usado na L9 a 17/11, com a documentação oficial) | por definir | — |
-| Vídeo (gravar, escolher e mostrar) | por definir | J5, L7, L8 |
-| Sensores (acelerómetro) | por definir | J10 |
+| Vídeo (gravar, escolher e mostrar; feito a 20/11 com a documentação oficial) | por definir | — |
+| Sensores (acelerómetro, usado na J10 a 20/11, com a documentação oficial) | por definir | — |
 | Geofencing | por definir | L10 |
 
 ## 7. Contratos entre os dois

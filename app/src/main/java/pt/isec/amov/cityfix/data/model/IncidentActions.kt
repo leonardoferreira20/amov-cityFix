@@ -13,15 +13,26 @@ fun Incident.workStarted(userId: String, now: Long): Incident = copy(
     )
 )
 
-fun Incident.resolved(userId: String, photoPath: String, note: String?, now: Long): Incident = copy(
+fun Incident.resolved(userId: String, photoPath: String, videoPath: String?, note: String?, now: Long): Incident = copy(
     status = IncidentStatus.RESOLVED,
     resolvedAt = now,
-    media = media + MediaAttachment(
-        type = MediaType.IMAGE,
-        purpose = MediaPurpose.RESOLUTION_PROOF,
-        localUri = photoPath,
-        uploadedBy = userId,
-        createdAt = now
+    media = media + listOfNotNull(
+        MediaAttachment(
+            type = MediaType.IMAGE,
+            purpose = MediaPurpose.RESOLUTION_PROOF,
+            localUri = photoPath,
+            uploadedBy = userId,
+            createdAt = now
+        ),
+        videoPath?.let {
+            MediaAttachment(
+                type = MediaType.VIDEO,
+                purpose = MediaPurpose.RESOLUTION_PROOF,
+                localUri = it,
+                uploadedBy = userId,
+                createdAt = now
+            )
+        }
     ),
     history = history + StatusChange(
         fromStatus = status,
@@ -105,7 +116,7 @@ fun Incident.withInformationReply(request: InfoRequest, reply: Message): Inciden
 fun Incident.withProximityAlert(operatorId: String, now: Long): Incident =
     copy(proximityAlerts = proximityAlerts + ProximityAlert(operatorId = operatorId, timestamp = now))
 
-fun Incident.withUploadedMedia(mediaId: String, remoteUrl: String, thumbnailUrl: String): Incident = copy(
+fun Incident.withUploadedMedia(mediaId: String, remoteUrl: String, thumbnailUrl: String?): Incident = copy(
     media = media.map {
         if (it.id == mediaId) {
             it.copy(remoteUrl = remoteUrl, thumbnailUrl = thumbnailUrl, uploadStatus = UploadStatus.UPLOADED)

@@ -1,6 +1,6 @@
 # CityFix — Estado do projeto
 
-Ponto de situação a 16/11/2026, sobre o commit `ac017cc` mais a aula #4 (ficha P10: GPS, mapas, permissões e layouts adaptativos) e as correções da análise de 16/11. Faltam 6 dias para a entrega (22/11/2026, 23:59).
+Ponto de situação a 20/11/2026, sobre o commit `3181bc9`. Faltam 2 dias para a entrega (22/11/2026, 23:59). A 20/11 o Leonardo ficou com as tarefas que faltavam do João.
 
 Este documento junta o que já está implementado e o que falta para concluir o trabalho. O plano está em [CityFix_Plano.md](CityFix_Plano.md), as decisões em [CityFix_Decisoes.md](CityFix_Decisoes.md), as regras de negócio em [CityFix_RegrasNegocio.md](CityFix_RegrasNegocio.md) e as tarefas detalhadas em [Tarefas_Joao.md](Tarefas_Joao.md) e [Tarefas_Leonardo.md](Tarefas_Leonardo.md).
 
@@ -9,10 +9,10 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Parte | Feito | Falta |
 |---|---|---|
 | Fase 0 | Concluída (0.1 a 0.7) | — |
-| João | J1 a J9, com GPS, mapa, agrupamento a 10 m e restrição dos 10 km; base de multimédia | J5 vídeo, J10, notificações da J7 |
-| Leonardo | L3 (com foto e georreferenciação no mapa), L4 (com foto), L5, L6 (já restritas ao operador), L7 | L1, L2, L8 (vídeo), L9 a L11 |
-| Requisitos gerais | MVVM; textos em inglês e português; barra de topo dinâmica; permissões de localização e câmara em runtime; mapas; landscape no início, no detalhe e na nova ocorrência | Firebase, WorkManager, localização em 2.º plano, notificações, revisão final de landscape e acessibilidade |
-| Entrega | — | Limpeza, relatório, ZIP |
+| João | J1 a J9, com GPS, mapa, agrupamento a 10 m e restrição dos 10 km; base de multimédia; passagem dos dados para o Firestore | Passou o que faltava para o Leonardo a 20/11 |
+| Leonardo | L1 a L7, L9, L11 (publicada), F1 nos seus ecrãs e J10 (recebida do João) | Teste das notificações em dois dispositivos |
+| Requisitos gerais | MVVM; Firebase (Authentication, Firestore com cache, Storage e Cloud Messaging com Cloud Functions); WorkManager; compressão e thumbnails; permissões em runtime; inglês e português; landscape e acessibilidade revistos em todos os ecrãs | Testes em dispositivos reais |
+| Entrega | — | Relatório, ZIP e entrega no Nónio |
 
 ## 2. O que está implementado
 
@@ -41,6 +41,17 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - Dependência `kotlinx-serialization-json` 1.11.0, a mesma das aulas.
 
 ### 2.2 Leonardo
+- **Vídeo na nova ocorrência e na prova de resolução (20/11, recebido do João, documentação oficial):** fecha os pontos 13 e A.
+  - `VideoPicker`: grava com a câmara (`CaptureVideo`, com o limite de 30 s e 50 MB) ou escolhe da galeria (`PickVisualMedia` só com vídeos, até 50 MB). Mostra a pré-visualização e deixa remover o vídeo. Está na «Nova ocorrência» e no diálogo de resolução.
+  - O vídeo é guardado em `videos/` no armazenamento da app (novo caminho no `FileProvider`), entra na ocorrência como `MediaAttachment` do tipo `VIDEO` e é enviado pelo `MediaUploadWorker` sem compressão.
+  - `IncidentVideo`: `VideoView` num `AndroidView`, com um botão de reproduzir e pausar e um aviso quando o vídeo não está disponível. O detalhe mostra-o por baixo das fotos.
+  - O `storage.rules` de produção passou a aceitar vídeos até 50 MB.
+  - Testado no emulador a 20/11 com um vídeo de teste da galeria: pré-visualização, envio com sucesso e reprodução no detalhe a partir do endereço do Storage. Falta testar a gravação com a câmara e o vídeo na prova de resolução (precisa da conta de operador).
+- **J10 Deteção de impactos (20/11, recebida do João, documentação oficial):** fecha o ponto 31.
+  - `ImpactDetectionService`: serviço em primeiro plano, como o de proximidade, para o munícipe com a deteção ativa no perfil (`runsImpactDetection`). Lê o acelerómetro (`SENSOR_DELAY_GAME`) e a localização de 5 em 5 s, e funciona com a app fechada. A `MainActivity` arranca-o e para-o conforme a sessão, a opção do perfil e a permissão de localização.
+  - `ImpactDetector`: o filtro passa-baixo da documentação oficial estima a gravidade, e a aceleração vertical é a projeção do resto na direção da gravidade. Há impacto a partir de 6 m/s², com o munícipe a mais de 10 km/h, no máximo uma vez por minuto. Tem 6 testes unitários.
+  - A sugestão é uma notificação no canal «Sugestões de ocorrências». Tocar nela abre a «Nova ocorrência» com «Vias Públicas» (`PAVEMENT_CATEGORY_ID`), «Dano» e o ponto do impacto marcado no mapa; a foto continua obrigatória.
+  - Testado no emulador a 20/11: sugestão com a app em segundo plano, formulário pré-preenchido, nenhuma sugestão com o munícipe parado, formulário mantido ao rodar o ecrã e serviço parado ao desligar a deteção no perfil.
 - **L6 Categorias:** lista ordenada pelo nome; criar e editar no mesmo ecrã, com `EditCategoryRoute(categoryId: String? = null)`; ativar e desativar com um interruptor. `CategoriesList.getActiveSorted()` devolve só as ativas, para a J5.
   - Ficheiros: `CategoryListScreen`, `EditCategoryScreen`, `CategoryCard`, `CategoriesViewModel`, `EditCategoryViewModel`, `EditCategoryUiState`.
   - Gravar ignora um segundo toque enquanto grava (`isSaving`), como no perfil. Antes, dois toques seguidos no ✓ criavam a categoria duas vezes e voltavam até ao início. Reproduzido e corrigido no emulador a 12/11/2026.
@@ -71,8 +82,8 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - App: ao iniciar sessão, o token do Cloud Messaging fica em `deviceTokens/<uid>` (`DeviceTokenRepository`) e os operadores subscrevem o tópico `operators`; ao terminar sessão, o token é apagado (`deleteToken`). O `CityFixMessagingService` recebe mensagens só com dados e mostra a notificação com os textos do `strings.xml` (`IncidentNotifications`), no canal «Atualizações das ocorrências». Tocar na notificação abre o detalhe da ocorrência.
   - Servidor (`functions/index.js`): `notifyIncidentChanges` corre quando uma ocorrência muda e avisa o autor das mudanças de estado feitas por outra pessoa, dos pedidos de informação e das respostas do operador e dos alertas de proximidade; avisa o operador que fez o pedido quando o autor responde; e avisa todos os operadores (tópico) quando o autor faz um pedido. `closeResolvedIncidents` corre de hora a hora: avisa o autor 24 h antes do fim do prazo (marca `closingWarningSentAt`) e encerra as ocorrências resolvidas há mais de 5 dias, mesmo sem ninguém abrir a app.
   - `firebase.json` e `.firebaserc` permitem publicar as funções e as regras com o Firebase CLI. As regras do Firestore ganharam a coleção `deviceTokens`, em que cada utilizador só mexe no seu token.
-  - Publicado a 17/11 com o Firebase CLI (Node.js 22): as regras do Firestore, a `notifyIncidentChanges` em `europe-southwest1`, a região do Firestore, e a `closeResolvedIncidents` em `europe-west1`, porque o Cloud Scheduler não existe em Madrid. As imagens das funções são apagadas ao fim de 1 dia. Falta apagar na consola a `closeResolvedIncidents` que sobrou em `europe-southwest1` da primeira tentativa.
-  - Testado a 17/11 com dois emuladores (operador num, munícipe no outro): o operador ficou a menos de 20 m da «Iluminação» e o munícipe recebeu a notificação de proximidade com a app em segundo plano. A `notifyIncidentChanges` também correu quando o operador respondeu a um pedido e pediu informação, mas o segundo emulador foi abaixo por falta de memória (o Mac não aguenta dois emuladores com o Android 17) e não recebeu essas notificações. Falta testar os outros tipos e o toque que abre o detalhe em dois dispositivos reais, e confirmar que a `closeResolvedIncidents` corre de hora a hora.
+  - Publicado a 17/11 com o Firebase CLI (Node.js 22): as regras do Firestore, a `notifyIncidentChanges` em `europe-southwest1`, a região do Firestore, e a `closeResolvedIncidents` em `europe-west1`, porque o Cloud Scheduler não existe em Madrid. As imagens das funções são apagadas ao fim de 1 dia. A `closeResolvedIncidents` que sobrou em `europe-southwest1` da primeira tentativa foi apagada na consola (confirmado a 20/11).
+  - Testado a 17/11 com dois emuladores (operador num, munícipe no outro): o operador ficou a menos de 20 m da «Iluminação» e o munícipe recebeu a notificação de proximidade com a app em segundo plano. A `notifyIncidentChanges` também correu quando o operador respondeu a um pedido e pediu informação, mas o segundo emulador foi abaixo por falta de memória (o Mac não aguenta dois emuladores com o Android 17) e não recebeu essas notificações. Falta testar os outros tipos e o toque que abre o detalhe em dois dispositivos reais. A `closeResolvedIncidents` corre de hora a hora, sem erros nos registos (confirmado a 20/11).
 - **F1 Landscape e acessibilidade nos ecrãs do Leonardo (17/11):**
   - Registo e perfil com duas colunas em landscape, no padrão do João (`Row` com duas colunas, cada uma com o seu scroll); em portrait continuam numa coluna. No registo: à esquerda a foto, os dados e a palavra-passe, à direita o perfil, o mapa, a deteção de impactos e «Registar». No perfil: à esquerda «Editar perfil», à direita «Dados da conta», a verificação em dois passos e «Terminar sessão».
   - Categorias e validação de munícipes numa grelha que se adapta à largura (`GridCells.Adaptive(320.dp)`): uma coluna em portrait, duas em landscape.
@@ -153,7 +164,7 @@ Este documento junta o que já está implementado e o que falta para concluir o 
   - **Mapa de ocorrências** (`IncidentsMapScreen`, como o `ContactsMapScreen`): botão de mapa na barra de topo para todos os perfis com acesso. Mostra as ocorrências que o perfil vê na lista; tocar no balão do pino abre o detalhe. Se o perfil vê a localização exata de todas, a câmara ajusta-se aos pinos com `LatLngBounds` depois de o mapa ter dimensões. Alterações ao conteúdo das ocorrências que mantenham os pinos nas mesmas coordenadas preservam o zoom. Nos restantes casos, o mapa fica com zoom de cidade e sem gestos.
   - A 16/11, no `Medium_Phone`, o mapa ficou aberto após 14 toques no botão de afastar e após rodar para landscape. O teste instrumentado confirmou que a pinça de dois dedos alterou o zoom e manteve o ecrã do mapa aberto.
   - **Distância e «Navegar»** para o operador no detalhe (`IncidentDirections`, como o `ContactDistanceSection`): distância em km até à ocorrência e botão que abre o trajeto no Google Maps (`LocationUtils.openDirections`).
-  - **Serviço de proximidade** (`services/ProximityService`, como o da P10): serviço em primeiro plano do tipo `location`, arrancado pela `MainActivity` enquanto a sessão é de operador e parado nos outros perfis. A cada posição, procura ocorrências em Aberto ou Pedido de informações a menos de 20 m e grava um `ProximityAlert` na ocorrência. O autor e o operador veem os alertas no detalhe («Equipa camarária na zona»). A notificação ao autor entra com o Firebase.
+  - **Serviço de proximidade** (`services/ProximityService`, como o da P10): serviço em primeiro plano do tipo `location`, arrancado pela `MainActivity` enquanto a sessão é de operador e parado nos outros perfis. A cada posição, procura ocorrências ativas (desde 20/11 todas menos Encerrado, incluindo Em resolução, como pede o II.3) a menos de 20 m e grava um `ProximityAlert` na ocorrência. O autor e o operador veem os alertas no detalhe («Equipa camarária na zona»). A notificação ao autor entra com o Firebase.
   - **Permissões:** as notificações (`POST_NOTIFICATIONS`, Android 13+) são pedidas com a localização ao arrancar, como na P10. A localização em 2.º plano é pedida ao operador e ao munícipe com a deteção de impactos ativa, com um diálogo a explicar antes (`BackgroundLocationDialog`); o Android abre as definições para escolher «Permitir sempre».
   - Testado no emulador: mapa do anónimo afastado e mapa do operador ajustado aos 7 pinos; pedido de notificações; diálogo e definições da localização em 2.º plano; serviço em primeiro plano ativo como operador e parado como munícipe; alerta gravado nas duas ocorrências em Aberto a 1 m e não na que está Em resolução; distância, «Navegar» e secção do alerta no detalhe do operador.
 - Testado no emulador a 16/11/2026: pedido de localização ao arrancar; anónimo em Coimbra com lista e em Lisboa bloqueado; mapa exato do autor e mapa afastado do anónimo; detalhe e início em landscape; pedido da permissão da câmara; nova ocorrência com foto da câmara a 2 m da "Vias Públicas", ligada a ela como grupo de 2; mapa do registo com o pino no toque.
@@ -189,20 +200,23 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 
 ### 3.2 João
 - [x] J4 Mapa (16/11).
-- [x] J5 Escolha obrigatória do ponto no mapa pelo munícipe (16/11). Falta o vídeo (por definir).
+- [x] J5 Escolha obrigatória do ponto no mapa pelo munícipe (16/11). O vídeo foi feito pelo Leonardo a 20/11.
 - [x] J6 Agrupamento a 10 m (16/11).
 - [x] J9 Restrição dos 10 km para anónimos (16/11). Quando houver login (L1), o anónimo bloqueado passa a ver o ecrã de login.
-- [ ] J10 Deteção de impactos (sensores, ainda sem aula).
+- [x] J10 Deteção de impactos: passou para o Leonardo a 20/11, com o vídeo da J5, a revisão final dos ecrãs do João e os pontos 17, 31, A e B. Feita e testada pelo Leonardo a 20/11 (secção 2.2).
 
 ### 3.3 Leonardo
-- [ ] L8 Multimédia: as fotos do registo (L3), do perfil (L4) e da prova de resolução (L7) já usam a base feita com a J5. Falta o vídeo, por definir (pontos 13 e A).
+- [x] J10 Deteção de impactos (recebida do João): feita e testada a 20/11.
+- [x] Vídeo na nova ocorrência (J5, recebido do João) e na prova de resolução: feito a 20/11.
+- [x] Revisão final dos ecrãs do João (20/11): no emulador, em portrait e landscape e em inglês e português, o início, a lista, o detalhe, a nova ocorrência e o mapa estão corretos. Corrigido o detalhe em landscape: a coluna da direita (fotos, vídeo e mapa) passou a deslocar-se e o mapa tem 200 dp, como em portrait; antes, com o vídeo, o mapa deixava de aparecer. Títulos de secção marcados como cabeçalhos e previews novos no cartão, nos pedidos de informação e no mapa.
+- [x] L8 Multimédia: as fotos do registo (L3), do perfil (L4) e da prova de resolução (L7) usam a base feita com a J5, e desde 20/11 há vídeo opcional na nova ocorrência e na resolução.
 - [x] L4 Perfil (12/11), com o conflito 11 fechado.
-- [x] L7 `LifecycleActions` (11/11). Falta o vídeo comprovativo (pontos 13 e A) e a notificação ao autor (L11).
+- [x] L7 `LifecycleActions` (11/11). O vídeo comprovativo opcional foi feito a 20/11 e a notificação ao autor com a L11.
 - [x] L1 Login e aviso de conta pendente (16/11).
 - [x] L2 MFA com TOTP e recuperação de password (16/11).
 - [x] L9 Compressão, thumbnail e envio para o Storage com WorkManager (17/11). Storage em modo de teste; envio testado no emulador e foto vista pelo operador.
-- [ ] L10 Alerta de 20 m: a deteção e o registo do alerta estão feitos (serviço de proximidade, 16/11). A notificação ao autor foi feita com a L11 e testada entre dois emuladores a 17/11. Falta o ponto 30.
-- [ ] L11 Notificações: implementada e publicada a 17/11 (app, Cloud Functions e regras do Firestore). A proximidade foi testada entre dois emuladores; falta testar os outros tipos em dois dispositivos reais, com o João, e apagar a função que sobrou em `europe-southwest1`.
+- [x] L10 Alerta de 20 m: a deteção e o registo do alerta estão feitos (serviço de proximidade, 16/11). A notificação ao autor foi feita com a L11 e testada entre dois emuladores a 17/11. A 20/11 o alerta passou a valer para todas as ativas, incluindo Em resolução (II.3), e o ponto 30 ficou fechado (qualquer operador).
+- [ ] L11 Notificações: implementada e publicada a 17/11 (app, Cloud Functions e regras do Firestore). A proximidade foi testada entre dois emuladores; falta testar os outros tipos em dois dispositivos reais, com o João.
 - Pendente nas tarefas já feitas:
   - [x] L3: password e criação da conta no Authentication (16/11).
 
@@ -215,20 +229,19 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 | Kotlin, Jetpack Compose, MVVM com ecrãs stateful e stateless | Seguido no código novo |
 | Firebase Authentication (e-mail/password, MFA, recuperação por e-mail) | Feito a 16/11; falta testar com as regras publicadas e o TOTP ativo no projeto |
 | Cloud Firestore com cache offline | Feito a 16/11 (cache persistente, gravações offline, lista em tempo real) |
-| Firebase Storage e WorkManager, com envio só quando há rede | Feito a 17/11 (L9); Storage em modo de teste; envio testado no emulador |
+| Firebase Storage e WorkManager, com envio só quando há rede | Fotos feitas a 17/11 (L9) e vídeos a 20/11; Storage em modo de teste; envio testado no emulador |
 | Imagens comprimidas e com thumbnail | Implementado a 17/11 (L9): 1280 px a 80% e thumbnail de 320 px a 70%, antes do envio |
 | Cloud Messaging e notificações | Implementado e publicado a 17/11 (L11): Cloud Functions enviam mensagens do Cloud Messaging e a app mostra-as; proximidade testada, os outros tipos por testar em dois dispositivos |
 | Permissões em runtime: localização (1.º e 2.º plano), câmara, notificações | Feitas a 16/11: localização e notificações ao arrancar, câmara antes de a abrir, 2.º plano para o operador e para a deteção de impactos |
 | Inglês por omissão e português | Feito em todos os ecrãs |
-| Portrait e landscape | Layouts adaptativos no início, no detalhe e na nova ocorrência (16/11). Nos ecrãs do Leonardo (17/11): duas colunas no registo e no perfil e grelha nas categorias e na validação; o login e a edição de categoria ficam numa coluna. Falta a revisão final |
+| Portrait e landscape | Layouts adaptativos no início, no detalhe e na nova ocorrência (16/11). Nos ecrãs do Leonardo (17/11): duas colunas no registo e no perfil e grelha nas categorias e na validação; o login e a edição de categoria ficam numa coluna. Revisão final de todos os ecrãs a 20/11, com o detalhe em landscape corrigido |
 | Barras de topo, ícones e botões flutuantes dinâmicos | `MainTopAppBar` com título e ações por ecrã e perfil; botões flutuantes nos ecrãs do Leonardo |
-| Acessibilidade | Descrições nos botões da barra de topo e nos ecrãs do Leonardo. Nos ecrãs do Leonardo (17/11): títulos de secção marcados como cabeçalhos, rótulo e valor dos dados da conta lidos juntos e erros anunciados quando aparecem. Falta rever o resto |
+| Acessibilidade | Descrições nos botões da barra de topo e nos ecrãs do Leonardo. Nos ecrãs do Leonardo (17/11): títulos de secção marcados como cabeçalhos, rótulo e valor dos dados da conta lidos juntos e erros anunciados quando aparecem. A 20/11, os títulos de secção dos ecrãs do João também passaram a cabeçalhos; os ícones sem descrição são todos decorativos |
 
 ### 3.5 Decisões por fechar
 O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
-- Conflitos com o enunciado: 15 (o tempo médio inclui os 5 dias até ao encerramento). O 11 (fechado a 12/11, a favor do enunciado) e o 16 ficaram fechados.
-- Por confirmar, do Leonardo: 13 e 30. Ficaram fechados o 7 (o Firebase não aceita e-mails repetidos e o NIF é único por perfil), o 8, o 10 e o 29 (16/11) e o 28 e o 32 (17/11, com a L11).
-- Por confirmar, do João: 17, 31, A e B.
+- Conflitos com o enunciado: nenhum por fechar. Ficaram fechados o 11 (12/11, a favor do enunciado), o 16 e o 15 (20/11: o tempo médio inclui os 5 dias até ao encerramento).
+- Por confirmar: nenhum. O 13 e o A (vídeo) ficaram fechados a 20/11. Ficaram fechados o 7 (o Firebase não aceita e-mails repetidos e o NIF é único por perfil), o 8, o 10 e o 29 (16/11, revisto a 20/11), o 28 e o 32 (17/11, com a L11), o 31 (20/11, com a J10) e o 17, o 30 e o B (20/11).
 
 ### 3.6 Problemas conhecidos e limpeza
 - [x] `MainScreen`: blocos de cor e textos de teste retirados (11/11).

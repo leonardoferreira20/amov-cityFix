@@ -61,16 +61,16 @@ fun canEditProfile(user: User?): Boolean = user != null
 
 fun canNavigateToIncident(user: User?): Boolean = isOperator(user)
 
-fun isProximityAlertTarget(incident: Incident): Boolean =
-    incident.status == IncidentStatus.OPEN || incident.status == IncidentStatus.INFO_REQUESTED
+fun isProximityAlertTarget(incident: Incident): Boolean = incident.status != IncidentStatus.CLOSED
 
 fun canSeeProximityAlerts(user: User?, incident: Incident): Boolean =
     isOperator(user) || isAuthor(user, incident)
 
 fun runsProximityService(user: User?): Boolean = isOperator(user)
 
-fun needsBackgroundLocation(user: User?): Boolean =
-    isOperator(user) || (isCitizen(user) && user?.impactDetectionEnabled == true)
+fun runsImpactDetection(user: User?): Boolean = isCitizen(user) && user?.impactDetectionEnabled == true
+
+fun needsBackgroundLocation(user: User?): Boolean = isOperator(user) || runsImpactDetection(user)
 
 fun canSeeInformationRequests(user: User?, incident: Incident): Boolean =
     isOperator(user) || isAuthor(user, incident)

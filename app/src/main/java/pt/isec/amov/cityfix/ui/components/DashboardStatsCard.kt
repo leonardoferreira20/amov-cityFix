@@ -1,5 +1,7 @@
 package pt.isec.amov.cityfix.ui.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +44,7 @@ fun DashboardStatsCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(stringResource(R.string.dashboard_municipal_summary), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.dashboard_municipal_summary), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatItem(
                     value = stats.totalIncidents.toString(),

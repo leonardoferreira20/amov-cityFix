@@ -13,6 +13,7 @@ data class ReportIncidentUiState(
     val description: String = "",
     val visibility: Visibility = Visibility.PUBLIC,
     val photoPath: String? = null,
+    val videoPath: String? = null,
     val location: GeoLocation? = null,
     @StringRes val categoryError: Int? = null,
     @StringRes val situationError: Int? = null,

@@ -5,6 +5,7 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import pt.isec.amov.cityfix.data.model.CategoriesList
 import pt.isec.amov.cityfix.data.model.Category
+import pt.isec.amov.cityfix.utils.PAVEMENT_CATEGORY_ID
 
 class CategoryRepository {
     private val collection = Firebase.firestore.collection("categories")
@@ -12,7 +13,7 @@ class CategoryRepository {
     private fun getSeedData(operatorId: String): List<Category> {
         val now = System.currentTimeMillis()
         return listOf(
-            Category(id = "cat-roads", name = "Vias Públicas", createdBy = operatorId, createdAt = now),
+            Category(id = PAVEMENT_CATEGORY_ID, name = "Vias Públicas", createdBy = operatorId, createdAt = now),
             Category(id = "cat-water", name = "Água", createdBy = operatorId, createdAt = now),
             Category(id = "cat-lighting", name = "Iluminação", createdBy = operatorId, createdAt = now),
             Category(id = "cat-sanitation", name = "Saneamento", createdBy = operatorId, createdAt = now),

@@ -41,7 +41,7 @@ class IncidentRepository(private val uploadScheduler: MediaUploadScheduler) {
         uploadScheduler.schedulePendingUploads(incident)
     }
 
-    suspend fun markMediaUploaded(incidentId: String, mediaId: String, remoteUrl: String, thumbnailUrl: String) {
+    suspend fun markMediaUploaded(incidentId: String, mediaId: String, remoteUrl: String, thumbnailUrl: String?) {
         val document = collection.document(incidentId)
         Firebase.firestore.runTransaction { transaction ->
             val incident = checkNotNull(transaction.get(document).toObject(Incident::class.java))

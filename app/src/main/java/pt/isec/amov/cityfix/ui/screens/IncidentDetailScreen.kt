@@ -1,5 +1,7 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -52,7 +54,9 @@ import pt.isec.amov.cityfix.ui.components.InformationRequests
 import pt.isec.amov.cityfix.ui.components.PhotoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
 import pt.isec.amov.cityfix.ui.components.hasPendingUploads
+import pt.isec.amov.cityfix.ui.components.IncidentVideo
 import pt.isec.amov.cityfix.ui.components.photoPaths
+import pt.isec.amov.cityfix.ui.components.videoPaths
 import pt.isec.amov.cityfix.utils.FileUtils
 import pt.isec.amov.cityfix.utils.formatDateTime
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
@@ -108,10 +112,11 @@ fun IncidentDetailScreen(
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val photos = incident.photoPaths()
+    val videos = incident.videoPaths()
 
     val photosContent: @Composable () -> Unit = {
-        if (photos.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (photos.isNotEmpty() || videos.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(photos) { path ->
                         IncidentPhoto(
@@ -122,6 +127,15 @@ fun IncidentDetailScreen(
                                 .height(220.dp)
                         )
                     }
+                }
+                videos.forEach { path ->
+                    IncidentVideo(
+                        path = path,
+                        contentDescription = stringResource(R.string.incident_video_description),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                    )
                 }
                 if (incident.hasPendingUploads()) {
                     Text(
@@ -147,7 +161,7 @@ fun IncidentDetailScreen(
 
     val detailsContent: @Composable (Modifier, Boolean) -> Unit = { detailsModifier, showMapInline ->
         Column(modifier = detailsModifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text = incident.categoryName, style = MaterialTheme.typography.headlineSmall)
+            Text(text = incident.categoryName, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.semantics { heading() })
             Text(
                 text = stringResource(incident.situation.labelRes()),
                 style = MaterialTheme.typography.titleMedium
@@ -290,14 +304,15 @@ fun IncidentDetailScreen(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 photosContent()
                 mapContent(
                     Modifier
                         .fillMaxWidth()
-                        .weight(1f)
+                        .height(200.dp)
                 )
             }
         }
@@ -423,7 +438,7 @@ private fun DetailSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        Text(text = title, style = MaterialTheme.typography.titleSmall)
+        Text(text = title, style = MaterialTheme.typography.titleSmall, modifier = Modifier.semantics { heading() })
         content()
     }
 }

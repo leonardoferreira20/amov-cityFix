@@ -43,6 +43,7 @@ import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.Visibility
 import androidx.core.content.ContextCompat
+import pt.isec.amov.cityfix.services.ImpactDetectionService
 import pt.isec.amov.cityfix.services.ProximityService
 import pt.isec.amov.cityfix.ui.components.BackgroundLocationDialog
 import pt.isec.amov.cityfix.ui.components.LifecycleActions
@@ -77,7 +78,9 @@ import pt.isec.amov.cityfix.utils.anonymousAccess
 import pt.isec.amov.cityfix.utils.canEditProfile
 import pt.isec.amov.cityfix.utils.canSeeExactLocation
 import pt.isec.amov.cityfix.utils.isOperator
+import pt.isec.amov.cityfix.utils.canCreateIncident
 import pt.isec.amov.cityfix.utils.needsBackgroundLocation
+import pt.isec.amov.cityfix.utils.runsImpactDetection
 import pt.isec.amov.cityfix.utils.runsProximityService
 import pt.isec.amov.cityfix.utils.canManageCategories
 import pt.isec.amov.cityfix.utils.canValidateCitizens
@@ -109,6 +112,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT))
         val openedIncidentId = intent.getStringExtra(IncidentNotifications.EXTRA_INCIDENT_ID)
+        val openedImpact = if (intent.hasExtra(IncidentNotifications.EXTRA_IMPACT_LATITUDE)) {
+            intent.getDoubleExtra(IncidentNotifications.EXTRA_IMPACT_LATITUDE, 0.0) to
+                intent.getDoubleExtra(IncidentNotifications.EXTRA_IMPACT_LONGITUDE, 0.0)
+        } else {
+            null
+        }
 
         setContent {
             CityFixTheme {
@@ -166,6 +175,15 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                LaunchedEffect(currentUser?.id, currentUser?.impactDetectionEnabled, hasLocationPermission) {
+                    val serviceIntent = Intent(context, ImpactDetectionService::class.java)
+                    if (runsImpactDetection(currentUser) && hasLocationPermission) {
+                        ContextCompat.startForegroundService(context, serviceIntent)
+                    } else {
+                        context.stopService(serviceIntent)
+                    }
+                }
+
                 var hasBackgroundLocation by remember {
                     mutableStateOf(LocationUtils.hasBackgroundLocationPermission(context))
                 }
@@ -196,6 +214,14 @@ class MainActivity : ComponentActivity() {
                     if (incidentId != null && currentUser != null) {
                         navController.navigate(IncidentDetailRoute(incidentId))
                         notificationIncidentId = null
+                    }
+                }
+                var impactSuggestion by rememberSaveable { mutableStateOf(openedImpact) }
+                LaunchedEffect(impactSuggestion, currentUser) {
+                    val impact = impactSuggestion
+                    if (impact != null && canCreateIncident(currentUser)) {
+                        navController.navigate(ReportIncidentRoute(impact.first, impact.second))
+                        impactSuggestion = null
                     }
                 }
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -263,7 +289,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onOpenIncident = { id -> navController.navigate(IncidentDetailRoute(id)) },
-                                onCreateIncident = { navController.navigate(ReportIncidentRoute) }
+                                onCreateIncident = { navController.navigate(ReportIncidentRoute()) }
                             )
                         }
 
@@ -301,12 +327,19 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable<ReportIncidentRoute> { backStack ->
+                            val route = backStack.toRoute<ReportIncidentRoute>()
+                            val impactLocation = if (route.impactLatitude != null && route.impactLongitude != null) {
+                                GeoLocation(route.impactLatitude, route.impactLongitude)
+                            } else {
+                                null
+                            }
                             val reportViewModel: ReportIncidentViewModel = viewModel(
                                 viewModelStoreOwner = backStack,
                                 factory = ReportIncidentViewModelFactory(
                                     app.incidentRepository,
                                     app.categoryRepository,
-                                    currentUser
+                                    currentUser,
+                                    impactLocation
                                 )
                             )
                             val reportState by reportViewModel.reportState.collectAsStateWithLifecycle()
@@ -318,6 +351,7 @@ class MainActivity : ComponentActivity() {
                                 onDescriptionChange = reportViewModel::onDescriptionChanged,
                                 onVisibilityChange = reportViewModel::onVisibilityChanged,
                                 onPhotoChange = reportViewModel::onPhotoChanged,
+                                onVideoChange = reportViewModel::onVideoChanged,
                                 onSaveClick = {
                                     reportViewModel.saveIncident { navController.popBackStack() }
                                 }
@@ -358,8 +392,8 @@ class MainActivity : ComponentActivity() {
                                             onStartWork = {
                                                 detailViewModel.startWork {}
                                             },
-                                            onResolve = { photoPath, note ->
-                                                detailViewModel.resolve(photoPath, note) {}
+                                            onResolve = { photoPath, videoPath, note ->
+                                                detailViewModel.resolve(photoPath, videoPath, note) {}
                                             }
                                         )
                                     }

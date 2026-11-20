@@ -1,5 +1,7 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import pt.isec.amov.cityfix.ui.theme.CityFixTheme
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -125,4 +127,12 @@ private fun IncidentMarker(
         ),
         onInfoWindowClick = { onOpenIncident(incident.id) }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun IncidentsMapScreenPreview() {
+    CityFixTheme {
+        IncidentsMapScreen(incidents = emptyList(), exact = false, onOpenIncident = {})
+    }
 }

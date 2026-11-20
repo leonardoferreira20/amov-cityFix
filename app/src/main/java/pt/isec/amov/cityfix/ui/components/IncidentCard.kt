@@ -1,5 +1,9 @@
 package pt.isec.amov.cityfix.ui.components
 
+import pt.isec.amov.cityfix.ui.theme.CityFixTheme
+import pt.isec.amov.cityfix.data.model.Situation
+import pt.isec.amov.cityfix.data.model.IncidentStatus
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -87,5 +91,34 @@ fun IncidentCard(
                 contentDescription = null
             )
         }
+    }
+}
+
+private val previewIncident = Incident(
+    id = "preview",
+    categoryName = "Vias Públicas",
+    situation = Situation.DAMAGE,
+    description = "Buraco grande na faixa da direita, junto à passadeira.",
+    status = IncidentStatus.OPEN
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun IncidentCardPreview() {
+    CityFixTheme {
+        IncidentCard(incident = previewIncident, isExpanded = false, onToggleExpanded = {}, onOpenDetails = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun IncidentCardExpandedPreview() {
+    CityFixTheme {
+        IncidentCard(
+            incident = previewIncident.copy(status = IncidentStatus.IN_PROGRESS),
+            isExpanded = true,
+            onToggleExpanded = {},
+            onOpenDetails = {}
+        )
     }
 }

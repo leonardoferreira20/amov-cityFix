@@ -1,5 +1,7 @@
 package pt.isec.amov.cityfix.ui.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +40,8 @@ fun IncidentList(
         item {
             Text(
                 text = stringResource(R.string.recent_incidents_title),
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.semantics { heading() }
             )
         }
         if (incidents.isEmpty()) {

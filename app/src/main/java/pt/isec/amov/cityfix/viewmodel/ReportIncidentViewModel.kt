@@ -19,20 +19,34 @@ import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.utils.FileUtils
+import pt.isec.amov.cityfix.utils.PAVEMENT_CATEGORY_ID
 import pt.isec.amov.cityfix.utils.canCreateIncident
 
 class ReportIncidentViewModel(
     private val incidentRepository: IncidentRepository,
     private val categoryRepository: CategoryRepository,
-    private val currentUser: User?
+    private val currentUser: User?,
+    private val impactLocation: GeoLocation? = null
 ) : ViewModel() {
-    private val _reportState = MutableStateFlow(ReportIncidentUiState())
+    private val _reportState = MutableStateFlow(
+        if (impactLocation == null) {
+            ReportIncidentUiState()
+        } else {
+            ReportIncidentUiState(location = impactLocation, situation = Situation.DAMAGE)
+        }
+    )
     val reportState: StateFlow<ReportIncidentUiState> = _reportState.asStateFlow()
 
     init {
         viewModelScope.launch {
             val categories = categoryRepository.loadCategories().getActiveSorted()
-            _reportState.update { it.copy(categories = categories) }
+            val pavementId = categories.find { it.id == PAVEMENT_CATEGORY_ID }?.id
+            _reportState.update {
+                it.copy(
+                    categories = categories,
+                    categoryId = if (impactLocation != null) pavementId else it.categoryId
+                )
+            }
         }
     }
 
@@ -65,6 +79,12 @@ class ReportIncidentViewModel(
         val previousPath = _reportState.value.photoPath
         if (previousPath != null && previousPath != path) FileUtils.deleteFromPath(previousPath)
         _reportState.update { it.copy(photoPath = path, photoError = null) }
+    }
+
+    fun onVideoChanged(path: String?) {
+        val previousPath = _reportState.value.videoPath
+        if (previousPath != null && previousPath != path) FileUtils.deleteFromPath(previousPath)
+        _reportState.update { it.copy(videoPath = path) }
     }
 
     fun saveIncident(onSuccess: () -> Unit) {
@@ -103,14 +123,23 @@ class ReportIncidentViewModel(
                     description = current.description.trim(),
                     visibility = current.visibility,
                     location = location,
-                    media = listOf(
+                    media = listOfNotNull(
                         MediaAttachment(
                             type = MediaType.IMAGE,
                             purpose = MediaPurpose.REPORT,
                             localUri = photoPath,
                             uploadedBy = author.id,
                             createdAt = now
-                        )
+                        ),
+                        current.videoPath?.let { videoPath ->
+                            MediaAttachment(
+                                type = MediaType.VIDEO,
+                                purpose = MediaPurpose.REPORT,
+                                localUri = videoPath,
+                                uploadedBy = author.id,
+                                createdAt = now
+                            )
+                        }
                     ),
                     primaryIncidentId = primary?.id,
                     createdAt = now
@@ -123,6 +152,9 @@ class ReportIncidentViewModel(
 
     override fun onCleared() {
         val state = _reportState.value
-        if (!state.isSaved) FileUtils.deleteFromPath(state.photoPath)
+        if (!state.isSaved) {
+            FileUtils.deleteFromPath(state.photoPath)
+            FileUtils.deleteFromPath(state.videoPath)
+        }
     }
 }

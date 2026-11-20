@@ -33,16 +33,16 @@ fun LifecycleActions(
     canStartWork: Boolean,
     canResolve: Boolean,
     onStartWork: () -> Unit,
-    onResolve: (String, String) -> Unit,
+    onResolve: (String, String?, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showResolveDialog by rememberSaveable { mutableStateOf(false) }
 
     if (showResolveDialog) {
         ResolveDialog(
-            onConfirm = { photoPath, note ->
+            onConfirm = { photoPath, videoPath, note ->
                 showResolveDialog = false
-                onResolve(photoPath, note)
+                onResolve(photoPath, videoPath, note)
             },
             onDismiss = { showResolveDialog = false }
         )
@@ -78,13 +78,15 @@ private fun lifecycleHint(status: IncidentStatus, closesAt: Long?): String? = wh
 
 @Composable
 private fun ResolveDialog(
-    onConfirm: (String, String) -> Unit,
+    onConfirm: (String, String?, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var note by rememberSaveable { mutableStateOf("") }
     var photoPath by rememberSaveable { mutableStateOf<String?>(null) }
+    var videoPath by rememberSaveable { mutableStateOf<String?>(null) }
     val cancel = {
         FileUtils.deleteFromPath(photoPath)
+        FileUtils.deleteFromPath(videoPath)
         onDismiss()
     }
     AlertDialog(
@@ -104,6 +106,14 @@ private fun ResolveDialog(
                     },
                     previewHeight = 140.dp
                 )
+                VideoPicker(
+                    videoPath = videoPath,
+                    onVideoChange = { newPath ->
+                        if (videoPath != null && videoPath != newPath) FileUtils.deleteFromPath(videoPath)
+                        videoPath = newPath
+                    },
+                    previewHeight = 140.dp
+                )
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
@@ -115,7 +125,7 @@ private fun ResolveDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { photoPath?.let { onConfirm(it, note) } },
+                onClick = { photoPath?.let { onConfirm(it, videoPath, note) } },
                 enabled = photoPath != null
             ) {
                 Text(stringResource(R.string.lifecycle_resolve))
@@ -139,7 +149,7 @@ private fun LifecycleActionsPreview() {
             canStartWork = false,
             canResolve = true,
             onStartWork = {},
-            onResolve = { _, _ -> }
+            onResolve = { _, _, _ -> }
         )
     }
 }

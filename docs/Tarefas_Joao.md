@@ -2,6 +2,16 @@
 
 Plano geral em [CityFix_Plano.md](CityFix_Plano.md). Molde das aulas: ContactApp e ficha AMov.P07.
 
+## Passadas para o Leonardo (20/11/2026)
+
+A 20/11 o Leonardo ficou com o que faltava do João, para acabar o trabalho até à entrega. Está em [Tarefas_Leonardo.md](Tarefas_Leonardo.md), secção «Recebidas do João»:
+- J10 Deteção de impactos;
+- vídeo na nova ocorrência (J5, ponto A);
+- revisão final dos ecrãs do João (textos em inglês e português, portrait e landscape, acessibilidade e previews);
+- pontos por confirmar 17, 31, A e B.
+
+As notificações dos pedidos e das respostas (J7) já foram feitas com a L11.
+
 ## Fase 0 — com o Leonardo
 
 - [x] 0.1 e 0.2 (feitas pelo Leonardo).
@@ -89,7 +99,7 @@ Mudanças no código partilhado que convém conhecer:
 - [x] Ponto obrigatório no mapa, escolhido pelo munícipe. O formulário mostra as coordenadas e mantém a escolha quando se junta ou troca a foto (decisão 12, revista a 16/11).
 - [x] A foto de uma ocorrência abandonada é apagada (`onCleared`) e um erro de gravação aparece no formulário.
 - [x] Landscape: foto e localização à esquerda, formulário à direita.
-- 📝 **Por definir:** vídeo (ponto A por confirmar).
+- [x] Vídeo opcional: passou para o Leonardo e foi feito a 20/11 (pontos 13 e A fechados).
 
 ### J7 — Pedidos de informação e mensagens
 - [x] `InformationRequests`, componente stateless partilhado pelo autor e pelo operador no detalhe.
@@ -98,7 +108,7 @@ Mudanças no código partilhado que convém conhecer:
 - [x] Resposta só em texto. A primeira resposta da outra parte marca o pedido como respondido. Se o pedido foi do operador, a ocorrência volta a `previousStatus` e limpa esse campo (decisões C e D).
 - [x] Pedidos, respostas e mudanças de estado gravados com a ocorrência no repositório local.
 - [x] Testado no emulador com o autor e o operador. Verificadas as restrições para o anónimo e para ocorrências encerradas, bem como a persistência após reiniciar.
-- [ ] Notificações dos pedidos e das respostas na integração L11.
+- [x] Notificações dos pedidos e das respostas: feitas com a L11 (17/11). O teste em dois dispositivos está na L11 do Leonardo.
 
 ### J8 — Reabertura
 - [x] Botão "Reabrir" no detalhe, visível só para o autor, em Resolvido e até 5 dias depois de `resolvedAt` (`canReopen`), com o prazo por baixo (`reopenDeadline`).
@@ -112,13 +122,13 @@ Mudanças no código partilhado que convém conhecer:
 
 | Tarefa | O que é | Aula |
 |---|---|---|
-| J10 | Deteção de impactos no eixo vertical com o acelerómetro (ponto 31 por confirmar) | por definir |
+| J10 | Deteção de impactos no eixo vertical com o acelerómetro (ponto 31 por confirmar) | passou para o Leonardo a 20/11 |
 
 ### J6 — Agrupamento a 10 m (16/11)
 - [x] `IncidentsList.findGroupPrimary`: principal mais antiga, não encerrada, da mesma categoria, a menos de 10 m (`GROUP_RADIUS_METERS`); a nova guarda o `primaryIncidentId`.
 - [x] Detalhe com o número de participações do grupo (`groupSize`).
 - Testado: nova ocorrência a 2 m da "Vias Públicas" ficou ligada a ela.
-- ⚠️ Ponto B assumido (confirmar): se a principal estiver encerrada, a nova passa a ser uma nova principal.
+- Ponto B fechado a 20/11: se a principal estiver encerrada, a nova passa a ser uma nova principal.
 
 ### J9 — Restrição dos 10 km (16/11)
 - [x] `AccessRules.anonymousAccess` com `ANONYMOUS_RADIUS_METERS` à volta de `CITY_CENTER`.
@@ -134,11 +144,14 @@ Mudanças no código partilhado que convém conhecer:
 
 ## Sempre, em todos os meus ecrãs
 
-- [ ] Textos em `strings.xml`, em inglês e em `values-pt`.
-- [ ] Funciona em portrait e landscape.
-- [ ] Descrições de acessibilidade nos ícones e botões.
-- [ ] Preview com dados de exemplo.
+A revisão final destes pontos nos ecrãs do João passou para o Leonardo e foi feita a 20/11 (ver [Tarefas_Leonardo.md](Tarefas_Leonardo.md)).
 
-## Pontos por confirmar que são meus
 
-17, 31, A e B — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3.
+- [x] Textos em `strings.xml`, em inglês e em `values-pt`.
+- [x] Funciona em portrait e landscape.
+- [x] Descrições de acessibilidade nos ícones e botões.
+- [x] Preview com dados de exemplo.
+
+## Pontos por confirmar que eram meus
+
+17, 31, A e B — ver [CityFix_Decisoes.md](CityFix_Decisoes.md), secção 3. Passaram para o Leonardo a 20/11; ficaram todos fechados nesse dia.

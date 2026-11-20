@@ -163,11 +163,11 @@ class IncidentDetailViewModel(
         if (canStartWork(user, incident)) incident.workStarted(user.id, System.currentTimeMillis()) else null
     }
 
-    fun resolve(photoPath: String?, note: String, onSuccess: () -> Unit) {
+    fun resolve(photoPath: String?, videoPath: String?, note: String, onSuccess: () -> Unit) {
         if (photoPath == null) return
         saveStatusChange(onSuccess) { incident, user ->
             if (!canResolve(user, incident)) return@saveStatusChange null
-            incident.resolved(user.id, photoPath, note.trim().ifBlank { null }, System.currentTimeMillis())
+            incident.resolved(user.id, photoPath, videoPath, note.trim().ifBlank { null }, System.currentTimeMillis())
         }
     }
 

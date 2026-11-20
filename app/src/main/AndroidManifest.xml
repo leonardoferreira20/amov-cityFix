@@ -35,6 +35,10 @@
             android:name=".services.ProximityService"
             android:exported="false"
             android:foregroundServiceType="location" />
+        <service
+            android:name=".services.ImpactDetectionService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

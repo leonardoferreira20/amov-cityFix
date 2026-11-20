@@ -9,7 +9,7 @@ data object DashboardRoute
 data class IncidentDetailRoute(val incidentId: String)
 
 @Serializable
-data object ReportIncidentRoute
+data class ReportIncidentRoute(val impactLatitude: Double? = null, val impactLongitude: Double? = null)
 
 @Serializable
 data object CategoryListRoute

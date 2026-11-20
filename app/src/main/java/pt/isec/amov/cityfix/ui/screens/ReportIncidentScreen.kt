@@ -53,6 +53,7 @@ import pt.isec.amov.cityfix.data.model.Category
 import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.ui.components.PhotoPicker
+import pt.isec.amov.cityfix.ui.components.VideoPicker
 import pt.isec.amov.cityfix.ui.components.labelRes
 import pt.isec.amov.cityfix.ui.theme.CityFixTheme
 import pt.isec.amov.cityfix.viewmodel.ReportIncidentUiState
@@ -66,6 +67,7 @@ fun ReportIncidentScreen(
     onDescriptionChange: (String) -> Unit,
     onVisibilityChange: (Visibility) -> Unit,
     onPhotoChange: (String?) -> Unit,
+    onVideoChange: (String?) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,6 +79,8 @@ fun ReportIncidentScreen(
             SectionTitle(R.string.report_photo)
             PhotoPicker(photoPath = state.photoPath, onPhotoChange = onPhotoChange)
             ErrorText(state.photoError)
+            SectionTitle(R.string.report_video)
+            VideoPicker(videoPath = state.videoPath, onVideoChange = onVideoChange)
         }
     }
 
@@ -292,6 +296,7 @@ private fun ReportIncidentScreenPreview() {
             onDescriptionChange = {},
             onVisibilityChange = {},
             onPhotoChange = {},
+            onVideoChange = {},
             onSaveClick = {}
         )
     }

@@ -25,6 +25,6 @@ class CityFixApp : Application() {
         Firebase.firestore.firestoreSettings = firestoreSettings {
             setLocalCacheSettings(persistentCacheSettings {})
         }
-        IncidentNotifications.createChannel(this)
+        IncidentNotifications.createChannels(this)
     }
 }

@@ -29,7 +29,8 @@ class MediaUploadScheduler(context: Context) {
                         workDataOf(
                             MediaUploadWorker.KEY_INCIDENT_ID to incident.id,
                             MediaUploadWorker.KEY_MEDIA_ID to media.id,
-                            MediaUploadWorker.KEY_LOCAL_PATH to localPath
+                            MediaUploadWorker.KEY_LOCAL_PATH to localPath,
+                            MediaUploadWorker.KEY_MEDIA_TYPE to media.type.name
                         )
                     )
                     .build()

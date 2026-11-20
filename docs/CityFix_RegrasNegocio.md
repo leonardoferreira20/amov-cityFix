@@ -66,7 +66,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-43 | A foto da criação vem da galeria ou da câmara e é guardada com o propósito `REPORT`. | ✅ | `PhotoPicker`, `ReportIncidentViewModel` | I.2.E, D13 |
 | ~~RN-44~~ | ~~Provisório: a localização é a georreferenciação do autor ou, se não existir, o centro do município.~~ Substituída pela RN-45 a 16/11. | — | — | D (11/11) |
 | RN-45 | O munícipe tem de marcar o local da ocorrência com um toque no mapa. Juntar ou trocar a foto mantém o ponto escolhido. | ✅ | `ReportIncidentScreen`, `MapLocationPicker`, `ReportIncidentViewModel.onLocationSelected` | D12 (revista a 16/11) |
-| RN-46 | Um vídeo pode acompanhar ou substituir a foto. | ❓ | J5 | D13, ponto A |
+| RN-46 | Um vídeo opcional (no máximo 1, até 30 s a gravar e 50 MB da galeria) pode acompanhar a foto, que é sempre obrigatória. | ✅ | `VideoPicker`, `ReportIncidentViewModel`, `MediaUploadWorker`, `IncidentVideo` | D13, ponto A (20/11) |
 | RN-47 | Uma ocorrência nova a menos de 10 m de uma principal não encerrada da mesma categoria liga-se a ela; a primeira é a principal; as encerradas não contam. O detalhe mostra quantas participações tem o grupo. | ✅ ❓ | `IncidentsList.findGroupPrimary`, `groupSize` | I.2, D18–D22, ponto B (assumido) |
 | RN-48 | As fotos das ocorrências são comprimidas e enviadas com thumbnail para o Storage, só quando há rede. Até lá, o detalhe avisa que há fotos por enviar. | ✅ por testar com o Storage ativo | `MediaUploadScheduler`, `MediaUploadWorker`, `ImageCompressor`, `IncidentRepository.markMediaUploaded` | Requisitos técnicos (Storage, WorkManager, compressão), D (17/11) |
 
@@ -78,7 +78,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-51 | Uma ocorrência está ativa em qualquer estado exceto Encerrado. | ✅ | `IncidentsList.getDashboardStats` | D14 |
 | RN-52 | Cada mudança de estado fica no histórico, com data, quem a fez e uma nota opcional. | ✅ | `IncidentActions` (`workStarted`, `resolved`, `closed`, `reopened` e pedidos de informação) | I.3.E |
 | RN-53 | O início dos trabalhos é a passagem de Aberto a Em resolução, feita pelo operador, e preenche `workStartedAt`. | ✅ | `AccessRules.canStartWork`, `Incident.workStarted` | I.3.E, D27 |
-| RN-54 | Resolver só é possível a partir de Em resolução (nunca em Aberto nem em Pedido de informações). Exige foto ou vídeo comprovativo, preenche `resolvedAt` e notifica o autor. | ✅ foto e `resolvedAt`; ✅ notificação, publicada e por testar; ❓ vídeo | `AccessRules.canResolve`, `ResolveDialog`, `Incident.resolved`; notificação: `notifyIncidentChanges` (L11); vídeo: pontos 13 e A | II.4, D (11/11) |
+| RN-54 | Resolver só é possível a partir de Em resolução (nunca em Aberto nem em Pedido de informações). Exige foto ou vídeo comprovativo, preenche `resolvedAt` e notifica o autor. | ✅ foto, vídeo opcional e `resolvedAt`; ✅ notificação, publicada e por testar | `AccessRules.canResolve`, `ResolveDialog`, `Incident.resolved`; notificação: `notifyIncidentChanges` (L11); vídeo: `VideoPicker` (pontos 13 e A, 20/11) | II.4, D (11/11) |
 | RN-55 | Cinco dias depois de resolvida, a ocorrência passa a Encerrada e deixa de aceitar alterações, com `closedAt` = `resolvedAt` + 5 dias. É feito no dispositivo, ao carregar as ocorrências, e no servidor, de hora a hora, mesmo sem ninguém abrir a app. | ✅ dispositivo; ✅ servidor, publicado e por testar | `AccessRules.isClosingDue`, `Incident.closed`, `IncidentRepository.loadIncidents`; `closeResolvedIncidents` | II.5, D28 (11/11 e 17/11) |
 | RN-56 | O autor é avisado 24 h antes do encerramento. | ✅ publicado e por testar | `closeResolvedIncidents` (Cloud Function), `CityFixMessagingService` | III, D28 (17/11) |
 | RN-57 | O operador pode pedir informação em Aberto ou Em resolução. O pedido guarda o estado atual em `previousStatus` e passa a Pedido de informações. A primeira resposta do autor repõe o estado anterior e limpa `previousStatus`. | ✅ | `AccessRules.canRequestInformation`, `IncidentActions.withInformationRequest`, `IncidentActions.withInformationReply` | II.2, D23, D24, C, D (11/11) |
@@ -101,7 +101,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | ID | Regra | Estado | Onde | Origem |
 |---|---|---|---|---|
 | RN-70 | Os três números são calculados sobre todas as ocorrências, incluindo as privadas, e são iguais para todos os perfis. | ✅ | `IncidentsList.getDashboardStats` | I.1.A, D16 |
-| RN-71 | O tempo médio de reparação é a média de `closedAt − createdAt` das ocorrências encerradas; sem nenhuma, mostra "—". | ✅ ❓ | `IncidentsList.getDashboardStats`, `DashboardStatsCard` | D15, conflito 15 |
+| RN-71 | O tempo médio de reparação é a média de `closedAt − createdAt` das ocorrências encerradas; sem nenhuma, mostra "—". Inclui os 5 dias em que ainda se pode reabrir. | ✅ | `IncidentsList.getDashboardStats`, `DashboardStatsCard` | D15, conflito 15 (fechado a 20/11) |
 | RN-72 | O total conta todas as ocorrências. | ✅ | `IncidentsList.getDashboardStats` | I.1.A |
 | RN-73 | A percentagem de ativas é ativas / total × 100 (RN-51). | ✅ | `IncidentsList.getDashboardStats` | I.1.A, D14 |
 | RN-74 | A secção «Estatísticas» do início mostra juntos os gráficos por estado e categoria e conta as ocorrências que o perfil vê na lista. | ✅ | `IncidentCharts` (`groupingBy`) | D (11/11 e 16/11) |
@@ -111,9 +111,9 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 
 | ID | Regra | Estado | Onde | Origem |
 |---|---|---|---|---|
-| RN-80 | Quando um operador está a menos de 20 m de uma ocorrência ativa que ainda não está Em resolução (Aberto ou Pedido de informações), os autores são avisados. | ✅ deteção e registo; ✅ notificação ao autor, testada a 17/11 | `ProximityService`, `AccessRules.isProximityAlertTarget`, `Incident.withProximityAlert`, `notifyIncidentChanges`; ponto 30 | I.3, II.3, D29 (16/11) |
+| RN-80 | Quando um operador (qualquer um) está a menos de 20 m de uma ocorrência ativa (todos os estados menos Encerrado, incluindo Em resolução), os autores são avisados. | ✅ deteção e registo; ✅ notificação ao autor, testada a 17/11; todas as ativas desde 20/11 | `ProximityService`, `AccessRules.isProximityAlertTarget` (com teste unitário), `Incident.withProximityAlert`, `notifyIncidentChanges` | I.3, II.3, D29 (16/11, revista a 20/11), D30 (20/11) |
 | RN-81 | Há notificações para mudança de estado, mensagens, proximidade e aviso de 24 h. São só avisos do sistema e tocar abre o detalhe. Quem fez a alteração não é avisado. | ✅ publicado; proximidade testada a 17/11, os outros tipos por testar | `functions/index.js`, `CityFixMessagingService`, `IncidentNotifications`, `DeviceTokenRepository` | III, D32 (17/11) |
-| RN-82 | Com a deteção de impactos ativa, uma aceleração vertical brusca sugere abrir uma ocorrência de pavimento. | 📝 ❓ | J10; ponto 31 | I.2.F |
+| RN-82 | Com a deteção de impactos ativa, uma aceleração vertical de pelo menos 6 m/s², com o munícipe a mais de 10 km/h, sugere abrir uma ocorrência de pavimento (no máximo uma vez por minuto). A sugestão abre a nova ocorrência com «Vias Públicas», «Dano» e o ponto do impacto. | ✅ | `ImpactDetector`, `ImpactDetectionService`, `AccessRules.runsImpactDetection`, `IncidentNotifications.showImpactSuggestion`, `ReportIncidentViewModel` | I.2.F, D31 (20/11) |
 
 ## 9. Localização, mapas e permissões
 

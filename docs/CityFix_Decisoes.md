@@ -44,10 +44,10 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 
 ### Aula #4 e Firebase (decidido a 16/11/2026)
 - Mapas com o Google Maps Compose, como na ficha P10. Os dois alunos usam a chave do João, escrita no `AndroidManifest.xml` como nas aulas, e o `google-services.json` do projeto `cityfix-3dbb1` vai para o Git (decidido a 16/11). Assim o projeto compila e mostra os mapas em qualquer máquina, incluindo a do professor, já que o ZIP da entrega não pode levar o `local.properties`. Recomenda-se restringir a chave na Google Cloud ao package `pt.isec.amov.cityfix` e às impressões SHA-1 dos dois computadores.
-- O detalhe público mostra o mapa com zoom de cidade e o pino, sem coordenadas e sem gestos de zoom ou deslocação, para não se perceber o local exato. O autor e o operador veem o pino com zoom próximo e as coordenadas (17).
+- O detalhe público mostra o mapa com zoom de cidade e o pino, sem coordenadas e sem gestos de zoom ou deslocação, para não se perceber o local exato. O autor e o operador veem o pino com zoom próximo e as coordenadas (17, confirmado a 20/11).
 - A georreferenciação do registo do munícipe escolhe-se no mapa (toque) ou com a localização atual; guardam-se só as coordenadas, sem morada; é obrigatória para o munícipe (8). Proposta do assistente, a validar pelos dois.
 - O anónimo fora dos 10 km, sem permissão de localização ou ainda sem posição não vê o dashboard nem a lista. Até haver login (L1), vê uma mensagem e o seletor de perfil (5).
-- O alerta de proximidade do operador (20 m) vale só para ocorrências ativas que ainda não estão Em resolução: Aberto e Pedido de informações (29).
+- O alerta de proximidade do operador (20 m) vale para todas as ocorrências ativas (todas menos Encerrado), incluindo Em resolução, o estado em que o enunciado ativa a geofence (II.3; o I.3 fala de qualquer ocorrência ativa). Qualquer operador gera o alerta, porque não há atribuição de operadores a ocorrências (29, revista a 20/11; 30).
 - O segundo fator do MFA é TOTP, com uma app autenticadora (10). Exige ativar o "Firebase Authentication with Identity Platform" e o TOTP na consola.
 - O projeto Firebase passa para o plano Blaze, porque desde fevereiro de 2026 o Cloud Storage não existe no plano Spark. A quota gratuita mantém-se.
 - Firebase, WorkManager e sensores seguem a documentação oficial, porque não há fichas das aulas sobre eles (decidido a 16/11).
@@ -65,6 +65,16 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - quem é avisado: o autor nas mudanças de estado, nos pedidos e respostas do operador e nos alertas de proximidade; o operador que fez o pedido quando o autor responde; todos os operadores quando o autor faz um pedido. Quem fez a alteração não é avisado;
   - as funções usam Node.js 22 e ficam em regiões diferentes (17/11): a `notifyIncidentChanges` corre em `europe-southwest1` (Madrid), porque um gatilho do Firestore tem de estar na região da base de dados; a `closeResolvedIncidents` corre em `europe-west1` (Bélgica), porque o Cloud Scheduler não existe em Madrid;
   - as imagens das funções guardadas no Artifact Registry são apagadas ao fim de 1 dia, para não acumularem custos.
+- Deteção de impactos (J10, 20/11, decidido pelo Leonardo; fecha o ponto 31):
+  - corre num serviço em primeiro plano (`ImpactDetectionService`, como o serviço de proximidade da P10) enquanto o munícipe tem sessão iniciada e a deteção ativa no perfil, mesmo com a app fechada, com a notificação fixa «Deteção de impactos ativa»;
+  - usa o acelerómetro com o filtro da documentação oficial: a gravidade é estimada com um filtro passa-baixo e o resto é a aceleração do movimento; conta só a componente vertical (a projeção na direção da gravidade), por isso não depende da posição do telemóvel;
+  - há impacto quando a componente vertical chega a 6 m/s² (cerca de 0,6 g) e o munícipe vai a mais de 10 km/h, segundo o GPS, o que exclui andar a pé e mexer no telemóvel; há no máximo uma sugestão por minuto;
+  - a sugestão é uma notificação que abre a «Nova ocorrência» com a categoria «Vias Públicas» (`cat-roads`, se estiver ativa), a situação «Dano» e o ponto do impacto já marcado no mapa. O munícipe pode mudar tudo e continua a ter de juntar a foto. É a única exceção à decisão 12.
+- Vídeo (20/11, decidido pelo Leonardo; fecha os pontos 13 e A):
+  - a foto continua obrigatória e junta-se no máximo 1 vídeo, opcional, na nova ocorrência (J5) e na prova de resolução (L7); a reabertura continua só com foto;
+  - grava-se com a câmara (contrato `CaptureVideo`, que pede à app da câmara no máximo 30 s e 50 MB) ou escolhe-se da galeria (`PickVisualMedia` só com vídeos, até 50 MB, verificado antes de copiar);
+  - o vídeo não é comprimido, porque o enunciado só pede compressão das imagens, e é enviado pelo mesmo `MediaUploadWorker`, só com rede, para `incidents/<id>/<mediaId>.<extensão>`. Não tem thumbnail, porque as listas usam o da foto;
+  - vê-se no detalhe, para todos os perfis que veem a ocorrência, com o `VideoView` do Android num `AndroidView` e um botão de reproduzir e pausar, sem bibliotecas novas.
 - Landscape nos ecrãs do Leonardo (F1, 17/11): o registo e o perfil passam a duas colunas, como a nova ocorrência do João; as categorias e a validação de munícipes usam uma grelha com uma coluna em portrait e duas em landscape; o login e a edição de categoria ficam numa coluna.
 - Firestore (16/11): coleções `users` (id = uid do Authentication), `categories` e `incidents`, com cache persistente. Só as categorias de exemplo são criadas, quando o primeiro operador entra e a coleção está vazia. As gravações não esperam pela resposta do servidor, para funcionarem offline.
 - Coroutines com `task.await()` da biblioteca `kotlinx-coroutines-play-services` (16/11).
@@ -75,7 +85,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O operador vê no detalhe a distância até à ocorrência e um botão «Navegar» que abre o trajeto no Google Maps.
 - Alerta de proximidade: o serviço em primeiro plano corre com a sessão de operador e grava o alerta na ocorrência; o autor vê-o no detalhe. A notificação no telemóvel do autor entra com o Firebase.
 - A localização em 2.º plano é pedida ao operador (serviço de proximidade) e ao munícipe com a deteção de impactos ativa, com uma explicação antes. As notificações pedem-se ao arrancar, com a localização.
-- Agrupamento (B), assumido a 16/11, a confirmar: só contam as principais não encerradas; se a principal estiver encerrada, uma nova ocorrência no mesmo local passa a ser uma nova principal.
+- Agrupamento (B), assumido a 16/11 e fechado a 20/11: só contam as principais não encerradas; se a principal estiver encerrada, uma nova ocorrência no mesmo local passa a ser uma nova principal.
 
 ### Acesso e perfis
 - Anónimo fora do raio de 10 km: vê apenas o ecrã de login (5).
@@ -96,7 +106,7 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 
 ### Ocorrências
 - Só o munícipe com conta ativa cria ocorrências. A foto e o ponto no mapa são obrigatórios. Juntar ou trocar a foto não altera o ponto escolhido (12, revista a 16/11).
-- Anexos por ocorrência: 1 foto e 1 vídeo na criação, mais 1 foto obrigatória em cada reabertura (13; alterado a 11/11/2026).
+- Anexos por ocorrência: 1 foto obrigatória e 1 vídeo opcional na criação, mais 1 foto obrigatória em cada reabertura (13; alterado a 11/11/2026 e fechado a 20/11).
 - Ocorrência ativa: qualquer estado exceto Encerrado (14).
 - Tempo médio de reparação: de Aberto a Encerrado (15).
 - O total do dashboard inclui as ocorrências privadas. Os detalhes e as fotos das privadas não são mostrados (16).
@@ -122,12 +132,12 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
 - O registo do início dos trabalhos corresponde à passagem para Em Resolução (27).
 - O operador inicia os trabalhos em Aberto e só resolve a partir de Em Resolução; não se resolve diretamente a partir de Aberto (11/11/2026).
 - Enquanto a ocorrência está em Pedido de Informações, o operador não muda o estado: espera pela resposta do autor, que repõe o estado anterior (11/11/2026).
-- Resolver exige uma foto comprovativa, da galeria ou da câmara, guardada como `MediaAttachment` com o propósito `RESOLUTION_PROOF`. A nota é opcional e fica no `StatusChange`. O vídeo depende dos pontos 13 e A (11/11/2026).
+- Resolver exige uma foto comprovativa, da galeria ou da câmara, guardada como `MediaAttachment` com o propósito `RESOLUTION_PROOF`. A nota é opcional e fica no `StatusChange`. Pode juntar-se também 1 vídeo opcional (20/11, pontos 13 e A).
 - O encerramento aos 5 dias é feito no dispositivo: ao carregar as ocorrências, as que estão resolvidas há mais de 5 dias passam a Encerradas, com `closedAt` igual a `resolvedAt` + 5 dias e um `StatusChange` feito por `system`. O aviso das 24 h fica para a L11 (28, 11/11/2026).
 
 ## 2. Conflitos com o enunciado (a confirmar)
 
-- **Tempo médio de reparação (15):** um ticket só passa a Encerrado 5 dias depois de Resolvido. Medir de Aberto a Encerrado acrescenta sempre esses 5 dias à média. Confirmar se é intencional.
+Não há conflitos por fechar. O conflito 15 (tempo médio de reparação) ficou fechado a 20/11: mede-se de Aberto a Encerrado, o que inclui os 5 dias em que o munícipe ainda pode reabrir; o relatório explica-o.
 
 O conflito 11 (nome editável e morada) ficou fechado a 12/11/2026, a favor do enunciado: ver «Acesso e perfis», na secção 1.
 
@@ -135,15 +145,15 @@ O conflito 11 (nome editável e morada) ficou fechado a 12/11/2026, a favor do e
 
 ### Da análise inicial
 - (7) Fechado: o NIF é único por perfil (validações do registo) e o Authentication não deixa repetir o e-mail.
-- (13) O limite de 1 foto e 1 vídeo é definitivo?
+- (13) Fechado a 20/11: 1 foto obrigatória e no máximo 1 vídeo opcional, na criação e na prova de resolução.
 - (28) Fechado a 17/11 (L11): o aviso das 24 h e o encerramento aos 5 dias são feitos no servidor, de hora a hora (`closeResolvedIncidents`). A app continua a encerrar as que encontra fora de prazo ao carregar as ocorrências.
-- (30) Qualquer operador ativa a geofence, ou só um operador atribuído? Há atribuição de operador a ocorrências?
-- (31) Na Deteção de Impactos, que categoria corresponde a "pavimento" e que limiar de aceleração se usa?
+- (30) Fechado a 20/11: qualquer operador gera o alerta de proximidade; não há atribuição de operadores a ocorrências, porque o enunciado não a pede.
+- (31) Fechado a 20/11 (J10): a categoria é «Vias Públicas» e o limiar é 6 m/s² na vertical, a mais de 10 km/h (ver «Deteção de impactos», na secção 1).
 - (32) Fechado a 17/11 (L11): são só avisos do sistema; tocar abre o detalhe da ocorrência, onde já estão o histórico e as mensagens.
 
 ### Novas, resultantes das decisões
-- **A.** Um vídeo pode substituir a foto, ou a foto é sempre obrigatória e o vídeo opcional?
-- **B.** Se a ocorrência principal for encerrada e houver ligadas ainda ativas, uma nova ocorrência no mesmo local liga-se a quê? Assumido a 16/11 que passa a ser uma nova principal (secção 1); falta confirmar.
+- **A.** Fechado a 20/11: a foto é sempre obrigatória e o vídeo é opcional.
+- **B.** Se a ocorrência principal for encerrada e houver ligadas ainda ativas, uma nova ocorrência no mesmo local liga-se a quê? Assumido a 16/11 e fechado a 20/11: passa a ser uma nova principal (secção 1).
 
 ## 4. Modelo de dados
 

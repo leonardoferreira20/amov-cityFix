@@ -1,5 +1,9 @@
 package pt.isec.amov.cityfix.ui.components
 
+import pt.isec.amov.cityfix.ui.theme.CityFixTheme
+import pt.isec.amov.cityfix.data.model.Message
+import pt.isec.amov.cityfix.data.model.InfoRequest
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,5 +75,44 @@ fun InformationRequests(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun InformationRequestsPreview() {
+    CityFixTheme {
+        InformationRequests(
+            requests = listOf(
+                InformationRequestItem(
+                    request = InfoRequest(
+                        id = "request-1",
+                        requestedBy = "operator-1",
+                        requesterRole = UserRole.OPERATOR,
+                        text = "Pode enviar uma foto mais próxima?"
+                    ),
+                    reply = Message(
+                        infoRequestId = "request-1",
+                        senderId = "citizen-1",
+                        senderRole = UserRole.CITIZEN,
+                        text = "Enviei agora uma foto nova."
+                    ),
+                    canReply = false
+                ),
+                InformationRequestItem(
+                    request = InfoRequest(
+                        id = "request-2",
+                        requestedBy = "citizen-1",
+                        requesterRole = UserRole.CITIZEN,
+                        text = "Quando começa a reparação?"
+                    ),
+                    reply = null,
+                    canReply = true
+                )
+            ),
+            canRequest = true,
+            onRequest = {},
+            onReply = {}
+        )
     }
 }

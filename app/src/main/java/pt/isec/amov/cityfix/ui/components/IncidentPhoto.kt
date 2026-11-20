@@ -27,6 +27,9 @@ private fun Incident.images(): List<MediaAttachment> = media.filter { it.type ==
 
 fun Incident.photoPaths(): List<String> = images().mapNotNull { it.remoteUrl ?: it.localUri }
 
+fun Incident.videoPaths(): List<String> =
+    media.filter { it.type == MediaType.VIDEO }.mapNotNull { it.remoteUrl ?: it.localUri }
+
 fun Incident.firstThumbnailPath(): String? = images().firstOrNull()?.let { it.thumbnailUrl ?: it.localUri }
 
 fun Incident.hasPendingUploads(): Boolean = media.any { it.uploadStatus == UploadStatus.PENDING }

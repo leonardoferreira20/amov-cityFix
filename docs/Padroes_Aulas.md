@@ -190,3 +190,17 @@ Também foram dados, em projetos com Views: recursos por língua (`values-pt`), 
 - Cloud Messaging (L11, 17/11): o token (`Firebase.messaging.token`) fica em `deviceTokens/<uid>`, os operadores subscrevem o tópico `operators` e o token é apagado ao terminar sessão (`deleteToken`). O `CityFixMessagingService`, um `FirebaseMessagingService` declarado no manifesto, recebe mensagens só com dados e cria a notificação com os textos do `strings.xml`, para ficar em inglês ou português conforme o telemóvel. O `NotificationChannel` e o `NotificationCompat` foram dados nas aulas, em projetos com Views.
 - Cloud Functions (L11, 17/11): JavaScript em `functions/index.js`, com as funções de 2.ª geração `onDocumentUpdated` e `onSchedule` e o `firebase-admin` para ler o Firestore e enviar as mensagens. Publicam-se com o Firebase CLI (`firebase deploy --only functions`), que precisa de Node.js 22 e do plano Blaze. Cada função fica numa região que suporte o seu gatilho: a do Firestore na região da base de dados e a agendada numa região com Cloud Scheduler.
 - Tocar numa notificação abre a `MainActivity` com o id da ocorrência num extra do `Intent`; a `MainActivity` navega para o detalhe quando a sessão já está carregada.
+
+## Sensores (sem ficha das aulas, segundo a documentação oficial)
+
+- Deteção de impactos (J10, 20/11): o `ImpactDetectionService` é um serviço em primeiro plano, como o serviço de proximidade da P10. Regista um `SensorEventListener` no `SensorManager` para o `Sensor.TYPE_ACCELEROMETER`, com `SENSOR_DELAY_GAME` (cerca de 50 leituras por segundo), e pede a localização ao `FusedLocationProviderClient` de 5 em 5 s, para saber a velocidade e o ponto do impacto.
+- O `ImpactDetector` segue o exemplo da documentação oficial dos sensores de movimento: um filtro passa-baixo (`alpha = 0.8`) estima a gravidade e o que sobra é a aceleração do movimento. A componente vertical é o produto escalar dessa aceleração com a direção da gravidade, por isso não depende da posição do telemóvel. A gravidade começa com a primeira leitura, para não dar um falso impacto ao arrancar.
+- O `ImpactDetector` é Kotlin puro e tem testes unitários com JUnit (`ImpactDetectorTest`), que correm sem emulador.
+- A sugestão é uma notificação com a latitude e a longitude do impacto em extras do `Intent`; a `MainActivity` navega para `ReportIncidentRoute(impactLatitude, impactLongitude)`, uma rota com argumentos opcionais, como a `EditCategoryRoute`.
+
+## Vídeo (sem ficha das aulas, segundo a documentação oficial)
+
+- O `VideoPicker` (20/11) segue o padrão do `PhotoPicker` da aula #3: grava com o contrato `CaptureVideo`, o equivalente ao `TakePicture`, para um ficheiro do `FileProvider` (novo caminho `videos/`), e escolhe da galeria com o `PickVisualMedia` só com vídeos (`VideoOnly`). A câmara recebe o limite de 30 s e 50 MB pelos extras `MediaStore.EXTRA_DURATION_LIMIT` e `EXTRA_SIZE_LIMIT`, numa subclasse do `CaptureVideo`.
+- Antes de copiar um vídeo da galeria, o tamanho é lido com `OpenableColumns.SIZE`; a extensão do ficheiro copiado vem do tipo MIME, com o `MimeTypeMap`.
+- O `IncidentVideo` mostra o vídeo com o `VideoView` do Android dentro de um `AndroidView` (interoperabilidade com Views), com um botão de reproduzir e pausar em Compose. O `setVideoPath` aceita tanto o caminho local como o endereço do Storage.
+- O `MediaUploadWorker` passou a receber o tipo do ficheiro: as fotos são comprimidas e têm thumbnail; os vídeos são enviados como estão, com o tipo MIME da extensão.
