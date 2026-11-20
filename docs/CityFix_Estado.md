@@ -184,6 +184,17 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - Testado no emulador com o Firebase a 16/11/2026, com as contas de [Contas_Teste.md](Contas_Teste.md): registo do operador (conta ativa); primeiro login do operador, que criou as 5 categorias; palavra-passe errada ("E-mail ou palavra-passe errados"); registo do munícipe com a localização atual (pendente); login do munícipe pendente (aviso e sessão terminada); validação pelo operador; login do munícipe ativo; nova ocorrência com foto da câmara, gravada no Firestore e mostrada no dashboard; recuperação da palavra-passe ("E-mail enviado"); terminar sessão.
 - Por testar: a verificação em dois passos. Exige um e-mail que receba a verificação e o TOTP ativo no projeto (comando no Cloud Shell), por isso tem de ser feita com uma conta real.
 
+### 2.4c Localização desligada no telemóvel (20/11/2026)
+- Problema: depois de autorizar a localização, se a localização do telemóvel estivesse desligada, a app não a ligava e o anónimo ficava em «A verificar a sua localização…» (o `FusedLocationProviderClient` não devolve posições com a localização desligada).
+- Correção: `LocationUtils.checkLocationSettings` usa o `SettingsClient` dos Google Play Services e, se a localização estiver desligada, mostra o diálogo do sistema para a ligar (`ResolvableApiException` + `StartIntentSenderForResult`). A `MainActivity` pede-o sempre que a localização faz falta: anónimo no início, registo, operador (alerta dos 20 m) e munícipe com deteção de impactos. Ao voltar à app (`LifecycleEventEffect(ON_RESUME)`), a permissão e o estado da localização são lidos de novo.
+- O anónimo com a localização desligada vê «A localização está desligada» e o botão «Ativar localização» (`AnonymousAccess.LOCATION_OFF`).
+- Compilado, lint sem erros e testes unitários a passar. Testado no emulador a 20/11: com a permissão dada e a localização desligada, a app mostra ao abrir o diálogo do sistema para a ligar e, depois de ligada, passa ao dashboard.
+
+### 2.4d Ocorrências só dentro de Coimbra (20/11/2026)
+- O mapa da nova ocorrência mostra o círculo de 10 km à volta da Praça da República e abre mais afastado para o mostrar. Um toque fora do círculo mostra «Escolha um ponto a menos de 10 km do centro da cidade…» a vermelho por baixo do mapa, e a ocorrência não é aceite ao submeter. A mesma verificação vale para o ponto sugerido pela deteção de impactos.
+- `AccessRules.isInsideCity` serve ao acesso anónimo e às ocorrências; o raio passou a `CITY_RADIUS_METERS`.
+- Testado no emulador a 20/11: diálogo do sistema para ligar a localização ao abrir a app com ela desligada e a permissão dada (2.4c); círculo no mapa, erro com um ponto fora, recusa ao submeter e erro a desaparecer com um ponto dentro.
+
 ### 2.5 Provisório (sai antes da entrega)
 - ~~`SessionSelector`~~: saiu a 16/11 com o login (L1).
 - ~~Repositórios em JSON~~: trocados pelo Firestore a 16/11.

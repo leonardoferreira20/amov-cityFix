@@ -69,6 +69,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 | RN-46 | Um vídeo opcional (no máximo 1, até 30 s a gravar e 50 MB da galeria) pode acompanhar a foto, que é sempre obrigatória. | ✅ | `VideoPicker`, `ReportIncidentViewModel`, `MediaUploadWorker`, `IncidentVideo` | D13, ponto A (20/11) |
 | RN-47 | Uma ocorrência nova a menos de 10 m de uma principal não encerrada da mesma categoria liga-se a ela; a primeira é a principal; as encerradas não contam. O detalhe mostra quantas participações tem o grupo. | ✅ ❓ | `IncidentsList.findGroupPrimary`, `groupSize` | I.2, D18–D22, ponto B (assumido) |
 | RN-48 | As fotos das ocorrências são comprimidas e enviadas com thumbnail para o Storage, só quando há rede. Até lá, o detalhe avisa que há fotos por enviar. | ✅ por testar com o Storage ativo | `MediaUploadScheduler`, `MediaUploadWorker`, `ImageCompressor`, `IncidentRepository.markMediaUploaded` | Requisitos técnicos (Storage, WorkManager, compressão), D (17/11) |
+| RN-49 | O local de uma ocorrência tem de ficar a menos de 10 km da Praça da República (o mesmo raio do acesso anónimo). O mapa mostra o círculo; fora dele aparece um erro vermelho por baixo do mapa e a ocorrência não é aceite. Vale também para a sugestão da deteção de impactos. | ✅ | `AccessRules.isInsideCity`, `CITY_RADIUS_METERS`, `ReportIncidentViewModel`, `MapLocationPicker` (`allowedRadiusMeters`) | I.1, D (20/11) |
 
 ## 5. Ciclo de vida
 
@@ -119,7 +120,7 @@ Origem: `I.1.B` e afins são secções do enunciado; `D16` e afins são decisõe
 
 | ID | Regra | Estado | Onde | Origem |
 |---|---|---|---|---|
-| RN-90 | A permissão de localização é pedida em runtime ao abrir a app; sem ela, a nova ocorrência e o acesso anónimo mostram um botão para a pedir. | ✅ | `MainActivity` (`RequestMultiplePermissions`), `ReportIncidentScreen`, `MainScreen` | V |
+| RN-90 | A permissão de localização é pedida em runtime ao abrir a app; sem ela, o acesso anónimo mostra um botão para a pedir. Se a localização do telemóvel estiver desligada, a app mostra o diálogo do sistema para a ligar sempre que precisa dela (anónimo, registo, operador, deteção de impactos). | ✅ | `MainActivity` (`RequestMultiplePermissions`, `LocationUtils.checkLocationSettings`), `MainScreen` | V |
 | RN-91 | A permissão da câmara é pedida antes de abrir a câmara; se for recusada, aparece um aviso. | ✅ | `PhotoSourceButtons` | V |
 | RN-92 | O munícipe indica a georreferenciação no registo, no mapa ou com a localização atual; é obrigatória. Guardam-se só as coordenadas. | ✅ | `RegisterScreen` (`MapLocationPicker`), `RegisterViewModel` | I.2.A, D8 (16/11) |
 | RN-93 | O autor e o operador veem no detalhe o mapa com o pino exato e as coordenadas. | ✅ | `IncidentMap` (`exact = true`) | I.3.E, D17 (16/11) |

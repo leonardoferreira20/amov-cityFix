@@ -4,7 +4,7 @@ import pt.isec.amov.cityfix.data.model.GeoLocation
 
 val CITY_CENTER = GeoLocation(40.2085, -8.4196)
 
-const val ANONYMOUS_RADIUS_METERS = 10_000f
+const val CITY_RADIUS_METERS = 10_000f
 
 const val GROUP_RADIUS_METERS = 10f
 

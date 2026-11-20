@@ -152,13 +152,14 @@ private fun AnonymousRestriction(
                 when (access) {
                     AnonymousAccess.LOCATING -> R.string.anonymous_locating
                     AnonymousAccess.NO_PERMISSION -> R.string.anonymous_no_permission
+                    AnonymousAccess.LOCATION_OFF -> R.string.anonymous_location_off
                     else -> R.string.anonymous_out_of_area
                 }
             ),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
-        if (access == AnonymousAccess.NO_PERMISSION) {
+        if (access == AnonymousAccess.NO_PERMISSION || access == AnonymousAccess.LOCATION_OFF) {
             Button(onClick = onRequestLocationPermission) {
                 Text(stringResource(R.string.location_permission_allow))
             }

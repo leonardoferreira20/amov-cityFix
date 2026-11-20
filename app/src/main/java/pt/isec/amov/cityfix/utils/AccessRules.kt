@@ -19,13 +19,22 @@ fun isCitizen(user: User?): Boolean = user?.role == UserRole.CITIZEN
 
 fun isAuthor(user: User?, incident: Incident): Boolean = user != null && user.id == incident.authorId
 
-enum class AnonymousAccess { ALLOWED, LOCATING, NO_PERMISSION, OUT_OF_AREA }
+fun isInsideCity(location: GeoLocation): Boolean =
+    LocationUtils.distanceMeters(CITY_CENTER, location) <= CITY_RADIUS_METERS
 
-fun anonymousAccess(user: User?, hasLocationPermission: Boolean, location: GeoLocation?): AnonymousAccess = when {
+enum class AnonymousAccess { ALLOWED, LOCATING, NO_PERMISSION, LOCATION_OFF, OUT_OF_AREA }
+
+fun anonymousAccess(
+    user: User?,
+    hasLocationPermission: Boolean,
+    isLocationEnabled: Boolean,
+    location: GeoLocation?
+): AnonymousAccess = when {
     user != null -> AnonymousAccess.ALLOWED
     !hasLocationPermission -> AnonymousAccess.NO_PERMISSION
+    location == null && !isLocationEnabled -> AnonymousAccess.LOCATION_OFF
     location == null -> AnonymousAccess.LOCATING
-    LocationUtils.distanceMeters(CITY_CENTER, location) <= ANONYMOUS_RADIUS_METERS -> AnonymousAccess.ALLOWED
+    isInsideCity(location) -> AnonymousAccess.ALLOWED
     else -> AnonymousAccess.OUT_OF_AREA
 }
 

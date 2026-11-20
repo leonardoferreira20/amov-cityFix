@@ -161,7 +161,7 @@
     <string name="profile_saving">A guardar…</string>
     <string name="profile_photo_description">Fotografia de perfil</string>
     <string name="error_location_required">A localização é obrigatória.</string>
-    <string name="location_permission_allow">Permitir localização</string>
+    <string name="location_permission_allow">Ativar localização</string>
     <string name="report_location_hint">Toque no mapa para marcar o local da ocorrência.</string>
     <string name="map_incident_description">Mapa com a localização da ocorrência</string>
     <string name="map_area_description">Mapa da zona da ocorrência</string>
@@ -248,4 +248,6 @@
     <string name="mfa_enroll_instructions">Junte esta chave à app autenticadora (ou abra-a diretamente) e indique o código que ela mostra.</string>
     <string name="mfa_open_app">Abrir na app autenticadora</string>
     <string name="profile_sign_out">Terminar sessão</string>
+    <string name="anonymous_location_off">O acesso anónimo só está disponível até 10 km do centro da cidade e a localização está desligada. Ligue-a ou inicie sessão.</string>
+    <string name="error_location_outside_city">Escolha um ponto a menos de 10 km do centro da cidade (Praça da República). Este local fica fora de Coimbra.</string>
 </resources>

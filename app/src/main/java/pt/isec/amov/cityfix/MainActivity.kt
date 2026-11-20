@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -163,8 +165,28 @@ class MainActivity : ComponentActivity() {
                         PackageManager.PERMISSION_GRANTED
                     if (!hasLocationPermission || !hasNotificationPermission) requestLocationPermission()
                 }
-                val deviceLocation by rememberDeviceLocation(hasLocationPermission)
-                val access = anonymousAccess(currentUser, hasLocationPermission, deviceLocation)
+                var isLocationEnabled by remember { mutableStateOf(LocationUtils.isLocationEnabled(context)) }
+                val locationSettingsRequest = rememberLauncherForActivityResult(
+                    ActivityResultContracts.StartIntentSenderForResult()
+                ) {
+                    isLocationEnabled = LocationUtils.isLocationEnabled(context)
+                }
+                val requestLocationServices = {
+                    LocationUtils.checkLocationSettings(
+                        context,
+                        onEnabled = { isLocationEnabled = true },
+                        onResolutionRequired = locationSettingsRequest::launch
+                    )
+                }
+                val requestLocation = {
+                    if (hasLocationPermission) requestLocationServices() else requestLocationPermission()
+                }
+                LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                    hasLocationPermission = LocationUtils.hasLocationPermission(context)
+                    isLocationEnabled = LocationUtils.isLocationEnabled(context)
+                }
+                val deviceLocation by rememberDeviceLocation(hasLocationPermission && isLocationEnabled)
+                val access = anonymousAccess(currentUser, hasLocationPermission, isLocationEnabled, deviceLocation)
 
                 LaunchedEffect(currentUser?.id, hasLocationPermission) {
                     val user = currentUser
@@ -226,6 +248,18 @@ class MainActivity : ComponentActivity() {
                 }
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val isDashboard = navBackStackEntry?.destination?.hasRoute<DashboardRoute>() == true
+                val locationNeededFor = when {
+                    navBackStackEntry?.destination?.hasRoute<RegisterRoute>() == true -> "register"
+                    currentUser == null -> "anonymous"
+                    runsProximityService(currentUser) -> "proximity"
+                    runsImpactDetection(currentUser) -> "impacts"
+                    else -> null
+                }
+                LaunchedEffect(hasLocationPermission, locationNeededFor) {
+                    if (hasLocationPermission && locationNeededFor != null && !isLocationEnabled) {
+                        requestLocationServices()
+                    }
+                }
                 var expandedIncidentIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
                 val areAllIncidentsExpanded = incidents.isNotEmpty() &&
                         incidents.all { it.id in expandedIncidentIds }
@@ -279,7 +313,7 @@ class MainActivity : ComponentActivity() {
                                 onLoginClick = { navController.navigate(LoginRoute) },
                                 onSignOut = signOut,
                                 anonymousAccess = access,
-                                onRequestLocationPermission = requestLocationPermission,
+                                onRequestLocationPermission = requestLocation,
                                 expandedIncidentIds = expandedIncidentIds,
                                 onToggleIncident = { id ->
                                     expandedIncidentIds = if (id in expandedIncidentIds) {

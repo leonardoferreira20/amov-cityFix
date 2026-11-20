@@ -164,7 +164,7 @@
     <string name="profile_saving">Saving…</string>
     <string name="profile_photo_description">Profile photo</string>
     <string name="error_location_required">The location is required.</string>
-    <string name="location_permission_allow">Allow location</string>
+    <string name="location_permission_allow">Turn on location</string>
     <string name="report_location_hint">Tap the map to mark where the incident happened.</string>
     <string name="map_incident_description">Map with the location of the incident</string>
     <string name="map_area_description">Map of the area of the incident</string>
@@ -251,4 +251,6 @@
     <string name="mfa_enroll_instructions">Add this key to your authenticator app (or open it directly), then enter the code it shows.</string>
     <string name="mfa_open_app">Open in authenticator app</string>
     <string name="profile_sign_out">Sign out</string>
+    <string name="anonymous_location_off">Anonymous access is only available within 10 km of the town centre, and your location is turned off. Turn it on, or sign in.</string>
+    <string name="error_location_outside_city">Choose a point within 10 km of the town centre (Praça da República). This place is outside Coimbra.</string>
 </resources>

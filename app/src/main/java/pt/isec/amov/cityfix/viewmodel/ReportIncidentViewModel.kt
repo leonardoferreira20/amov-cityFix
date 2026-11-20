@@ -1,5 +1,6 @@
 package pt.isec.amov.cityfix.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,7 @@ import pt.isec.amov.cityfix.data.model.Situation
 import pt.isec.amov.cityfix.data.model.User
 import pt.isec.amov.cityfix.data.model.Visibility
 import pt.isec.amov.cityfix.utils.FileUtils
+import pt.isec.amov.cityfix.utils.isInsideCity
 import pt.isec.amov.cityfix.utils.PAVEMENT_CATEGORY_ID
 import pt.isec.amov.cityfix.utils.canCreateIncident
 
@@ -32,7 +34,11 @@ class ReportIncidentViewModel(
         if (impactLocation == null) {
             ReportIncidentUiState()
         } else {
-            ReportIncidentUiState(location = impactLocation, situation = Situation.DAMAGE)
+            ReportIncidentUiState(
+                location = impactLocation,
+                locationError = locationError(impactLocation),
+                situation = Situation.DAMAGE
+            )
         }
     )
     val reportState: StateFlow<ReportIncidentUiState> = _reportState.asStateFlow()
@@ -51,7 +57,7 @@ class ReportIncidentViewModel(
     }
 
     fun onLocationSelected(location: GeoLocation) {
-        _reportState.update { it.copy(location = location, locationError = null) }
+        _reportState.update { it.copy(location = location, locationError = locationError(location)) }
     }
 
     fun onCategorySelected(categoryId: String) {
@@ -96,7 +102,7 @@ class ReportIncidentViewModel(
         val location = current.location
         if (current.isSaving) return
         if (category == null || situation == null || photoPath == null || location == null ||
-            current.description.isBlank()
+            !isInsideCity(location) || current.description.isBlank()
         ) {
             _reportState.update {
                 it.copy(
@@ -104,7 +110,7 @@ class ReportIncidentViewModel(
                     situationError = if (situation == null) R.string.error_situation_required else null,
                     descriptionError = if (it.description.isBlank()) R.string.error_description_required else null,
                     photoError = if (photoPath == null) R.string.error_photo_required else null,
-                    locationError = if (location == null) R.string.error_location_required else null
+                    locationError = locationError(location)
                 )
             }
             return
@@ -157,4 +163,11 @@ class ReportIncidentViewModel(
             FileUtils.deleteFromPath(state.videoPath)
         }
     }
+}
+
+@StringRes
+private fun locationError(location: GeoLocation?): Int? = when {
+    location == null -> R.string.error_location_required
+    !isInsideCity(location) -> R.string.error_location_outside_city
+    else -> null
 }

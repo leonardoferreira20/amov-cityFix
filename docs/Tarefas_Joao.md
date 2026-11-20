@@ -89,6 +89,7 @@ Mudanças no código partilhado que convém conhecer:
 - [x] Indicação de ocorrência de grupo (J6).
 
 ### J5 — Criar ocorrência
+- [x] Local limitado a 10 km da Praça da República, com o círculo no mapa e erro por baixo do mapa (20/11).
 - [x] Ecrã com `ReportIncidentUiState` no estilo do `EditContactUiState`: campos, erro por campo e `isValid` (`ReportIncidentScreen`, `ReportIncidentViewModel` + `Factory`).
 - [x] Campos: categoria (só as ativas) e situação em listas dropdown; descrição; visibilidade (pública ou privada) com `RadioButton`, como o registo do Leonardo.
 - [x] Validação: todos os campos obrigatórios; os erros aparecem campo a campo ao submeter.

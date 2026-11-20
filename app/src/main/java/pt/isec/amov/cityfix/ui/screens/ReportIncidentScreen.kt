@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import pt.isec.amov.cityfix.data.model.GeoLocation
 import pt.isec.amov.cityfix.ui.components.MapLocationPicker
 import pt.isec.amov.cityfix.utils.CITY_CENTER
+import pt.isec.amov.cityfix.utils.CITY_RADIUS_METERS
 import pt.isec.amov.cityfix.utils.toDisplayText
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -186,7 +187,8 @@ private fun ReportLocation(
         initialCenter = CITY_CENTER,
         contentDescription = stringResource(R.string.map_picker_description),
         onLocationSelected = onLocationSelected,
-        modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp))
+        modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp)),
+        allowedRadiusMeters = CITY_RADIUS_METERS
     )
     state.location?.let {
         Text(it.toDisplayText(), style = MaterialTheme.typography.bodyMedium)

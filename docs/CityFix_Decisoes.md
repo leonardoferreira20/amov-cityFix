@@ -42,6 +42,10 @@ Trabalho prático Android-Kotlin, AMOV 2026/27. Os números entre parênteses re
   - A reabertura exige também uma foto, da galeria ou da câmara. Junta-se às fotos que a ocorrência já tem, como `MediaAttachment` com o propósito `REOPEN`.
   - O detalhe mostra todas as fotos numa fila com scroll horizontal; a primeira continua a ser o thumbnail da lista.
 
+### Limites (decidido a 20/11/2026)
+- As ocorrências só podem ser marcadas a menos de 10 km da Praça da República, o mesmo raio do acesso anónimo (uma só constante, `CITY_RADIUS_METERS`). O mapa da nova ocorrência desenha o círculo e abre mais afastado para o mostrar; um ponto fora dele dá erro por baixo do mapa e impede a gravação.
+- Perfil: pediu-se para deixar alterar tudo exceto o e-mail e o NIF, mas manteve-se o enunciado (I.2.C e I.3.C): o nome, o NIF e, no munícipe, a georreferenciação continuam bloqueados.
+
 ### Aula #4 e Firebase (decidido a 16/11/2026)
 - Mapas com o Google Maps Compose, como na ficha P10. Os dois alunos usam a chave do João, escrita no `AndroidManifest.xml` como nas aulas, e o `google-services.json` do projeto `cityfix-3dbb1` vai para o Git (decidido a 16/11). Assim o projeto compila e mostra os mapas em qualquer máquina, incluindo a do professor, já que o ZIP da entrega não pode levar o `local.properties`. Recomenda-se restringir a chave na Google Cloud ao package `pt.isec.amov.cityfix` e às impressões SHA-1 dos dois computadores.
 - O detalhe público mostra o mapa com zoom de cidade e o pino, sem coordenadas e sem gestos de zoom ou deslocação, para não se perceber o local exato. O autor e o operador veem o pino com zoom próximo e as coordenadas (17, confirmado a 20/11).

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
@@ -23,6 +24,7 @@ import pt.isec.amov.cityfix.data.model.GeoLocation
 private const val EXACT_ZOOM = 17f
 private const val PUBLIC_ZOOM = 11f
 private const val PICKER_ZOOM = 15f
+private const val AREA_ZOOM = 11f
 
 @Composable
 fun IncidentMap(
@@ -67,16 +69,19 @@ fun MapLocationPicker(
     initialCenter: GeoLocation,
     contentDescription: String,
     onLocationSelected: (GeoLocation) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    allowedRadiusMeters: Float? = null
 ) {
     if (LocalInspectionMode.current) {
         MapPlaceholder(modifier)
         return
     }
     val center = selected ?: initialCenter
+    val initialZoom = if (selected == null && allowedRadiusMeters != null) AREA_ZOOM else PICKER_ZOOM
     val cameraState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(center.latitude, center.longitude), PICKER_ZOOM)
+        position = CameraPosition.fromLatLngZoom(LatLng(center.latitude, center.longitude), initialZoom)
     }
+    val areaColor = MaterialTheme.colorScheme.primary
     var selectedPin by remember {
         mutableStateOf(selected?.let { LatLng(it.latitude, it.longitude) })
     }
@@ -99,6 +104,15 @@ fun MapLocationPicker(
             onLocationSelected(GeoLocation(point.latitude, point.longitude))
         }
     ) {
+        allowedRadiusMeters?.let { radius ->
+            Circle(
+                center = LatLng(initialCenter.latitude, initialCenter.longitude),
+                radius = radius.toDouble(),
+                strokeColor = areaColor,
+                strokeWidth = 4f,
+                fillColor = areaColor.copy(alpha = 0.08f)
+            )
+        }
         selectedPin?.let { pin ->
             val markerState = remember(pin) { MarkerState(position = pin) }
             Marker(state = markerState)

@@ -6,14 +6,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Looper
+import androidx.activity.result.IntentSenderRequest
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -53,6 +58,28 @@ object LocationUtils {
             }
             awaitClose { client.removeLocationUpdates(callback) }
         }
+
+    fun isLocationEnabled(context: Context): Boolean =
+        context.getSystemService(LocationManager::class.java)
+            ?.let { LocationManagerCompat.isLocationEnabled(it) } == true
+
+    fun checkLocationSettings(
+        context: Context,
+        onEnabled: () -> Unit,
+        onResolutionRequired: (IntentSenderRequest) -> Unit
+    ) {
+        val request = LocationSettingsRequest.Builder()
+            .addLocationRequest(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10_000L).build())
+            .build()
+        LocationServices.getSettingsClient(context)
+            .checkLocationSettings(request)
+            .addOnSuccessListener { onEnabled() }
+            .addOnFailureListener { error ->
+                if (error is ResolvableApiException) {
+                    onResolutionRequired(IntentSenderRequest.Builder(error.resolution).build())
+                }
+            }
+    }
 
     fun hasBackgroundLocationPermission(context: Context): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
