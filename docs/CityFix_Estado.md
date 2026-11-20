@@ -271,7 +271,8 @@ O detalhe está em [CityFix_Decisoes.md](CityFix_Decisoes.md), secções 2 e 3.
 ### 3.7 Entrega
 - [ ] Retirar o que é provisório (secção 2.4).
 - [ ] Testar todos os ecrãs em portrait e landscape, em inglês e em português.
-- [ ] Relatório técnico em PDF: soluções técnicas, opções de implementação concretizadas e funcionais, oportunidades de melhoria.
+- [x] Relatório técnico (20/11), com o modelo do relatório de PD: `docs/Relatorio_AMOV2627.2024126292.2024113113.docx` e `.pdf`, com 35 páginas, 4 figuras do emulador e 10 tabelas. Inclui as soluções técnicas, as opções concretizadas e funcionais e as oportunidades de melhoria.
+- [ ] Atualizar a secção 10.3 do relatório («Testes por fazer») e a tabela 10 depois dos testes com o João em dispositivos reais, e voltar a exportar o PDF a partir do Word.
 - [ ] ZIP `AMOV2627.2024126292.2024113113`, sem `.gradle`, `build`, `app/build` nem `local.properties` (por exemplo com `git archive`, como no README).
 - [ ] Entregar no Nónio até 22/11/2026, 23:59. A defesa funcional é de 23 a 27/11, com os dois presentes.
 

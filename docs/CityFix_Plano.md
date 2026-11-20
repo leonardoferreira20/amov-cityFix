@@ -79,7 +79,7 @@ Legenda da coluna Aula: ✅ já dado (inclui a multimédia de fotos, aula #3, e 
 | L10 | Alerta de proximidade de 20 m (serviço da P10 feito a 16/11; aviso ao autor pelo Firebase) | Leonardo | ✅ serviço; aviso feito com a L11 e testado (17/11) |
 | L11 | Notificações, encerramento aos 5 dias, aviso das 24 h | Leonardo | 🔒 (feita e publicada a 17/11 com a documentação oficial; falta testar em dois dispositivos) |
 | F1 | Textos EN/PT, landscape e acessibilidade nos seus ecrãs, com a paleta partilhada do CityFix | Cada um | ✅ |
-| F2 | Integração, relatório técnico em PDF, ZIP | Os dois | — |
+| F2 | Integração, relatório técnico em PDF, ZIP | Os dois | — (relatório feito a 20/11; falta o ZIP) |
 
 ## 6. Ainda por dar nas aulas
 
