@@ -1,5 +1,6 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.heading
 import android.content.res.Configuration
@@ -148,6 +149,7 @@ fun IncidentDetailScreen(
         }
     }
 
+    var isMapTouched by remember { mutableStateOf(false) }
     val mapContent: @Composable (Modifier) -> Unit = { mapModifier ->
         IncidentMap(
             location = incident.location,
@@ -155,7 +157,8 @@ fun IncidentDetailScreen(
             contentDescription = stringResource(
                 if (state.showLocation) R.string.map_incident_description else R.string.map_area_description
             ),
-            modifier = mapModifier.clip(RoundedCornerShape(12.dp))
+            modifier = mapModifier.clip(RoundedCornerShape(12.dp)),
+            onTouchChange = { isMapTouched = it }
         )
     }
 
@@ -298,14 +301,14 @@ fun IncidentDetailScreen(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState(), enabled = !isMapTouched),
                 false
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState(), enabled = !isMapTouched),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 photosContent()
@@ -320,7 +323,7 @@ fun IncidentDetailScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {

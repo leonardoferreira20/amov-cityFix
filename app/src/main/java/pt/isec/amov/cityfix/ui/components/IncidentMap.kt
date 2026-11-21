@@ -1,5 +1,9 @@
 package pt.isec.amov.cityfix.ui.components
 
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +35,8 @@ fun IncidentMap(
     location: GeoLocation,
     exact: Boolean,
     contentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onTouchChange: (Boolean) -> Unit = {}
 ) {
     if (LocalInspectionMode.current) {
         MapPlaceholder(modifier)
@@ -46,7 +51,7 @@ fun IncidentMap(
         cameraState.position = CameraPosition.fromLatLngZoom(position, zoom)
     }
     GoogleMap(
-        modifier = modifier,
+        modifier = if (exact) modifier.detectTouch(onTouchChange) else modifier,
         cameraPositionState = cameraState,
         contentDescription = contentDescription,
         uiSettings = MapUiSettings(
@@ -70,7 +75,8 @@ fun MapLocationPicker(
     contentDescription: String,
     onLocationSelected: (GeoLocation) -> Unit,
     modifier: Modifier = Modifier,
-    allowedRadiusMeters: Float? = null
+    allowedRadiusMeters: Float? = null,
+    onTouchChange: (Boolean) -> Unit = {}
 ) {
     if (LocalInspectionMode.current) {
         MapPlaceholder(modifier)
@@ -95,7 +101,7 @@ fun MapLocationPicker(
         }
     }
     GoogleMap(
-        modifier = modifier,
+        modifier = modifier.detectTouch(onTouchChange),
         cameraPositionState = cameraState,
         contentDescription = contentDescription,
         uiSettings = MapUiSettings(zoomControlsEnabled = true, mapToolbarEnabled = false),
@@ -124,3 +130,15 @@ fun MapLocationPicker(
 private fun MapPlaceholder(modifier: Modifier) {
     Box(modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant))
 }
+
+private fun Modifier.detectTouch(onTouchChange: (Boolean) -> Unit): Modifier =
+    pointerInput(onTouchChange) {
+        awaitEachGesture {
+            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            onTouchChange(true)
+            do {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+            } while (event.changes.any { it.pressed })
+            onTouchChange(false)
+        }
+    }

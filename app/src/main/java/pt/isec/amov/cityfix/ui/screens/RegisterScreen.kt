@@ -1,5 +1,9 @@
 package pt.isec.amov.cityfix.ui.screens
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -70,6 +74,7 @@ fun RegisterScreen(
     onDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isMapTouched by remember { mutableStateOf(false) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val accountContent: @Composable (Modifier) -> Unit = { contentModifier ->
@@ -150,7 +155,8 @@ fun RegisterScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(220.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(12.dp)),
+                    onTouchChange = { isMapTouched = it }
                 )
                 OutlinedButton(
                     onClick = { deviceLocation?.let(onLocationSelected) },
@@ -195,13 +201,13 @@ fun RegisterScreen(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                 )
                 profileContent(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                 )
             }
         } else {
@@ -209,7 +215,7 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {

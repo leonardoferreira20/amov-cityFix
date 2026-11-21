@@ -73,10 +73,11 @@ fun ReportIncidentScreen(
     modifier: Modifier = Modifier
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    var isMapTouched by remember { mutableStateOf(false) }
 
     val mediaContent: @Composable (Modifier) -> Unit = { mediaModifier ->
         Column(modifier = mediaModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ReportLocation(state = state, onLocationSelected = onLocationSelected)
+            ReportLocation(state = state, onLocationSelected = onLocationSelected, onMapTouchChange = { isMapTouched = it })
             SectionTitle(R.string.report_photo)
             PhotoPicker(photoPath = state.photoPath, onPhotoChange = onPhotoChange)
             ErrorText(state.photoError)
@@ -150,13 +151,13 @@ fun ReportIncidentScreen(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                 )
                 formContent(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                 )
             }
         } else {
@@ -164,7 +165,7 @@ fun ReportIncidentScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState(), enabled = !isMapTouched)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -178,7 +179,8 @@ fun ReportIncidentScreen(
 @Composable
 private fun ReportLocation(
     state: ReportIncidentUiState,
-    onLocationSelected: (GeoLocation) -> Unit
+    onLocationSelected: (GeoLocation) -> Unit,
+    onMapTouchChange: (Boolean) -> Unit
 ) {
     SectionTitle(R.string.detail_location_title)
     Text(stringResource(R.string.report_location_hint), style = MaterialTheme.typography.bodyMedium)
@@ -188,7 +190,8 @@ private fun ReportLocation(
         contentDescription = stringResource(R.string.map_picker_description),
         onLocationSelected = onLocationSelected,
         modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp)),
-        allowedRadiusMeters = CITY_RADIUS_METERS
+        allowedRadiusMeters = CITY_RADIUS_METERS,
+        onTouchChange = onMapTouchChange
     )
     state.location?.let {
         Text(it.toDisplayText(), style = MaterialTheme.typography.bodyMedium)

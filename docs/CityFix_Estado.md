@@ -204,6 +204,22 @@ Este documento junta o que já está implementado e o que falta para concluir o 
 - Testado no emulador a 20/11 com o Android a 1,3× e o texto maior (1,56× no total): início, estatísticas, cartões (recolhidos e expandidos), detalhe, diálogo de pedido de informação, perfil, login, registo e barra de topo do operador (6 ações) e do anónimo (com «Login»), em portrait; perfil e início em landscape; a escolha mantém-se ao rodar e ao reabrir a app. Não houve texto cortado nem sobreposições a corrigir.
 - Limitações: o mapa (Google Maps) e as notificações do sistema não são afetados; o anúncio do TalkBack foi confirmado pela árvore de acessibilidade, não com o TalkBack a falar.
 
+### 2.4f Mapas dentro de páginas com scroll (21/11/2026)
+- Problema: na nova ocorrência, ao deslizar o dedo na vertical sobre o mapa, muitas vezes era a página que andava e o mapa não se mexia, porque a coluna com `verticalScroll` ficava com o gesto.
+- Correção: o `IncidentMap` e o `MapLocationPicker` avisam quando o dedo pousa e se levanta (`onTouchChange`, com `pointerInput` na passagem `Initial`, sem consumir o toque). A nova ocorrência, o registo e o detalhe desligam o scroll da página (`verticalScroll(enabled = !isMapTouched)`) enquanto o dedo está no mapa.
+- O mapa público do detalhe (anónimo e quem não é autor) não se arrasta, por isso não desliga o scroll: deslizar sobre ele continua a mover a página. O mapa de ocorrências ocupa o ecrã inteiro e não está dentro de uma página com scroll.
+- Testado no emulador a 21/11: nova ocorrência, registo e detalhe do autor (o mapa mexe-se e a página fica parada); detalhe público (a página desliza sobre o mapa); fora dos mapas, a página desliza normalmente.
+
+### 2.4g Dados de demonstração (21/11/2026)
+- Criados no Firebase, pelas APIs REST e com as contas de cada utilizador (as regras de segurança aplicam-se como na app), para mostrar a app a funcionar na defesa:
+  - **5 categorias novas:** Sinalização, Recolha de Resíduos, Mobiliário Urbano, Passeios e Calçada e Parques Infantis (ficam 9 ativas e Espaços Verdes inativa). As situações continuam as 4 do enunciado.
+  - **7 contas:** 4 munícipes ativos, 1 munícipe pendente (para mostrar a validação) e 2 operadores. Nomes, telefones e NIF fictícios (os NIF não passam no dígito de controlo); e-mails @example.com nos munícipes e @aac-coimbra.pt nos operadores. As palavras-passe estão em `Contas_Teste.md`, que não vai para o Git.
+  - **30 ocorrências** em Coimbra, todas dentro dos 10 km: 9 em Aberto (uma de grupo, ligada a outra a 4 m, e uma reaberta com foto e justificação), 4 em Pedido de informações, 7 em Resolução (com pedidos respondidos nos dois sentidos), 5 Resolvidas e 5 Encerradas, com histórico de estados, notas, alertas de proximidade, 4 privadas e datas entre 40 dias e algumas horas.
+  - **Fotos:** ilustrações geradas por programa (Pillow), uma cena por categoria com variações, e a versão reparada como foto comprovativa nas resolvidas. Foram enviadas para o Storage no mesmo caminho e com o mesmo tamanho que o `MediaUploadWorker` usa (1280 px e miniatura de 320 px).
+- Verificado no emulador como operador: dashboard e estatísticas por categoria, miniaturas e fotos vindas do Storage, detalhe com autor, histórico e notas, munícipe pendente na validação e as 10 categorias.
+- A lista de categorias só é lida ao abrir a app (`CategoriesViewModel`); uma categoria criada noutro dispositivo só aparece depois de reabrir.
+- As 7 ocorrências de teste anteriores (do munícipe de teste) foram apagadas a 21/11: os documentos na consola do Firestore (as regras não deixam a app apagar ocorrências) e as 19 fotos e vídeos no Storage. Ficam só as 30 de demonstração.
+
 ### 2.5 Provisório (sai antes da entrega)
 - ~~`SessionSelector`~~: saiu a 16/11 com o login (L1).
 - ~~Repositórios em JSON~~: trocados pelo Firestore a 16/11.
